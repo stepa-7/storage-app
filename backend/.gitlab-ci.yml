@@ -1,0 +1,7 @@
+stages:
+  - smoke_test 
+
+backent_smoke_test:
+  stage: smoke_test 
+  script:
+    - echo "Бэкенд-пайплайн запущен"
