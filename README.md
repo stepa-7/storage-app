@@ -11,3 +11,16 @@
 git clone https://it-camp.innoca.local/IT-CAMP-CS-S-111/t1-team29-vault.git
 cd t1-team29-vault
 ```
+### 🚀 Как внести изменения 
+```bash
+git pull https://it-camp.innoca.local/IT-CAMP-CS-S-111/t1-team29-vault.git
+git switch -c dev-task-{number}
+git add .
+git commit -m "... Task #{number}"
+git push origin dev-task-{number}
+```
+Создать Pull Request используя GitLab UI
+
+
+
+
