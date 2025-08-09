@@ -8,6 +8,7 @@
 
 ###  Первый запуск проекта
 ```bash
+git config --global http."https://it-camp.innoca.local".sslVerify false
 git clone https://it-camp.innoca.local/IT-CAMP-CS-S-111/t1-team29-vault.git
 cd t1-team29-vault
 ```
