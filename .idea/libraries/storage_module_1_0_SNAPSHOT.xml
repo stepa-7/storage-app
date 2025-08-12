@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="storage-module-1.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../module 3/storage-module/target/storage-module-1.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
