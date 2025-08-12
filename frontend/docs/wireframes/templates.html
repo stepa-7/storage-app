@@ -1,0 +1,347 @@
+
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Шаблоны — Wireframe</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="logo">□</div> Система хранения
+      <nav class="nav nav-left">
+        <a href="./index.html">Хранилища</a>
+        <a href="./templates.html">Шаблоны</a>
+      </nav>
+    </div>
+    <nav class="nav nav-right">
+      <a href="./login.html">Выйти</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    <div class="h1">
+      <span>Шаблоны</span>
+      <div class="kit">
+        <button class="btn" data-open-create>Создать шаблон</button>
+      </div>
+    </div>
+
+    <div class="toolbar spread">
+      <div class="pills" role="tablist" aria-label="Фильтр по статусу">
+        <button class="pill active" data-filter="active">Активные</button>
+        <button class="pill" data-filter="archived">Архив</button>
+        <button class="pill" data-filter="all">Все</button>
+      </div>
+      <div class="kit">
+        <input class="input search" placeholder="Поиск по названию…" aria-label="Поиск шаблонов" />
+      </div>
+    </div>
+
+    <div class="card lg">
+      <table class="table" aria-label="Список шаблонов">
+        <thead>
+          <tr>
+            <th>Название</th>
+            <th>Кол-во атрибутов</th>
+            <th>Дата создания</th>
+            <th>Статус</th>
+            <th style="width:260px;">Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Книга</td>
+            <td>5</td>
+            <td>10.08.2024</td>
+            <td><span class="badge success">Активен</span></td>
+            <td class="actions">
+              <button class="btn" data-open-edit data-template-id="1">Редактировать</button>
+              <button class="btn" data-archive data-template-id="1">Отключить</button>
+              <button class="btn ghost" data-duplicate data-template-id="1">Дублировать</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Продукты</td>
+            <td>3</td>
+            <td>09.08.2024</td>
+            <td><span class="badge warning">Архив</span></td>
+            <td class="actions">
+              <button class="btn" data-open-edit data-template-id="2">Редактировать</button>
+              <button class="btn" data-restore data-template-id="2">Включить</button>
+              <button class="btn ghost" data-duplicate data-template-id="2">Дублировать</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Документ</td>
+            <td>4</td>
+            <td>09.08.2024</td>
+            <td><span class="badge success">Активен</span></td>
+            <td class="actions">
+              <button class="btn" data-open-edit data-template-id="3">Редактировать</button>
+              <button class="btn" data-archive data-template-id="3">Отключить</button>
+              <button class="btn ghost" data-duplicate data-template-id="3">Дублировать</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <footer class="note">Поддерживается деактивация шаблонов через флаг <code>is_deleted</code> (Архив). Фильтры — <code>?is_deleted</code>, поиск — <code>?name</code>.</footer>
+    </div>
+
+    <div style="height:12px;"></div>
+
+    <!-- Create/Edit modal -->
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="templateModalTitle">
+      <div class="h1" id="templateModalTitle" style="font-size:18px;">
+        <span data-title>Создать шаблон</span>
+        <div class="kit">
+          <span class="help">Поля соответствуют схеме: текст • число • дата • файл</span>
+        </div>
+      </div>
+
+      <form class="grid cols-3" id="templateForm">
+        <div>
+          <label class="label">Название*</label>
+          <input 
+            class="input" 
+            placeholder="Напр. Документ" 
+            required 
+            maxlength="100"
+            id="templateName"
+          />
+          <div class="help">Обязательное поле (до 100 символов)</div>
+        </div>
+        
+        <div class="grid" style="grid-column: span 2;">
+          <div class="label">Атрибуты*</div>
+          <div class="attr-grid" id="attributesGrid">
+            <div class="help">Имя атрибута*</div>
+            <div class="help">Тип*</div>
+
+            <div class="attr-row">
+              <input class="input" placeholder="Название" required />
+            </div>
+            <div class="attr-row">
+              <select class="select" required>
+                <option value="">Выберите тип</option>
+                <option value="text">текст</option>
+                <option value="number">число</option>
+                <option value="date">дата</option>
+                <option value="file">файл</option>
+              </select>
+            </div>
+
+            <div class="attr-row">
+              <input class="input" placeholder="Состояние (0..10)" />
+            </div>
+            <div class="attr-row">
+              <select class="select">
+                <option value="">Выберите тип</option>
+                <option value="number">число</option>
+                <option value="text">текст</option>
+                <option value="date">дата</option>
+                <option value="file">файл</option>
+              </select>
+            </div>
+
+            <div class="attr-actions" style="grid-column: 1 / -1;">
+              <button type="button" class="btn" data-add-attr>+ Добавить атрибут</button>
+              <span class="help">В API отправляем как <code>schema</code>.</span>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div class="divider"></div>
+
+      <div class="toolbar" style="justify-content:flex-end;">
+        <button class="btn ghost" data-close-template-modal>Отмена</button>
+        <button class="btn primary" data-save-template>Сохранить</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Элементы управления
+  const createBtn = document.querySelector('[data-open-create]');
+  const editBtns = document.querySelectorAll('[data-open-edit]');
+  const modal = document.querySelector('.modal');
+  const modalTitle = document.querySelector('[data-title]');
+  const templateForm = document.getElementById('templateForm');
+  const templateName = document.getElementById('templateName');
+  const attributesGrid = document.getElementById('attributesGrid');
+  const addAttrBtn = document.querySelector('[data-add-attr]');
+  const saveBtn = document.querySelector('[data-save-template]');
+  const closeBtn = document.querySelector('[data-close-template-modal]');
+  
+  // Открытие модального окна создания
+  createBtn?.addEventListener('click', () => {
+    modalTitle.textContent = 'Создать шаблон';
+    templateForm.reset();
+    resetAttributesGrid();
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  });
+  
+  // Открытие модального окна редактирования
+  editBtns?.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const templateId = btn.getAttribute('data-template-id');
+      modalTitle.textContent = 'Редактировать шаблон';
+      loadTemplateData(templateId);
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    });
+  });
+  
+  // Добавление нового атрибута
+  addAttrBtn?.addEventListener('click', () => {
+    addAttributeRow();
+  });
+  
+  // Сохранение шаблона
+  saveBtn?.addEventListener('click', () => {
+    if (validateTemplateForm()) {
+      saveTemplate();
+    }
+  });
+  
+  // Закрытие модального окна
+  closeBtn?.addEventListener('click', () => {
+    templateForm.reset();
+    resetAttributesGrid();
+  });
+  
+  // Функции
+  function resetAttributesGrid() {
+    // Оставляем только первые два атрибута
+    const attrRows = attributesGrid.querySelectorAll('.attr-row');
+    for (let i = 2; i < attrRows.length; i++) {
+      attrRows[i].remove();
+    }
+    
+    // Сбрасываем значения
+    const inputs = attributesGrid.querySelectorAll('input');
+    const selects = attributesGrid.querySelectorAll('select');
+    
+    inputs.forEach((input, index) => {
+      if (index === 0) input.value = 'Название';
+      else if (index === 1) input.value = 'Состояние (0..10)';
+      else input.value = '';
+    });
+    
+    selects.forEach((select, index) => {
+      if (index === 0) select.value = 'text';
+      else if (index === 1) select.value = 'number';
+      else select.value = '';
+    });
+  }
+  
+  function addAttributeRow() {
+    const nameInput = document.createElement('input');
+    nameInput.className = 'input';
+    nameInput.placeholder = 'Новый атрибут';
+    nameInput.required = true;
+    
+    const typeSelect = document.createElement('select');
+    typeSelect.className = 'select';
+    typeSelect.required = true;
+    
+    ['text', 'number', 'date', 'file'].forEach(value => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value === 'text' ? 'текст' : 
+                          value === 'number' ? 'число' : 
+                          value === 'date' ? 'дата' : 'файл';
+      typeSelect.appendChild(option);
+    });
+    
+    const nameRow = document.createElement('div');
+    nameRow.className = 'attr-row';
+    nameRow.appendChild(nameInput);
+    
+    const typeRow = document.createElement('div');
+    typeRow.className = 'attr-row';
+    typeRow.appendChild(typeSelect);
+    
+    // Вставляем перед кнопкой добавления
+    const addButton = attributesGrid.querySelector('.attr-actions');
+    attributesGrid.insertBefore(nameRow, addButton);
+    attributesGrid.insertBefore(typeRow, addButton);
+  }
+  
+  function validateTemplateForm() {
+    const name = templateName.value.trim();
+    if (!name) {
+      alert('Введите название шаблона');
+      return false;
+    }
+    
+    if (name.length > 100) {
+      alert('Название слишком длинное (максимум 100 символов)');
+      return false;
+    }
+    
+    // Проверяем атрибуты
+    const attrRows = attributesGrid.querySelectorAll('.attr-row');
+    for (let i = 0; i < attrRows.length; i += 2) {
+      const nameInput = attrRows[i].querySelector('input');
+      const typeSelect = attrRows[i + 1].querySelector('select');
+      
+      if (!nameInput.value.trim() || !typeSelect.value) {
+        alert('Заполните все поля атрибутов');
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  function saveTemplate() {
+    const formData = {
+      name: templateName.value.trim(),
+      attributes: []
+    };
+    
+    // Собираем атрибуты
+    const attrRows = attributesGrid.querySelectorAll('.attr-row');
+    for (let i = 0; i < attrRows.length; i += 2) {
+      const nameInput = attrRows[i].querySelector('input');
+      const typeSelect = attrRows[i + 1].querySelector('select');
+      
+      formData.attributes.push({
+        name: nameInput.value.trim(),
+        type: typeSelect.value
+      });
+    }
+    
+    console.log('Сохранение шаблона:', formData);
+    
+    // Здесь будет логика сохранения шаблона
+    alert('Шаблон успешно сохранен!');
+    templateForm.reset();
+    resetAttributesGrid();
+  }
+  
+  function loadTemplateData(templateId) {
+    // Здесь будет загрузка данных шаблона для редактирования
+    console.log('Загрузка данных шаблона ID:', templateId);
+    
+    // Демо: загружаем данные шаблона "Книга"
+    if (templateId === '1') {
+      templateName.value = 'Книга';
+      // Загружаем атрибуты...
+    }
+  }
+  
+  // Демонстрация: показываем текущее состояние
+  console.log('Текущее состояние шаблонов:');
+  console.log('- Всего шаблонов: 3');
+  console.log('- Активных: 2');
+  console.log('- В архиве: 1');
+</script>
+</body>
+</html>

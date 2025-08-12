@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Объекты — Wireframe</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="logo">□</div> Система хранения
+      <nav class="nav nav-left">
+        <a href="./index.html">Хранилища</a>
+        <a href="./templates.html">Шаблоны</a>
+        <a href="./objects.html">Объекты</a>
+      </nav>
+    </div>
+    <nav class="nav nav-right">
+      <a href="./login.html">Выйти</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    <div class="h1">
+      <span>Объекты</span>
+      <div class="kit">
+        <button class="btn" onclick="location.href='./object-new.html'">Добавить объект</button>
+      </div>
+    </div>
+
+    <div class="toolbar spread">
+      <div class="pills" role="tablist" aria-label="Фильтр по шаблону">
+        <button class="pill active" data-filter="all">Все</button>
+        <button class="pill" data-filter="book">Книги</button>
+        <button class="pill" data-filter="document">Документы</button>
+        <button class="pill" data-filter="product">Продукты</button>
+      </div>
+      <div class="kit">
+        <input class="input search" placeholder="Поиск по названию…" aria-label="Поиск объектов" />
+      </div>
+    </div>
+
+    <div class="card lg">
+      <table class="table" aria-label="Список объектов">
+        <thead>
+          <tr>
+            <th>Изображение</th>
+            <th>Название</th>
+            <th>Шаблон</th>
+            <th>Хранилище</th>
+            <th>Дата добавления</th>
+            <th style="width:200px;">Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="thumb sm">фото</div></td>
+            <td>Книга "JS Patterns"</td>
+            <td>Книга</td>
+            <td>Главный склад / Комната 1 / Шкаф 3</td>
+            <td>12.08.2024</td>
+            <td class="actions">
+              <button class="btn" onclick="location.href='./object-view.html'">Просмотр</button>
+              <button class="btn" onclick="location.href='./object-new.html'">Редактировать</button>
+              <button class="btn ghost">Удалить</button>
+            </td>
+          </tr>
+          <tr>
+            <td><div class="thumb sm">фото</div></td>
+            <td>Папка с документами</td>
+            <td>Документ</td>
+            <td>Главный склад / Комната 1</td>
+            <td>10.08.2024</td>
+            <td class="actions">
+              <button class="btn" onclick="location.href='./object-view.html'">Просмотр</button>
+              <button class="btn" onclick="location.href='./object-new.html'">Редактировать</button>
+              <button class="btn ghost">Удалить</button>
+            </td>
+          </tr>
+          <tr>
+            <td><div class="empty sm">Нет изображения</div></td>
+            <td>Документ "Отчет"</td>
+            <td>Документ</td>
+            <td>Главный склад / Комната 2</td>
+            <td>09.08.2024</td>
+            <td class="actions">
+              <button class="btn" onclick="location.href='./object-view.html'">Просмотр</button>
+              <button class="btn" onclick="location.href='./object-new.html'">Редактировать</button>
+              <button class="btn ghost">Удалить</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <footer class="note">Фильтры: <code>?template_id</code>, поиск: <code>?name</code>, пагинация: <code>?page&limit</code></footer>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Простая фильтрация по шаблонам
+  document.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Здесь будет логика фильтрации
+    });
+  });
+</script>
+</body>
+</html>
