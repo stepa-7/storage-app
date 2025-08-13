@@ -1,7 +1,18 @@
 stages:
-  - smoke_test 
+  - build
+  - deploy
 
-backent_smoke_test:
-  stage: smoke_test 
+variables:
+  IMAGE_NAME: registry.gitlab.com/group/project/backend
+
+build_backend:
+  stage: build
   script:
-    - echo "Бэкенд-пайплайн запущен"
+    - docker build -t $IMAGE_NAME:$CI_COMMIT_REF_NAME .
+    - docker push $IMAGE_NAME:$CI_COMMIT_REF_NAME
+
+deploy_backend:
+  stage: deploy
+  when: manual
+  script:
+    - ansible-playbook -i ../infra/inventory.ini ../infra/playbooks/deploy.yml -e "target_env=$CI_COMMIT_REF_NAME"

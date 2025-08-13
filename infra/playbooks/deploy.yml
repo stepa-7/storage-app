@@ -1,0 +1,21 @@
+---
+- name: Deploy application
+  hosts: server
+  become: yes
+  vars:
+    env: "{{ target_env }}"
+  tasks:
+    - name: Copy docker-compose file
+      copy:
+        src: "infra/docker-compose.{{ env }}.yml"
+        dest: "/opt/app/docker-compose.yml"
+
+    - name: Pull latest images
+      command: docker compose pull
+      args:
+        chdir: /opt/app
+
+    - name: Restart services
+      command: docker compose up -d
+      args:
+        chdir: /opt/app

@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  backend:
+    image: registry.gitlab.com/group/project/backend:dev
+    ports:
+      - "8080:8080"
+    restart: always
+
+  frontend:
+    image: registry.gitlab.com/group/project/frontend:dev
+    ports:
+      - "8081:80"
+    restart: always

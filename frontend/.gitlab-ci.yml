@@ -1,7 +1,18 @@
 stages:
-  - smoke_test 
+  - build
+  - deploy
 
-frontend_smoke_test:
-  stage: smoke_test 
+variables:
+  IMAGE_NAME: registry.gitlab.com/group/project/frontend
+
+build_frontend:
+  stage: build
   script:
-    - echo "Фронтенд-пайплайн запущен"
+    - docker build -t $IMAGE_NAME:$CI_COMMIT_REF_NAME .
+    - docker push $IMAGE_NAME:$CI_COMMIT_REF_NAME
+
+deploy_frontend:
+  stage: deploy
+  when: manual
+  script:
+    - ansible-playbook -i ../infra/inventory.ini ../infra/playbooks/deploy.yml -e "target_env=$CI_COMMIT_REF_NAME"
