@@ -35,7 +35,15 @@ export default [
     },
     settings: {
       react: { version: 'detect' },
-      'import/resolver': { typescript: true },
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json',
+        },
+        node: {
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        },
+      },
     },
     plugins: {
       react: reactPlugin,
@@ -63,6 +71,12 @@ export default [
           alphabetize: { order: 'asc', caseInsensitive: true },
         },
       ],
+      // Отключаем проблемные правила для TypeScript
+      'import/no-unresolved': 'off',
+      'import/namespace': 'off',
+      'import/default': 'off',
+      'import/no-named-as-default': 'off',
+      'import/no-named-as-default-member': 'off',
     },
   },
 

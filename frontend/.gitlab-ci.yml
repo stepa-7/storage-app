@@ -1,7 +1,7 @@
 stages:
-  - smoke_test 
+  - smoke_test
 
 frontend_smoke_test:
-  stage: smoke_test 
+  stage: smoke_test
   script:
     - echo "Фронтенд-пайплайн запущен"

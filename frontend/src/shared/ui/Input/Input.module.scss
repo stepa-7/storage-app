@@ -1,0 +1,80 @@
+@use '../../styles/colors.scss' as c;
+
+/* Контейнер */
+.inputContainer {
+  position: relative;
+  margin: 4px 0 0 0;
+}
+
+/* Поле ввода*/
+.inputField {
+  display: block;
+  width: 100%;
+  padding: 10px 0;
+  font-size: 16px;
+  border: none;
+  border-bottom: 2px solid var(--border);
+  outline: none;
+  background-color: transparent;
+  color: var(--text-primary);
+  caret-color: var(--text-primary);
+
+  &::placeholder {
+    transition: color 0.2s ease;
+  }
+
+  &:focus::placeholder {
+    color: transparent;
+  }
+}
+
+/* Лейбл */
+.inputLabel {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  font-size: 16px;
+  color: var(--text-secondary);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+/* Хайлайт */
+.inputHighlight {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background-color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+/* Фокус */
+.inputField:focus + .inputLabel {
+  top: -20px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.inputField:focus + .inputLabel + .inputHighlight {
+  width: 100%;
+}
+
+/* Заполненное поле */
+.inputField:not(:placeholder-shown) + .inputLabel {
+  top: -20px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.inputField:not(:placeholder-shown) + .inputLabel + .inputHighlight {
+  width: 100%;
+}
+
+/* Сообщение об ошибке */
+.error {
+  color: var(--error);
+  font-size: 14px;
+  margin-top: 6px;
+}

@@ -1,183 +1,175 @@
 <!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Новый объект — Wireframe</title>
-  <link rel="stylesheet" href="./styles.css" />
-</head>
-<body>
-<div class="app">
-<header class="header">
-  <div class="brand">
-    <div class="logo">□</div> Система хранения
-    <nav class="nav nav-left">
-      <a href="./index.html">Хранилища</a>
-      <a href="./templates.html">Шаблоны</a>
-    </nav>
-  </div>
-  <nav class="nav nav-right">
-    <a href="./login.html">Выйти</a>
-  </nav>
-</header>
-  <aside class="sidebar">
-    <div class="section">Шаги</div>
-    <a class="item active" href="#s1">1. Шаблон</a>
-    <a class="item" href="#s2">2. Атрибуты</a>
-  </aside>
-  <main class="content">
-    <div class="breadcrumb"><a href="./index.html">Хранилища</a> / <a href="./storage.html">Главный склад</a> / Новый объект</div>
-    <div class="h1">Новый объект</div>
-    <div class="card lg">
-      <div id="s1" class="grid cols-2">
-        <div>
-          <label class="label">Шаблон*</label>
-          <select class="select" id="templateSelect" required>
-            <option value="">Выберите шаблон</option>
-            <option value="book">Книга</option>
-            <option value="product">Продукты</option>
-            <option value="document">Документ</option>
-          </select>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Новый объект — Wireframe</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="brand">
+          <div class="logo">□</div>
+          Система хранения
+          <nav class="nav nav-left">
+            <a href="./index.html">Хранилища</a>
+            <a href="./templates.html">Шаблоны</a>
+          </nav>
         </div>
-        <div>
-          <label class="label">Хранилище*</label>
-          <select class="select" id="storageSelect" required>
-            <option value="">Выберите хранилище</option>
-            <option value="1">Главный склад / Комната 1</option>
-            <option value="2">Главный склад / Комната 2</option>
-            <option value="3">Главный склад / Полка А</option>
-          </select>
+        <nav class="nav nav-right">
+          <a href="./login.html">Выйти</a>
+        </nav>
+      </header>
+      <aside class="sidebar">
+        <div class="section">Шаги</div>
+        <a class="item active" href="#s1">1. Шаблон</a>
+        <a class="item" href="#s2">2. Атрибуты</a>
+      </aside>
+      <main class="content">
+        <div class="breadcrumb">
+          <a href="./index.html">Хранилища</a> / <a href="./storage.html">Главный склад</a> / Новый
+          объект
         </div>
-        <div><button class="btn primary" id="nextStepBtn" disabled>Далее</button></div>
-      </div>
-      <hr/>
-      <div id="s2" class="grid cols-2" style="display: none;">
-        <div>
-          <label class="label">Название*</label>
-          <input 
-            class="input" 
-            placeholder="Напр. Книга 'JS Patterns'" 
-            required 
-            maxlength="100"
-          />
-          <div class="help">Обязательное поле (до 100 символов)</div>
+        <div class="h1">Новый объект</div>
+        <div class="card lg">
+          <div id="s1" class="grid cols-2">
+            <div>
+              <label class="label">Шаблон*</label>
+              <select class="select" id="templateSelect" required>
+                <option value="">Выберите шаблон</option>
+                <option value="book">Книга</option>
+                <option value="product">Продукты</option>
+                <option value="document">Документ</option>
+              </select>
+            </div>
+            <div>
+              <label class="label">Хранилище*</label>
+              <select class="select" id="storageSelect" required>
+                <option value="">Выберите хранилище</option>
+                <option value="1">Главный склад / Комната 1</option>
+                <option value="2">Главный склад / Комната 2</option>
+                <option value="3">Главный склад / Полка А</option>
+              </select>
+            </div>
+            <div><button class="btn primary" id="nextStepBtn" disabled>Далее</button></div>
+          </div>
+          <hr />
+          <div id="s2" class="grid cols-2" style="display: none">
+            <div>
+              <label class="label">Название*</label>
+              <input
+                class="input"
+                placeholder="Напр. Книга 'JS Patterns'"
+                required
+                maxlength="100"
+              />
+              <div class="help">Обязательное поле (до 100 символов)</div>
+            </div>
+            <div>
+              <label class="label">Количество (целое)</label>
+              <input class="input" type="number" placeholder="0" min="0" />
+            </div>
+            <div>
+              <label class="label">Вес (дробное)</label>
+              <input class="input" type="number" step="0.01" placeholder="0.00" min="0" />
+            </div>
+            <div>
+              <label class="label">Дата</label>
+              <input class="input" type="date" id="dateInput" />
+            </div>
+            <div>
+              <label class="label">Файл</label>
+              <input class="file" type="file" accept=".png,.pdf,.txt" id="fileInput" />
+              <div class="help">PNG, PDF, TXT (макс. 5 МБ)</div>
+            </div>
+            <div
+              style="
+                align-self: end;
+                display: flex;
+                gap: 8px;
+                justify-content: flex-end;
+                grid-column: 1 / -1;
+              "
+            >
+              <button class="btn ghost" onclick="location.href='./storage.html'">Отмена</button>
+              <button class="btn primary" id="saveObjectBtn">Сохранить</button>
+            </div>
+          </div>
         </div>
-        <div>
-          <label class="label">Количество (целое)</label>
-          <input 
-            class="input" 
-            type="number" 
-            placeholder="0" 
-            min="0"
-          />
-        </div>
-        <div>
-          <label class="label">Вес (дробное)</label>
-          <input 
-            class="input" 
-            type="number" 
-            step="0.01" 
-            placeholder="0.00" 
-            min="0"
-          />
-        </div>
-        <div>
-          <label class="label">Дата</label>
-          <input 
-            class="input" 
-            type="date" 
-            id="dateInput"
-          />
-        </div>
-        <div>
-          <label class="label">Файл</label>
-          <input 
-            class="file" 
-            type="file" 
-            accept=".png,.pdf,.txt"
-            id="fileInput"
-          />
-          <div class="help">PNG, PDF, TXT (макс. 5 МБ)</div>
-        </div>
-        <div style="align-self:end; display:flex; gap:8px; justify-content:flex-end; grid-column: 1 / -1;">
-          <button class="btn ghost" onclick="location.href='./storage.html'">Отмена</button>
-          <button class="btn primary" id="saveObjectBtn">Сохранить</button>
-        </div>
-      </div>
+      </main>
     </div>
-  </main>
-</div>
 
-<script>
-  const templateSelect = document.getElementById('templateSelect');
-  const storageSelect = document.getElementById('storageSelect');
-  const nextStepBtn = document.getElementById('nextStepBtn');
-  const step2 = document.getElementById('s2');
-  const saveObjectBtn = document.getElementById('saveObjectBtn');
-  const dateInput = document.getElementById('dateInput');
-  const fileInput = document.getElementById('fileInput');
-  
-  // Устанавливаем текущую дату по умолчанию
-  const today = new Date().toISOString().split('T')[0];
-  dateInput.value = today;
-  
-  // Проверка возможности перехода к следующему шагу
-  function checkNextStep() {
-    const canProceed = templateSelect.value && storageSelect.value;
-    nextStepBtn.disabled = !canProceed;
-  }
-  
-  templateSelect.addEventListener('change', checkNextStep);
-  storageSelect.addEventListener('change', checkNextStep);
-  
-  // Переход к следующему шагу
-  nextStepBtn.addEventListener('click', () => {
-    step2.style.display = 'grid';
-    nextStepBtn.style.display = 'none';
-    
-    // Обновляем активный шаг в сайдбаре
-    document.querySelector('.sidebar .item.active').classList.remove('active');
-    document.querySelector('.sidebar .item[href="#s2"]').classList.add('active');
-    
-    // Прокручиваем к форме атрибутов
-    step2.scrollIntoView({ behavior: 'smooth' });
-  });
-  
-  // Валидация файла
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files[0];
-    if (file) {
-      const maxSize = 5 * 1024 * 1024; // 5 МБ
-      if (file.size > maxSize) {
-        alert('Файл слишком большой. Максимальный размер: 5 МБ');
-        fileInput.value = '';
+    <script>
+      const templateSelect = document.getElementById('templateSelect');
+      const storageSelect = document.getElementById('storageSelect');
+      const nextStepBtn = document.getElementById('nextStepBtn');
+      const step2 = document.getElementById('s2');
+      const saveObjectBtn = document.getElementById('saveObjectBtn');
+      const dateInput = document.getElementById('dateInput');
+      const fileInput = document.getElementById('fileInput');
+
+      // Устанавливаем текущую дату по умолчанию
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.value = today;
+
+      // Проверка возможности перехода к следующему шагу
+      function checkNextStep() {
+        const canProceed = templateSelect.value && storageSelect.value;
+        nextStepBtn.disabled = !canProceed;
       }
-    }
-  });
-  
-  // Сохранение объекта
-  saveObjectBtn.addEventListener('click', () => {
-    const formData = {
-      template: templateSelect.value,
-      storage: storageSelect.value,
-      name: document.querySelector('input[placeholder*="Книга"]').value,
-      quantity: document.querySelector('input[type="number"]').value,
-      weight: document.querySelector('input[step="0.01"]').value,
-      date: dateInput.value,
-      file: fileInput.files[0]?.name || null
-    };
-    
-    console.log('Сохранение объекта:', formData);
-    
-    // Здесь будет логика сохранения объекта
-    alert('Объект успешно создан!');
-    location.href = './object-view.html';
-  });
-  
-  // Демонстрация: показываем текущий шаг
-  console.log('Текущий шаг: 1. Шаблон');
-  console.log('Выбранный шаблон:', templateSelect.value);
-  console.log('Выбранное хранилище:', storageSelect.value);
-</script>
-</body>
+
+      templateSelect.addEventListener('change', checkNextStep);
+      storageSelect.addEventListener('change', checkNextStep);
+
+      // Переход к следующему шагу
+      nextStepBtn.addEventListener('click', () => {
+        step2.style.display = 'grid';
+        nextStepBtn.style.display = 'none';
+
+        // Обновляем активный шаг в сайдбаре
+        document.querySelector('.sidebar .item.active').classList.remove('active');
+        document.querySelector('.sidebar .item[href="#s2"]').classList.add('active');
+
+        // Прокручиваем к форме атрибутов
+        step2.scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // Валидация файла
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (file) {
+          const maxSize = 5 * 1024 * 1024; // 5 МБ
+          if (file.size > maxSize) {
+            alert('Файл слишком большой. Максимальный размер: 5 МБ');
+            fileInput.value = '';
+          }
+        }
+      });
+
+      // Сохранение объекта
+      saveObjectBtn.addEventListener('click', () => {
+        const formData = {
+          template: templateSelect.value,
+          storage: storageSelect.value,
+          name: document.querySelector('input[placeholder*="Книга"]').value,
+          quantity: document.querySelector('input[type="number"]').value,
+          weight: document.querySelector('input[step="0.01"]').value,
+          date: dateInput.value,
+          file: fileInput.files[0]?.name || null,
+        };
+
+        console.log('Сохранение объекта:', formData);
+
+        // Здесь будет логика сохранения объекта
+        alert('Объект успешно создан!');
+        location.href = './object-view.html';
+      });
+
+      // Демонстрация: показываем текущий шаг
+      console.log('Текущий шаг: 1. Шаблон');
+      console.log('Выбранный шаблон:', templateSelect.value);
+      console.log('Выбранное хранилище:', storageSelect.value);
+    </script>
+  </body>
 </html>

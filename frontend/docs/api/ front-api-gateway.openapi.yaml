@@ -8,7 +8,6 @@ servers:
   - url: https://api.storage-system.com/v1
     description: Production server
 
-
 paths:
   # ================== Аутентификация ==================
   /auth/signup:
@@ -31,7 +30,7 @@ paths:
                 properties:
                   signup:
                     type: string
-                    example: "success"
+                    example: 'success'
         '400':
           description: Логин или почта уже заняты
           content:
@@ -39,7 +38,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error: { type: string, example: "login_exists" }
+                  error: { type: string, example: 'login_exists' }
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -67,7 +66,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error: { type: string, example: "invalid_credentials" }
+                  error: { type: string, example: 'invalid_credentials' }
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -91,7 +90,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error: { type: string, example: "refresh_invalid_or_expired" }
+                  error: { type: string, example: 'refresh_invalid_or_expired' }
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -109,7 +108,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  logout: { type: string, example: "ok" }
+                  logout: { type: string, example: 'ok' }
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -160,7 +159,7 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/UserRole'
-              example: ["ADMIN","GUEST"]
+              example: ['ADMIN', 'GUEST']
       responses:
         '200':
           description: Роли успешно обновлены
@@ -168,7 +167,7 @@ paths:
             application/json:
               schema:
                 type: string
-                example: "Roles updated"
+                example: 'Roles updated'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -180,7 +179,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error: { type: string, example: "User not found" }
+                  error: { type: string, example: 'User not found' }
         '500':
           $ref: '#/components/responses/InternalError'
   # ================== Хранилища ==================
@@ -191,7 +190,7 @@ paths:
         - name: parent_id
           in: query
           schema: { type: string, format: uuid, nullable: true }
-          description: "Фильтр по родительскому хранилищу"
+          description: 'Фильтр по родительскому хранилищу'
       responses:
         '200':
           description: Success
@@ -201,7 +200,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Storage'
-    
+
     post:
       summary: Создать хранилище
       requestBody:
@@ -233,7 +232,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Storage'
-    
+
     patch:
       summary: Обновить хранилище
       parameters:
@@ -253,7 +252,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Storage'
-    
+
     delete:
       summary: Удалить хранилище
       parameters:
@@ -294,7 +293,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/StorageObject'
-    
+
     post:
       summary: Создать объект
       requestBody:
@@ -326,7 +325,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StorageObject'
-    
+
     patch:
       summary: Обновить объект
       parameters:
@@ -346,7 +345,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StorageObject'
-    
+
     delete:
       summary: Удалить объект
       parameters:
@@ -393,7 +392,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Template'
-    
+
     post:
       summary: Создать шаблон
       requestBody:
@@ -425,7 +424,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Template'
-    
+
     patch:
       summary: Обновить шаблон
       parameters:
@@ -445,7 +444,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Template'
-    
+
     delete:
       summary: Пометить шаблон как удаленный
       parameters:
@@ -495,16 +494,16 @@ components:
           example: 1
         login:
           type: string
-          example: "ivan"
+          example: 'ivan'
         mail:
           type: string
           format: email
-          example: "ivan@example.com"
+          example: 'ivan@example.com'
         role:
           type: array
           items:
             $ref: '#/components/schemas/UserRole'
-          example: ["GUEST"]
+          example: ['GUEST']
     UserRole:
       type: string
       enum:
@@ -516,23 +515,23 @@ components:
       type: object
       required: [login, password]
       properties:
-        login: { type: string, example: "ivan" }
-        password: { type: string, example: "secret" }
+        login: { type: string, example: 'ivan' }
+        password: { type: string, example: 'secret' }
 
     SignupRequest:
       type: object
       required: [login, email, password]
       properties:
-        login: { type: string, example: "ivan" }
-        email: { type: string, format: email, example: "ivan@example.com" }
-        password: { type: string, example: "secret" }
+        login: { type: string, example: 'ivan' }
+        email: { type: string, format: email, example: 'ivan@example.com' }
+        password: { type: string, example: 'secret' }
 
     AuthResponse:
       type: object
       properties:
         accessToken: { type: string }
-        tokenType: { type: string, example: "Bearer" }
-        expiresIn: { type: integer, description: "ms до истечения действия access token" }
+        tokenType: { type: string, example: 'Bearer' }
+        expiresIn: { type: integer, description: 'ms до истечения действия access token' }
 
     SimpleMessage:
       type: object
@@ -663,7 +662,7 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  
+
 tags:
   - name: Authentication
     description: Аутентификация и управление токенами

@@ -11,52 +11,33 @@
       <div class="card login-card">
         <div class="h1" style="justify-content: center">Регистрация</div>
         <form class="grid" style="margin-top: 12px">
-          <label class="label">Имя пользователя*</label>
-          <input 
-            class="input" 
-            placeholder="username" 
-            required 
-            maxlength="50"
-          />
-          
+
           <label class="label">Email*</label>
-          <input 
-            class="input" 
-            type="email" 
-            placeholder="user@domain.com" 
-            required 
+          <input
+            class="input"
+            type="email"
+            placeholder="user@domain.com"
+            required
             pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
           />
-          <div class="validation-error" style="display: none; color: #dc2626; font-size: 12px;">
+          <div class="validation-error" style="display: none; color: #dc2626; font-size: 12px">
             Неверный формат email
           </div>
-          
+
           <label class="label">Пароль*</label>
-          <input 
-            class="input" 
-            type="password" 
-            placeholder="••••••••" 
-            required 
-            minlength="6"
-          />
-          <div class="validation-error" style="display: none; color: #dc2626; font-size: 12px;">
+          <input class="input" type="password" placeholder="••••••••" required minlength="6" />
+          <div class="validation-error" style="display: none; color: #dc2626; font-size: 12px">
             Минимум 6 символов
           </div>
-          
+
           <label class="label">Подтверждение пароля*</label>
-          <input 
-            class="input" 
-            type="password" 
-            placeholder="••••••••" 
-            required 
-            minlength="6"
-          />
-          <div class="validation-error" style="display: none; color: #dc2626; font-size: 12px;">
+          <input class="input" type="password" placeholder="••••••••" required minlength="6" />
+          <div class="validation-error" style="display: none; color: #dc2626; font-size: 12px">
             Пароли не совпадают
           </div>
-          
+
           <button type="submit" class="btn primary">Зарегистрироваться</button>
-          
+
           <div style="text-align: center; margin-top: 8px; font-size: 14px">
             Уже есть аккаунт?
             <a href="./login.html" style="text-decoration: underline">Войти</a>
@@ -73,7 +54,7 @@
       const passwordInput = document.querySelector('input[type="password"]');
       const confirmPasswordInput = document.querySelectorAll('input[type="password"]')[1];
       const submitBtn = document.querySelector('button[type="submit"]');
-      
+
       // Валидация email
       emailInput.addEventListener('input', () => {
         const emailError = emailInput.nextElementSibling;
@@ -86,7 +67,7 @@
         }
         updateSubmitButton();
       });
-      
+
       // Валидация пароля
       passwordInput.addEventListener('input', () => {
         const passwordError = passwordInput.nextElementSibling;
@@ -99,7 +80,7 @@
         }
         updateSubmitButton();
       });
-      
+
       // Валидация подтверждения пароля
       confirmPasswordInput.addEventListener('input', () => {
         const confirmError = confirmPasswordInput.nextElementSibling;
@@ -112,22 +93,22 @@
         }
         updateSubmitButton();
       });
-      
+
       function updateSubmitButton() {
         const isEmailValid = emailInput.validity.valid;
         const isPasswordValid = passwordInput.value.length >= 6;
         const isConfirmValid = confirmPasswordInput.value === passwordInput.value;
         submitBtn.disabled = !(isEmailValid && isPasswordValid && isConfirmValid);
       }
-      
+
       // Обработка отправки формы
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         // Здесь будет логика регистрации
-        console.log('Попытка регистрации:', { 
+        console.log('Попытка регистрации:', {
           username: form.querySelector('input[placeholder="username"]').value,
-          email: emailInput.value, 
-          password: passwordInput.value 
+          email: emailInput.value,
+          password: passwordInput.value,
         });
       });
     </script>

@@ -1,0 +1,30 @@
+@use './colors.scss' as c;
+
+/* Глобальные CSS-переменные, зависят от темы Mantine через data-атрибут */
+:root[data-mantine-color-scheme='light'] {
+  --bg-primary: #{c.$color-very-light-gray};
+  --gridmotion-tile-bg: #{c.$color-light-gray};
+  --text-primary: #{c.$color-dark-gray};
+  --text-secondary: #{c.$color-gray};
+  --border: #{c.$color-light-gray};
+  --accent: #{c.$color-blue};
+  --error: #{c.$color-error};
+  // --bg-surface: #{c.$color-white};
+  --mantine-font-family: 'ALS Hauss', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --mantine-font-family-headings:
+    'ALS Hauss', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+:root[data-mantine-color-scheme='dark'] {
+  --bg-primary: #{c.$color-gray};
+  --gridmotion-tile-bg: #{c.$color-dark-gray};
+  --text-primary: #{c.$color-white};
+  --text-secondary: #{c.$color-light-gray};
+  --border: #{c.$color-light-gray};
+  --accent: #{c.$color-blue};
+  --error: #{c.$color-error};
+  // --bg-surface: #{c.$color-gray};
+  --mantine-font-family: 'ALS Hauss', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --mantine-font-family-headings:
+    'ALS Hauss', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
