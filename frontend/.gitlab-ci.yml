@@ -1,7 +1,24 @@
 stages:
-  - smoke_test
+  - build
+  - test
+  - deploy
 
-frontend_smoke_test:
-  stage: smoke_test
+variables:
+  APP_ENV: production
+
+build_job:
+  stage: build
   script:
-    - echo "Фронтенд-пайплайн запущен"
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - build/
+  cache:
+    paths:
+    - node_modules/
+
+test_job:
+  stage: test
+  script:
+    - npm run test
