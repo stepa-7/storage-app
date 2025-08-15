@@ -1,6 +1,6 @@
 package com.storage.repository;
 
-import com.storage.model.objects.Unit;
+import com.storage.model.entity.Unit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

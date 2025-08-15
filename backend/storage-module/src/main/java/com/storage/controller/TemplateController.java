@@ -1,15 +1,14 @@
 package com.storage.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.storage.model.dto.TemplateCreate;
-import com.storage.model.dto.TemplateUpdate;
-import com.storage.model.objects.Template;
+import com.storage.model.dto.template.TemplateCreate;
+import com.storage.model.dto.template.TemplateUpdate;
+import com.storage.model.entity.Template;
 import com.storage.repository.TemplateRepository;
+import com.storage.service.TemplateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -18,48 +17,36 @@ import java.util.*;
 @RequiredArgsConstructor
 public class TemplateController {
     private final TemplateRepository repo;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final TemplateService templateService;
 
     @GetMapping
-    public List<Template> list(@RequestParam(required = false, name = "is_deleted") Boolean isDeleted,
-                               @RequestParam(required = false, name = "name") String name) {
-        List<Template> all = repo.findAll();
-        return all.stream()
-                .filter(t -> isDeleted == null || t.isDeleted() == isDeleted)
-                .filter(t -> name == null || t.getName().contains(name))
-                .toList();
+    public ResponseEntity<List<Template>> list(@RequestParam(required = false, name = "is_deleted") Boolean isDeleted,
+                                              @RequestParam(required = false, name = "name") String name) {
+        List<Template> all = templateService.getAll(isDeleted, name);
+        return new ResponseEntity<>(all,HttpStatus.valueOf(200));
     }
 
     @PostMapping
     public ResponseEntity<Template> create(@RequestBody TemplateCreate dto) {
-        Template t = new Template();
-        t.setName(dto.getName());
-        try {
-            t.setSchema(mapper.writeValueAsString(dto.getSchema()));
-        } catch (Exception e) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid schema"); }
-        Template saved = repo.save(t);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        Template t = templateService.create(dto);
+        return new ResponseEntity<>(t,HttpStatus.valueOf(201));
     }
 
     @GetMapping("/{id}")
-    public Template get(@PathVariable UUID id) {
-        return repo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "template not found"));
+    public ResponseEntity<Template> get(@PathVariable UUID id) {
+        Template t = templateService.get(id);
+        return new ResponseEntity<>(t,HttpStatus.valueOf(200));
     }
 
     @PatchMapping("/{id}")
-    public Template patch(@PathVariable UUID id, @RequestBody TemplateUpdate dto) {
-        Template t = get(id);
-        if (dto.getName() != null) t.setName(dto.getName());
-        if (dto.getDescription() != null) {t.setDescription(dto.getDescription());}
-        if (dto.getIs_deleted() != null) t.setDeleted(dto.getIs_deleted());
-        return repo.save(t);
+    public ResponseEntity<Template> patch(@PathVariable UUID id, @RequestBody TemplateUpdate dto) {
+        Template t = templateService.patch(id, dto);
+        return new ResponseEntity<>(t,HttpStatus.valueOf(200));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> markDeleted(@PathVariable UUID id) {
-        Template t = get(id);
-        t.setDeleted(true);
-        repo.save(t);
-        return ResponseEntity.noContent().build();
+        templateService.markDeleted(id);
+        return new ResponseEntity<>(HttpStatus.valueOf(200));
     }
 }

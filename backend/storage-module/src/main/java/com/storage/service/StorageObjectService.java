@@ -1,15 +1,14 @@
 package com.storage.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.storage.exception.NotFoundException;
 import com.storage.exception.NotValidException;
-import com.storage.exception.StorageObjectException;
-import com.storage.model.dto.StorageObjectCreate;
-import com.storage.model.dto.StorageObjectUpdate;
-import com.storage.model.objects.Storage;
-import com.storage.model.objects.StorageObject;
-import com.storage.model.objects.Template;
-import com.storage.model.objects.Unit;
+import com.storage.exception.StorageCapacityException;
+import com.storage.model.dto.storage_object.StorageObjectCreate;
+import com.storage.model.dto.storage_object.StorageObjectUpdate;
+import com.storage.model.entity.Storage;
+import com.storage.model.entity.StorageObject;
+import com.storage.model.entity.Template;
+import com.storage.model.entity.Unit;
 import com.storage.repository.StorageObjectRepository;
 import com.storage.repository.StorageRepository;
 import com.storage.repository.TemplateRepository;
@@ -17,8 +16,6 @@ import com.storage.repository.UnitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +27,6 @@ public class StorageObjectService {
     private final StorageRepository storageRepo;
     private final UnitRepository unitRepo;
     private final TemplateRepository templateRepo;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public List<StorageObject> find(UUID storageId, UUID templateId, Boolean decommissioned) {
         if (storageId != null) return objectRepo.findByStorageId(storageId);
@@ -45,41 +41,41 @@ public class StorageObjectService {
 
     @Transactional
     public StorageObject create(StorageObjectCreate dto) {
-        // validate input
-        if (dto.getSize() <= 0) throw new NotValidException("size must be > 0");
 
-        Storage storage = storageRepo.findByIdForUpdate(dto.getStorage_id())
-                .orElseThrow(() -> new NotFoundException("storage not found"));
+        Storage storage = storageRepo.findByIdForUpdate(dto.getStorageId())
+                .orElseThrow(() -> new NotFoundException("Storage not found with id: " + dto.getStorageId()));
 
-        Unit unit = unitRepo.findById(dto.getUnit_id())
-                .orElseThrow(() -> new NotFoundException("unit not found"));
+        Unit unit = unitRepo.findById(dto.getUnitId())
+                .orElseThrow(() -> new NotFoundException("Unit not found with id: " + dto.getUnitId()));
 
-        Template template = templateRepo.findById(dto.getTemplate_id())
-                .orElseThrow(() -> new NotFoundException("template not found"));
+        Template template = templateRepo.findById(dto.getTemplateId())
+                .orElseThrow(() -> new NotFoundException("Template not found with id: " + dto.getTemplateId()));
 
-        Double current = objectRepo.sumSizesByStorageId(storage.getId());
-        if (current == null) current = 0.0;
-        double newSum = current + dto.getSize();
-        if (newSum > storage.getCapacity()) {
-            throw new NotValidException("storage capacity exceeded");
+        if ((storage.getFullness() + dto.getSize()) > storage.getCapacity()) {
+            throw new StorageCapacityException(String.format(
+                    "Storage capacity exceeded. Current: %.2f/%.2f, Requested: +%.2f",
+                    storage.getFullness(), storage.getCapacity(), dto.getSize()));
         }
 
         StorageObject obj = StorageObject.builder()
                 .name(dto.getName())
                 .size(dto.getSize())
-                .storage(storage)
-                .unit(unit)
-                .template(template)
-                .photoUrl(dto.getPhoto_url())
+                .storageId(storage.getId())
+                .unitId(unit.getId())
+                .templateId(template.getId())
+                .photoUrl(dto.getPhotoUrl())
                 .decommissioned(false)
                 .build();
 
+        storage.setFullness(storage.getFullness()+obj.getSize());
+        storageRepo.save(storage);
+
         try {
             if (dto.getAttributes() != null) {
-                obj.setAttributes(objectMapper.writeValueAsString(dto.getAttributes()));
+                obj.setAttributes(dto.getAttributes());
             }
         } catch (Exception ex) {
-            throw new NotValidException("invalid attributes");
+            throw new NotValidException("Invalid attributes format");
         }
 
         return objectRepo.save(obj);
@@ -89,43 +85,73 @@ public class StorageObjectService {
     public StorageObject patch(UUID id, StorageObjectUpdate dto) {
         StorageObject obj = getById(id);
 
-        Double delta = 0.;
-        if (dto.getSize() != null) delta = dto.getSize() - obj.getSize();
-
-        UUID targetStorageId = dto.getStorage_id() != null ? dto.getStorage_id() : obj.getStorage().getId();
-
-        Storage targetStorage = storageRepo.findByIdForUpdate(targetStorageId)
-                .orElseThrow(() -> new NotFoundException("storage not found"));
-
-        Double current = objectRepo.sumSizesByStorageId(targetStorage.getId());
-        if (current == null) current = 0.0;
-
-        double newSum = current + delta;
-        if (newSum > targetStorage.getCapacity()) {
-            throw new NotValidException("storage capacity exceeded");
+        if (!dto.getName().equals(dto.getName())) {
+            obj.setName(dto.getName());
+        }
+        if (dto.getSize() != obj.getSize()) {
+            obj.setSize(dto.getSize());
         }
 
-        if (dto.getName() != null) obj.setName(dto.getName());
-        if (dto.getSize() != null) obj.setSize(dto.getSize());
-        if (dto.getStorage_id() != null) {
-            Storage s = storageRepo.findById(dto.getStorage_id()).orElseThrow(() -> new NotFoundException("storage not found"));
-            obj.setStorage(s);
+        UUID oldStorageId = obj.getStorageId();
+        UUID newStorageId = dto.getStorageId();
+
+        Storage oldStorage = storageRepo.findByIdForUpdate(oldStorageId)
+                .orElseThrow(() -> new NotFoundException("Old parent storage not found"));
+
+        if(!oldStorageId.equals(newStorageId)){
+            Storage newStorage = storageRepo.findByIdForUpdate(newStorageId)
+                    .orElseThrow(() -> new NotFoundException("New parent storage not found"));
+
+            if ((newStorage.getFullness() + dto.getSize()) > newStorage.getCapacity()) {
+                throw new  StorageCapacityException(String.format(
+                        "New storage capacity exceeded. Available: %.2f, Required: %.2f",
+                        newStorage.getCapacity() - newStorage.getFullness(),
+                        dto.getSize()));
+            }
+            oldStorage.setFullness(oldStorage.getFullness() - obj.getSize());
+            newStorage.setFullness(newStorage.getFullness() + dto.getSize());
+            storageRepo.saveAll(List.of(oldStorage, newStorage));
+        } else {
+            double delta = 0.;
+            if (dto.getSize() != obj.getSize()) {
+                delta = dto.getSize() - obj.getSize();
+            }
+            if ((oldStorage.getFullness() + delta) > oldStorage.getCapacity()) {
+                throw new StorageCapacityException(String.format(
+                        "New storage capacity exceeded. Available: %.2f, Required: %.2f",
+                        oldStorage.getCapacity() - oldStorage.getFullness(),
+                        delta));
+            }
+            oldStorage.setFullness(oldStorage.getFullness() + delta);
+            storageRepo.save(oldStorage);
         }
-        if (dto.getAttributes() != null) {
+
+        if (dto.getStorageId() != obj.getStorageId()) {
+            obj.setStorageId(newStorageId);
+        }
+        if (dto.getAttributes() != obj.getAttributes()) {
             try {
-                obj.setAttributes(objectMapper.writeValueAsString(dto.getAttributes()));
+                obj.setAttributes(dto.getAttributes());
             } catch (Exception ex) {
-                throw new NotValidException("invalid attributes");
+                throw new NotValidException("Invalid attributes");
             }
         }
-        if (dto.getIs_decommissioned() != null) obj.setDecommissioned(dto.getIs_decommissioned());
+        if (dto.getIsDecommissioned() != obj.isDecommissioned()) {
+            obj.setDecommissioned(dto.getIsDecommissioned());
+        }
 
         return objectRepo.save(obj);
     }
 
     @Transactional
     public void delete(UUID id) {
-        if (!objectRepo.existsById(id)) throw new NotFoundException("object not found");
+        if (!objectRepo.existsById(id)) {
+            throw new NotFoundException("Object not found with id: " + id);
+        }
+        StorageObject object = objectRepo.findById(id).get();
+        Storage storage = storageRepo.findById(object.getStorageId()).get();
+        storage.setFullness(storage.getFullness()-object.getSize());
+        storageRepo.save(storage);
         objectRepo.deleteById(id);
     }
 }

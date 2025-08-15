@@ -1,6 +1,6 @@
 package com.storage.repository;
 
-import com.storage.model.objects.Template;
+import com.storage.model.entity.Template;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,16 +1,10 @@
 package com.storage.model.error;
 
 public class ErrorResponse {
-    private final String error;
     private final String description;
 
-    public ErrorResponse(String error, String description) {
-        this.error = error;
+    public ErrorResponse(String description) {
         this.description = description;
-    }
-
-    public String getError() {
-        return error;
     }
 
     public String getDescription() {

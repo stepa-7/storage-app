@@ -1,14 +1,18 @@
-package com.storage.model.objects;
+package com.storage.model.entity;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 import jakarta.persistence.*;
-import org.springframework.stereotype.Component;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -17,6 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class StorageObject {
     @Id
     @GeneratedValue
@@ -24,25 +29,24 @@ public class StorageObject {
 
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "template_id")
-    private Template template;
+    @Column(name = "template_id")
+    private UUID templateId;
 
-    @ManyToOne
-    @JoinColumn(name = "storage_id")
-    private Storage storage;
+    @Column(name = "storage_id")
+    private UUID storageId;
 
     private double size;
 
-    @ManyToOne
-    @JoinColumn(name = "unit_id")
-    private Unit unit;
+    @Column(name = "unit_id")
+    private UUID unitId;
 
     @Column(columnDefinition = "jsonb")
-    private String attributes;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> attributes;
 
     private String photoUrl;
     private boolean decommissioned = false;
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID createdBy;
 
     private Timestamp createdAt = new Timestamp(System.currentTimeMillis());

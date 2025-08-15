@@ -1,13 +1,14 @@
-package com.storage.model.objects;
+package com.storage.model.entity;
 
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.Id;
-import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Storage {
     @Id
     @GeneratedValue
@@ -24,15 +26,16 @@ public class Storage {
 
     private String name;
     private double capacity;
+    private double fullness = 0.0;
 
-    @ManyToOne
-    @JoinColumn(name = "unit_id")
-    private Unit unit;
+    @Column(name = "unit_id")
+    private UUID unitId;
 
-    @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private Storage parent;
+    @Column(name = "parent_id")
+    private UUID parentId;
 
+    @Column(name = "created_by")
     private UUID createdBy;
+    @Column(name = "is_deleted")
     private boolean isDeleted = false;
 }
