@@ -1,32 +1,23 @@
----
 - name: Install required packages
-  become: yes
   apt:
     name:
       - docker.io
       - docker-compose
-      - rsync
     state: present
     update_cache: yes
+  become: true
 
-- name: Ensure deployment directory exists
-  file:
-    path: "{{ deploy_dir }}"
-    state: directory
-    owner: team_user
-    group: team_user
-    mode: 0755
+- name: Login to Registry
+  community.docker.docker_login:
+    registry_url: "{{ registry_url }}"
+    username: "{{ registry_user }}"
+    password: "{{ registry_password }}"
 
-- name: Synchronize project files with proper permissions
-  synchronize:
-    src: "{{ playbook_dir }}/../../../frontend/"
-    dest: "{{ deploy_dir }}"
-    rsync_opts:
-      - "--exclude=.git"
-      - "--exclude=node_modules"
-      - "--chown=team_user:team_user"
-    delete: yes
-    recursive: yes
+- name: Pull image
+  community.docker.docker_image:
+    name: "{{ docker_image_name }}"
+    tag: "{{ docker_image_tag }}"
+    source: pull
 
 - name: Ensure .env file exists
   file:
@@ -36,20 +27,10 @@
     group: team_user
     mode: 0640
 
-- name: Build Docker image
-  docker_image:
-    name: "{{ docker_image_name }}"
-    build:
-      path: "{{ deploy_dir }}"
-      dockerfile: "{{ deploy_dir }}/Dockerfile"
-    source: build
-    force_source: yes
-    pull: yes
-
-- name: Ensure container is running
-  docker_container:
+- name: Run container
+  community.docker.docker_container:
     name: "{{ container_name }}"
-    image: "{{ docker_image_name }}"
+    image: "{{ docker_image_name }}:{{ docker_image_tag }}"
     state: started
     restart_policy: unless-stopped
     ports:
