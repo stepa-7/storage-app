@@ -4,6 +4,7 @@
     name:
       - docker.io
       - docker-compose
+      - rsync
     state: present
     update_cache: yes
 
