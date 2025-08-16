@@ -1,0 +1,45 @@
+---
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Ensure sites-available directory exists
+  file:
+    path: /etc/nginx/sites-available
+    state: directory
+    mode: '0755'
+
+- name: Deploy Nginx config
+  template:
+    src: "frontend.conf.j2"
+    dest: "/etc/nginx/sites-available/{{ domain_name | default('frontend') }}.conf"
+    mode: '0644'
+  notify: Restart Nginx
+
+- name: Remove existing symlink if exists
+  file:
+    path: "/etc/nginx/sites-enabled/{{ domain_name | default('frontend') }}.conf"
+    state: absent
+  ignore_errors: yes
+
+- name: Enable site
+  file:
+    src: "/etc/nginx/sites-available/{{ domain_name | default('frontend') }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ domain_name | default('frontend') }}.conf"
+    state: link
+    force: yes
+  notify: Restart Nginx
+
+- name: Test Nginx configuration
+  command: nginx -t
+  register: nginx_test
+  changed_when: false
+  notify: Restart Nginx
+
+- name: Ensure Nginx is running
+  service:
+    name: nginx
+    state: started
+    enabled: yes
