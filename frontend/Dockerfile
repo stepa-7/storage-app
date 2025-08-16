@@ -1,12 +1,14 @@
-# Stage 1 — Build
-FROM node:20 AS builder
+# Dockerfile.frontend
+FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 COPY . .
 RUN npm run build
 
-# Stage 2 — Nginx static server
-FROM nginx:1.27-alpine
+FROM nginx:1.21.6-alpine as production-build
+COPY nginx.conf /etc/nginx/nginx.conf
+RUN rm -rf /usr/share/nginx/html/*
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
