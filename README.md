@@ -22,6 +22,22 @@ git push origin dev-task-{number}
 ```
 Создать Pull Request используя GitLab UI
 
+# CI/CD и деплой приложения
 
+## Описание
+Проект разворачивается на одном сервере в трёх окружениях:
+- **Dev** — порты 8080/8081
+- **Test** — порты 8180/8181
+- **Prod** — порты 8280/8281
+
+Сборка выполняется через **multi-stage Dockerfile**, образы хранятся в GitLab Container Registry/DockerHub.
+
+## Как работает
+1. Разработчик пушит в ветку:
+   - `dev-task-*` → окружение dev
+   - `test-task-*` → окружение test
+   - `prod-task-*` → окружение prod
+2. GitLab CI билдит образы и пушит их в Registry/DockerHub.
+3. Деплой выполняется через **Ansible** с помощью `docker-compose`.
 
 
