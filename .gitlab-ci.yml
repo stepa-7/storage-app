@@ -1,0 +1,15 @@
+stages:
+  - backend
+  - frontend
+
+trigger_backend:
+  stage: backend
+  trigger:
+    include: backend/.gitlab-ci.yml
+    strategy: depend
+
+trigger_frontend:
+  stage: frontend
+  trigger:
+    include: frontend/.gitlab-ci.yml
+     strategy: depend
