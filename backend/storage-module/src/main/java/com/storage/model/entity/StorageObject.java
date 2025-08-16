@@ -44,8 +44,11 @@ public class StorageObject {
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> attributes;
 
+    @Column(name = "photo_url", unique = true)
     private String photoUrl;
+
     private boolean decommissioned = false;
+
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID createdBy;
 

@@ -1,9 +1,10 @@
 package com.storage.service;
 
+import com.storage.exception.ImageUploadException;
 import com.storage.exception.NotFoundException;
 import com.storage.exception.NotValidException;
-import com.storage.exception.StorageCapacityException;
 import com.storage.model.dto.storage_object.StorageObjectCreate;
+import com.storage.model.dto.storage_object.StorageObjectCreateWithFileDto;
 import com.storage.model.dto.storage_object.StorageObjectUpdate;
 import com.storage.model.entity.Storage;
 import com.storage.model.entity.StorageObject;
@@ -16,6 +17,7 @@ import com.storage.repository.UnitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +29,7 @@ public class StorageObjectService {
     private final StorageRepository storageRepo;
     private final UnitRepository unitRepo;
     private final TemplateRepository templateRepo;
+    private final FileImageService fileImageService;
 
     public List<StorageObject> find(UUID storageId, UUID templateId, Boolean decommissioned) {
         if (storageId != null) return objectRepo.findByStorageId(storageId);
@@ -51,11 +54,11 @@ public class StorageObjectService {
         Template template = templateRepo.findById(dto.getTemplateId())
                 .orElseThrow(() -> new NotFoundException("Template not found with id: " + dto.getTemplateId()));
 
-        if ((storage.getFullness() + dto.getSize()) > storage.getCapacity()) {
-            throw new StorageCapacityException(String.format(
-                    "Storage capacity exceeded. Current: %.2f/%.2f, Requested: +%.2f",
-                    storage.getFullness(), storage.getCapacity(), dto.getSize()));
-        }
+//        if ((storage.getFullness() + dto.getSize()) > storage.getCapacity()) {
+//            throw new StorageCapacityException(String.format(
+//                    "Storage capacity exceeded. Current: %.2f/%.2f, Requested: +%.2f",
+//                    storage.getFullness(), storage.getCapacity(), dto.getSize()));
+//        }
 
         StorageObject obj = StorageObject.builder()
                 .name(dto.getName())
@@ -67,7 +70,7 @@ public class StorageObjectService {
                 .decommissioned(false)
                 .build();
 
-        storage.setFullness(storage.getFullness()+obj.getSize());
+//        storage.setFullness(storage.getFullness()+obj.getSize());
         storageRepo.save(storage);
 
         try {
@@ -102,27 +105,27 @@ public class StorageObjectService {
             Storage newStorage = storageRepo.findByIdForUpdate(newStorageId)
                     .orElseThrow(() -> new NotFoundException("New parent storage not found"));
 
-            if ((newStorage.getFullness() + dto.getSize()) > newStorage.getCapacity()) {
-                throw new  StorageCapacityException(String.format(
-                        "New storage capacity exceeded. Available: %.2f, Required: %.2f",
-                        newStorage.getCapacity() - newStorage.getFullness(),
-                        dto.getSize()));
-            }
-            oldStorage.setFullness(oldStorage.getFullness() - obj.getSize());
-            newStorage.setFullness(newStorage.getFullness() + dto.getSize());
+//            if ((newStorage.getFullness() + dto.getSize()) > newStorage.getCapacity()) {
+//                throw new  StorageCapacityException(String.format(
+//                        "New storage capacity exceeded. Available: %.2f, Required: %.2f",
+//                        newStorage.getCapacity() - newStorage.getFullness(),
+//                        dto.getSize()));
+//            }
+//            oldStorage.setFullness(oldStorage.getFullness() - obj.getSize());
+//            newStorage.setFullness(newStorage.getFullness() + dto.getSize());
             storageRepo.saveAll(List.of(oldStorage, newStorage));
         } else {
-            double delta = 0.;
-            if (dto.getSize() != obj.getSize()) {
-                delta = dto.getSize() - obj.getSize();
-            }
-            if ((oldStorage.getFullness() + delta) > oldStorage.getCapacity()) {
-                throw new StorageCapacityException(String.format(
-                        "New storage capacity exceeded. Available: %.2f, Required: %.2f",
-                        oldStorage.getCapacity() - oldStorage.getFullness(),
-                        delta));
-            }
-            oldStorage.setFullness(oldStorage.getFullness() + delta);
+//            double delta = 0.;
+//            if (dto.getSize() != obj.getSize()) {
+//                delta = dto.getSize() - obj.getSize();
+//            }
+//            if ((oldStorage.getFullness() + delta) > oldStorage.getCapacity()) {
+//                throw new StorageCapacityException(String.format(
+//                        "New storage capacity exceeded. Available: %.2f, Required: %.2f",
+//                        oldStorage.getCapacity() - oldStorage.getFullness(),
+//                        delta));
+//            }
+//            oldStorage.setFullness(oldStorage.getFullness() + delta);
             storageRepo.save(oldStorage);
         }
 
@@ -150,8 +153,49 @@ public class StorageObjectService {
         }
         StorageObject object = objectRepo.findById(id).get();
         Storage storage = storageRepo.findById(object.getStorageId()).get();
-        storage.setFullness(storage.getFullness()-object.getSize());
+//        storage.setFullness(storage.getFullness()-object.getSize());
         storageRepo.save(storage);
         objectRepo.deleteById(id);
     }
+
+    @Transactional
+    public StorageObject createWithFile(StorageObjectCreateWithFileDto createWithFileDto) {
+        MultipartFile fileName = createWithFileDto.getPhoto();
+        if (fileName == null || fileName.isEmpty() || fileName.getOriginalFilename() == null) {
+            throw new ImageUploadException("Image must have name and exist");
+        }
+
+        StorageObject object = create(StorageObjectCreate.builder()
+                .name(createWithFileDto.getName())
+                .size(createWithFileDto.getSize())
+                .storageId(createWithFileDto.getStorageId())
+                .unitId(createWithFileDto.getUnitId())
+                .templateId(createWithFileDto.getTemplateId())
+                .build());
+        String url = fileImageService.upload(fileName);
+        object.setPhotoUrl(url);
+
+        return objectRepo.save(object);
+//        return updateWithFile(id, StorageObjectUpdateWithFileDto.builder()
+//                .name(createWithFileDto.getName())
+//                .size(createWithFileDto.getSize())
+//                .storageId(createWithFileDto.getStorageId())
+//                .isDecommissioned(false)
+//                .attributes(createWithFileDto.getAttributes())
+//                .photo(createWithFileDto.getPhoto())
+//                .build());
+    }
+
+//    @Transactional
+//    public StorageObject updateWithFile(UUID id, StorageObjectUpdateWithFileDto updateWithFileDto) {
+//        patch(id, StorageObjectUpdate.builder()
+//                .name(updateWithFileDto.getName())
+//                .size(updateWithFileDto.getSize())
+//                .storageId(updateWithFileDto.getStorageId())
+//                .attributes(updateWithFileDto.getAttributes())
+//                .isDecommissioned(updateWithFileDto.getIsDecommissioned())
+//                .build());
+//        MultipartFile photo = updateWithFileDto.getPhoto();
+//
+//    }
 }

@@ -14,10 +14,16 @@ import java.util.UUID;
 
 @Repository
 public interface StorageRepository extends JpaRepository<Storage, UUID> {
-    List<Storage> findByParentId(UUID parent_id);
+    List<Storage> findByParentId(UUID parentId);
     List<Storage> findByUnitId(UUID unitId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from Storage s where s.id = :id")
     Optional<Storage> findByIdForUpdate(@Param("id") UUID id);
+
+    List<Storage> findByIsDeletedFalse();
+    List<Storage> findByParentIdAndIsDeletedFalse(UUID parentId);
+    Optional<Storage> findByIdAndIsDeletedFalse(UUID id);
+
+    boolean existsByParentIdAndIsDeletedFalse(UUID parentId);
 }

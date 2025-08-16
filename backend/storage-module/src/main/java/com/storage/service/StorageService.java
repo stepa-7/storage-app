@@ -3,6 +3,7 @@ package com.storage.service;
 import com.storage.exception.NotFoundException;
 import com.storage.exception.NotValidException;
 import com.storage.exception.StorageCapacityException;
+import com.storage.exception.StorageNotEmptyException;
 import com.storage.model.dto.storage.StorageCreate;
 import com.storage.model.dto.storage.StorageUpdate;
 import com.storage.model.entity.Storage;
@@ -24,15 +25,17 @@ public class StorageService {
     private final StorageObjectRepository objectRepository;
     private final UnitRepository unitRepository;
 
+    @Transactional(readOnly = true)
     public List<Storage> getAll(UUID parentId) {
         if (parentId != null) {
-            return storageRepository.findByParentId(parentId);
+            return storageRepository.findByParentIdAndIsDeletedFalse(parentId);
         }
-        return storageRepository.findAll();
+        return storageRepository.findByIsDeletedFalse();
     }
 
+    @Transactional(readOnly = true)
     public Storage getById(UUID id) {
-        return storageRepository.findById(id)
+        return storageRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Storage not found"));
     }
 
@@ -48,12 +51,12 @@ public class StorageService {
             if(parent.getParentId() != null && parent.getParentId().equals(dto.getParentId())){
                 throw new NotValidException("Can't make a nested storage");
             }
-            if(parent.getCapacity() - parent.getFullness() < dto.getCapacity()) {
-                throw new StorageCapacityException(String.format(
-                        "Parent storage has insufficient space. Required: %.2f, Available: %.2f",
-                        dto.getCapacity(), parent.getCapacity() - parent.getFullness()));
-            }
-            parent.setFullness(parent.getFullness()+dto.getCapacity());
+//            if(parent.getCapacity() - parent.getFullness() < dto.getCapacity()) {
+//                throw new StorageCapacityException(String.format(
+//                        "Parent storage has insufficient space. Required: %.2f, Available: %.2f",
+//                        dto.getCapacity(), parent.getCapacity() - parent.getFullness()));
+//            }
+//            parent.setFullness(parent.getFullness()+dto.getCapacity());
         }
 
         Storage storage = Storage.builder()
@@ -77,7 +80,7 @@ public class StorageService {
         }
 
         if (!dto.getCapacity().equals(storage.getCapacity())) {
-            validateCapacityChange(storage, dto.getCapacity());
+//            validateCapacityChange(storage, dto.getCapacity());
             storage.setCapacity(dto.getCapacity());
             hasChanges = true;
         }
@@ -90,29 +93,29 @@ public class StorageService {
         return hasChanges ? storageRepository.save(storage) : storage;
     }
 
-    private void validateCapacityChange(Storage storage, Double newCapacity) {
-        if (newCapacity.equals(storage.getCapacity())) {
-            return;
-        }
-
-        if (newCapacity < storage.getFullness()) {
-            throw new StorageCapacityException(String.format(
-                    "New capacity (%.2f) cannot be less than current fullness (%.2f)",
-                    newCapacity, storage.getFullness()));
-        }
-
-        if (storage.getParentId() != null) {
-            Storage parent = storageRepository.findById(storage.getParentId())
-                    .orElseThrow(() -> new NotFoundException("Parent storage not found"));
-
-            double requiredSpace = newCapacity - storage.getCapacity();
-            if (parent.getCapacity() - parent.getFullness() < requiredSpace) {
-                throw new StorageCapacityException(String.format(
-                        "Parent storage has insufficient space. Required: %.2f, Available: %.2f",
-                        requiredSpace, parent.getCapacity() - parent.getFullness()));
-            }
-        }
-    }
+//    private void validateCapacityChange(Storage storage, Double newCapacity) {
+//        if (newCapacity.equals(storage.getCapacity())) {
+//            return;
+//        }
+//
+//        if (newCapacity < storage.getFullness()) {
+//            throw new StorageCapacityException(String.format(
+//                    "New capacity (%.2f) cannot be less than current fullness (%.2f)",
+//                    newCapacity, storage.getFullness()));
+//        }
+//
+//        if (storage.getParentId() != null) {
+//            Storage parent = storageRepository.findById(storage.getParentId())
+//                    .orElseThrow(() -> new NotFoundException("Parent storage not found"));
+//
+//            double requiredSpace = newCapacity - storage.getCapacity();
+//            if (parent.getCapacity() - parent.getFullness() < requiredSpace) {
+//                throw new StorageCapacityException(String.format(
+//                        "Parent storage has insufficient space. Required: %.2f, Available: %.2f",
+//                        requiredSpace, parent.getCapacity() - parent.getFullness()));
+//            }
+//        }
+//    }
 
     private void updateParentStorage(Storage storage, UUID newParentId) {
         if (newParentId.equals(storage.getParentId())) {
@@ -126,22 +129,22 @@ public class StorageService {
             throw new NotValidException("Circular reference detected in storage hierarchy");
         }
 
-        if (newParent.getCapacity() - newParent.getFullness() < storage.getCapacity()) {
-            throw new StorageCapacityException(String.format(
-                    "New parent storage has insufficient space. Required: %.2f, Available: %.2f",
-                    storage.getCapacity(), newParent.getCapacity() - newParent.getFullness()));
-        }
+//        if (newParent.getCapacity() - newParent.getFullness() < storage.getCapacity()) {
+//            throw new StorageCapacityException(String.format(
+//                    "New parent storage has insufficient space. Required: %.2f, Available: %.2f",
+//                    storage.getCapacity(), newParent.getCapacity() - newParent.getFullness()));
+//        }
 
-        if (storage.getParentId() != null) {
-            Storage oldParent = storageRepository.findById(storage.getParentId())
-                    .orElseThrow(() -> new NotFoundException("Old parent storage not found"));
-            oldParent.setFullness(oldParent.getFullness() - storage.getCapacity());
-            storageRepository.save(oldParent);
-        }
+//        if (storage.getParentId() != null) {
+//            Storage oldParent = storageRepository.findById(storage.getParentId())
+//                    .orElseThrow(() -> new NotFoundException("Old parent storage not found"));
+//            oldParent.setFullness(oldParent.getFullness() - storage.getCapacity());
+//            storageRepository.save(oldParent);
+//        }
 
-        newParent.setFullness(newParent.getFullness() + storage.getCapacity());
+//        newParent.setFullness(newParent.getFullness() + storage.getCapacity());
         storage.setParentId(newParentId);
-        storageRepository.save(newParent);
+//        storageRepository.save(newParent);
     }
 
     private boolean isCircularReference(Storage storage, Storage potentialParent) {
@@ -166,19 +169,37 @@ public class StorageService {
     public void delete(UUID id) {
         Storage storage = getById(id);
 
-        boolean hasChildren = !storageRepository.findByParentId(storage.getId()).isEmpty();
-        if (hasChildren) {
-            throw new NotValidException("Unable to delete repository: there are nested repositories");
+        boolean hasChildren = storageRepository.existsByParentIdAndIsDeletedFalse(id);
+        boolean hasObjects = objectRepository.existsByStorageIdAndDecommissionedFalse(id);
+
+        if (hasChildren || hasObjects) {
+            throw new StorageNotEmptyException("Cannot delete storage with child storages or objects");
         }
+
+        objectRepository.markAsDecommissionedByStorageId(id);
 
         if (storage.getParentId() != null) {
             storageRepository.findById(storage.getParentId()).ifPresent(parent -> {
-                parent.setFullness(parent.getFullness() - storage.getCapacity());
+                parent.setFullness(parent.getFullness() - storage.getFullness());
             });
         }
 
-        objectRepository.deleteByStorageId(storage.getId());
+//        objectRepository.deleteByStorageId(storage.getId());
+//        storageRepository.delete(storage);
+        storage.setDeleted(true);
+        storageRepository.save(storage);
+    }
 
-        storageRepository.delete(storage);
+    @Transactional(readOnly = true)
+    public boolean canAccommodate(UUID storageId, double deltaSize) {
+        Storage storage = storageRepository.findByIdAndIsDeletedFalse(storageId)
+                .orElseThrow(() -> new NotFoundException("Storage not found: " + storageId));
+
+        double fullness = calculateFullness(storageId);
+        return fullness + deltaSize <= storage.getCapacity();
+    }
+
+    private double calculateFullness(UUID storageId) {
+        return objectRepository.sumSizesByStorageId(storageId).orElse(0.0);
     }
 }

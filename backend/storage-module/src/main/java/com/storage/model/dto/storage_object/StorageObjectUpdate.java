@@ -2,6 +2,7 @@ package com.storage.model.dto.storage_object;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,7 @@ public class StorageObjectUpdate {
     @JsonProperty("storage_id")
     private UUID storageId;
 
-    @NotBlank
+    @NotNull
     @PositiveOrZero(message = "Capacity can't be negative")
     private Double size;
 

@@ -4,21 +4,9 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/storage-service/pom.xml" />
-        <option value="$PROJECT_DIR$/backend/storage-service/pom.xml" />
-        <option value="$PROJECT_DIR$/backend/storage-module/pom.xml" />
-        <option value="$PROJECT_DIR$/untitled/pom.xml" />
-        <option value="$PROJECT_DIR$/../module 3/storage-module/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/backend/storage-module/pom.xml" />
-        <option value="$PROJECT_DIR$/untitled/pom.xml" />
-      </set>
-    </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="corretto-21" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_23" default="true" project-jdk-name="openjdk-23" project-jdk-type="JavaSDK" />
 </project>
