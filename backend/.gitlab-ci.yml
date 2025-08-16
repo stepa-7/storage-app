@@ -5,3 +5,5 @@ backent_smoke_test:
   stage: smoke_test 
   script:
     - echo "Бэкенд-пайплайн запущен"
+  rules:
+    - if: $CI_COMMIT_BRANCH 
