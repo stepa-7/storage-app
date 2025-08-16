@@ -7,13 +7,14 @@
     state: present
     update_cache: yes
 
-- name: Copy project files
+- name: Synchronize project files
   synchronize:
-    src: "{{ local_project_dir }}/frontend/"
+    src: "{{ playbook_dir }}/../../../frontend/"
     dest: "{{ deploy_dir }}"
     rsync_opts:
       - "--exclude=.git"
       - "--exclude=node_modules"
+    delete: yes 
 
 - name: Build Docker image
   docker_image:
