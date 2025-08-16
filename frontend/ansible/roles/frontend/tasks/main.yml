@@ -17,16 +17,15 @@
     group: team_user
     mode: 0755
 
-- name: Synchronize project files with proper permissions
-  synchronize:
-    src: "{{ playbook_dir }}/../../../frontend/"
-    dest: "{{ deploy_dir }}"
-    rsync_opts:
-      - "--exclude=.git"
-      - "--exclude=node_modules"
-      - "--chown=team_user:team_user"
-    delete: yes
-    recursive: yes
+- name: Build directly from source
+  docker_image:
+    name: "{{ docker_image_name }}"
+    build:
+      path: "{{ playbook_dir }}/../../../frontend/"
+      dockerfile: "{{ playbook_dir }}/../../../frontend/Dockerfile"
+    source: build
+    force_source: true
+    pull: true
 
 - name: Ensure .env file exists
   file:
