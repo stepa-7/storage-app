@@ -17,7 +17,7 @@
 
 - name: Copy package.json and package-lock.json
   copy:
-    src: "{{ playbook_dir }}/../../../frontend/package{{ item }}"
+    src: "{{ playbook_dir }}/../package{{ item }}"
     dest: "{{ deploy_dir }}/"
     remote_src: false
     owner: team_user
@@ -29,7 +29,7 @@
 
 - name: Copy source files
   copy:
-    src: "{{ playbook_dir }}/../../../frontend/src/"
+    src: "{{ playbook_dir }}/../src/"
     dest: "{{ deploy_dir }}/src/"
     remote_src: false
     owner: team_user
@@ -39,7 +39,7 @@
 
 - name: Copy public files
   copy:
-    src: "{{ playbook_dir }}/../../../frontend/public/"
+    src: "{{ playbook_dir }}/../public/"
     dest: "{{ deploy_dir }}/public/"
     remote_src: false
     owner: team_user
@@ -49,7 +49,7 @@
 
 - name: Copy configuration files
   copy:
-    src: "{{ playbook_dir }}/../../../frontend/{{ item }}"
+    src: "{{ playbook_dir }}/../{{ item }}"
     dest: "{{ deploy_dir }}/"
     remote_src: false
     owner: team_user
