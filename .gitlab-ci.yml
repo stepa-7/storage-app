@@ -12,4 +12,4 @@ trigger_frontend:
   stage: frontend
   trigger:
     include: frontend/.gitlab-ci.yml
-     strategy: depend
+    strategy: depend
