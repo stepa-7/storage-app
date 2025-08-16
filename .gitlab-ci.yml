@@ -1,3 +1,8 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "dev-frontend"    
+
 stages:
   - backend
   - frontend
@@ -12,4 +17,4 @@ trigger_frontend:
   stage: frontend
   trigger:
     include: frontend/.gitlab-ci.yml
-     strategy: depend
+    strategy: depend

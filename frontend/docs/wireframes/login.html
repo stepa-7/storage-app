@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Вход — Wireframe</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="center">
+      <div class="card login-card">
+        <div class="h1" style="justify-content: center">Войти</div>
+        <form class="grid" style="margin-top: 12px">
+          <label class="label">Логин (email)*</label>
+          <input
+            class="input"
+            type="email"
+            placeholder="user@domain.com"
+            required
+            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+          />
+          <div class="validation-error" style="display: none; color: #dc2626; font-size: 12px">
+            Неверный формат email
+          </div>
+
+          <label class="label">Пароль*</label>
+          <input class="input" type="password" placeholder="••••••••" required minlength="6" />
+          <div class="validation-error" style="display: none; color: #dc2626; font-size: 12px">
+            Минимум 6 символов
+          </div>
+
+          <button type="submit" class="btn primary">Войти</button>
+
+          <div style="text-align: center; margin-top: 8px; font-size: 14px">
+            Нет аккаунта?
+            <a href="./register.html" style="text-decoration: underline">Зарегистрироваться</a>
+          </div>
+
+          <footer class="note">Демо: любой email/пароль (минимум 6 символов).</footer>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const form = document.querySelector('form');
+      const emailInput = document.querySelector('input[type="email"]');
+      const passwordInput = document.querySelector('input[type="password"]');
+      const submitBtn = document.querySelector('button[type="submit"]');
+
+      // Валидация email
+      emailInput.addEventListener('input', () => {
+        const emailError = emailInput.nextElementSibling;
+        if (emailInput.validity.typeMismatch) {
+          emailError.style.display = 'block';
+          emailInput.style.borderColor = '#dc2626';
+        } else {
+          emailError.style.display = 'none';
+          emailInput.style.borderColor = '';
+        }
+        updateSubmitButton();
+      });
+
+      // Валидация пароля
+      passwordInput.addEventListener('input', () => {
+        const passwordError = passwordInput.nextElementSibling;
+        if (passwordInput.value.length < 6) {
+          passwordError.style.display = 'block';
+          passwordInput.style.borderColor = '#dc2626';
+        } else {
+          passwordError.style.display = 'none';
+          passwordInput.style.borderColor = '';
+        }
+        updateSubmitButton();
+      });
+
+      function updateSubmitButton() {
+        const isEmailValid = emailInput.validity.valid;
+        const isPasswordValid = passwordInput.value.length >= 6;
+        submitBtn.disabled = !(isEmailValid && isPasswordValid);
+      }
+
+      // Обработка отправки формы
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // Здесь будет логика авторизации
+        console.log('Попытка входа:', { email: emailInput.value, password: passwordInput.value });
+      });
+    </script>
+  </body>
+</html>

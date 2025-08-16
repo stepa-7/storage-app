@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Объект — Wireframe</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="brand">
+          <div class="logo">□</div>
+          Система хранения
+          <nav class="nav nav-left">
+            <a href="./index.html">Хранилища</a>
+            <a href="./templates.html">Шаблоны</a>
+          </nav>
+        </div>
+        <nav class="nav nav-right">
+          <a href="./login.html">Выйти</a>
+        </nav>
+      </header>
+      <aside class="sidebar">
+        <div class="section">Действия</div>
+        <a class="item" href="./object-new.html">Редактировать</a>
+        <a class="item" href="#" id="moveObjectBtn">Переместить</a>
+      </aside>
+      <main class="content">
+        <div class="breadcrumb">
+          <a href="./index.html">Хранилища</a> / <a href="./storage.html">Главный склад</a> / Книга
+        </div>
+        <div class="h1">Книга — карточка объекта</div>
+        <div class="grid cols-3">
+          <div class="card md">
+            <div class="thumb" style="width: 100%; height: 180px">фото</div>
+            <footer class="note">Загруженное изображение объекта</footer>
+          </div>
+          <div class="card md">
+            <div style="font-weight: 700; margin-bottom: 8px">Атрибуты</div>
+            <div>Название: <b>Книга</b></div>
+            <div>Состояние: <b>5/10</b></div>
+            <div>Дата производства: <b>01.08.2024</b></div>
+            <div>Текущее хранилище: <b>Главный склад / Комната 1</b></div>
+          </div>
+          <div class="card md">
+            <div style="font-weight: 700; margin-bottom: 8px">QR-код</div>
+            <div class="qr"></div>
+            <div class="toolbar" style="margin-top: 8px">
+              <button class="btn">Скачать PNG</button>
+            </div>
+            <div class="note" style="margin-top: 8px; font-size: 12px">
+              Ссылка: https://app.domain.com/object/123
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Модальное окно перемещения объекта -->
+    <div class="modal-overlay" id="moveObjectModal" style="display: none">
+      <div class="modal">
+        <div class="h1" style="font-size: 18px; margin-bottom: 20px">Переместить объект</div>
+
+        <div class="grid">
+          <div>
+            <label class="label">Текущее хранилище</label>
+            <input class="input" value="Главный склад / Комната 1" readonly />
+          </div>
+
+          <div>
+            <label class="label">Новое хранилище*</label>
+            <select class="select" id="newStorageSelect" required>
+              <option value="">Выберите новое хранилище</option>
+              <option value="1">Главный склад / Комната 2</option>
+              <option value="2">Главный склад / Полка А</option>
+              <option value="3">Главный склад / Шкаф 3</option>
+            </select>
+          </div>
+
+          <div class="note" style="grid-column: 1 / -1">
+            <strong>Внимание:</strong> При перемещении объекта его QR-код останется прежним, но
+            ссылка будет вести на новое местоположение.
+          </div>
+
+          <div
+            class="toolbar"
+            style="justify-content: flex-end; grid-column: 1 / -1; margin-top: 20px"
+          >
+            <button type="button" class="btn ghost" data-close-move-modal>Отмена</button>
+            <button type="button" class="btn primary" id="confirmMoveBtn" disabled>
+              Переместить
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const moveObjectBtn = document.getElementById('moveObjectBtn');
+      const moveObjectModal = document.getElementById('moveObjectModal');
+      const closeMoveModalBtn = document.querySelector('[data-close-move-modal]');
+      const newStorageSelect = document.getElementById('newStorageSelect');
+      const confirmMoveBtn = document.getElementById('confirmMoveBtn');
+
+      // Открытие модального окна перемещения
+      moveObjectBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        moveObjectModal.style.display = 'flex';
+      });
+
+      // Закрытие модального окна
+      closeMoveModalBtn.addEventListener('click', () => {
+        moveObjectModal.style.display = 'none';
+        newStorageSelect.value = '';
+        confirmMoveBtn.disabled = true;
+      });
+
+      // Закрытие по клику вне модального окна
+      moveObjectModal.addEventListener('click', (e) => {
+        if (e.target === moveObjectModal) {
+          moveObjectModal.style.display = 'none';
+          newStorageSelect.value = '';
+          confirmMoveBtn.disabled = true;
+        }
+      });
+
+      // Проверка выбора нового хранилища
+      newStorageSelect.addEventListener('change', () => {
+        confirmMoveBtn.disabled = !newStorageSelect.value;
+      });
+
+      // Подтверждение перемещения
+      confirmMoveBtn.addEventListener('click', () => {
+        const newStorage = newStorageSelect.value;
+        const newStorageName = newStorageSelect.options[newStorageSelect.selectedIndex].text;
+
+        if (
+          confirm(
+            `Вы уверены, что хотите переместить объект "Книга" в хранилище "${newStorageName}"?`,
+          )
+        ) {
+          // Здесь будет логика перемещения объекта
+          console.log('Перемещение объекта:', {
+            objectId: '123',
+            objectName: 'Книга',
+            fromStorage: 'Главный склад / Комната 1',
+            toStorage: newStorageName,
+          });
+
+          alert('Объект успешно перемещен!');
+          moveObjectModal.style.display = 'none';
+          newStorageSelect.value = '';
+          confirmMoveBtn.disabled = true;
+
+          // Обновляем информацию на странице
+          document.querySelector('.card.md:nth-child(2) div:last-child b').textContent =
+            newStorageName;
+        }
+      });
+
+      // Демонстрация: показываем информацию об объекте
+      console.log('Информация об объекте:');
+      console.log('- Название: Книга');
+      console.log('- Текущее хранилище: Главный склад / Комната 1');
+      console.log('- QR-код: https://app.domain.com/object/123');
+    </script>
+  </body>
+</html>

@@ -22,7 +22,7 @@ build:
     - docker build -t $DOCKER_IMAGE:$DOCKER_TAG frontend/
     - docker push $DOCKER_IMAGE:$DOCKER_TAG
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH
       changes:
         - frontend/**/*
 
@@ -38,6 +38,6 @@ deploy:
     - chmod 700 ~/.ssh
     - ansible-playbook -i frontend/ansible/inventory/hosts.yml frontend/ansible/playbook.yml
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH
       changes:
         - frontend/**/*

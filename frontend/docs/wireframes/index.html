@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Хранилища — Wireframe</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="brand">
+          <div class="logo">□</div>
+          Система хранения
+          <nav class="nav nav-left">
+            <a href="./index.html">Хранилища</a>
+            <a href="./templates.html">Шаблоны</a>
+          </nav>
+        </div>
+        <nav class="nav nav-right">
+          <a href="./login.html">Выйти</a>
+        </nav>
+      </header>
+      <main class="content">
+        <div
+          class="h1"
+          style="justify-content: space-between; width: 100%; display: flex; align-items: center"
+        >
+          <span>Дерево хранилищ <span class="badge">demo</span></span>
+          <div class="toolbar" style="margin: 0">
+            <button class="btn flat" data-expand-all>Развернуть всё</button>
+            <button class="btn flat" data-collapse-all>Свернуть всё</button>
+            <button class="btn" data-open-create-storage>Добавить хранилище</button>
+          </div>
+        </div>
+        <div class="card lg">
+          <nav class="tree" aria-label="Дерево хранилищ">
+            <details open>
+              <summary>
+                <span class="twisty">▶</span>
+                <span class="node-name">Главный склад</span>
+                <span class="node-meta">
+                  <span class="progress sm" title="25%"><span style="width: 25%"></span></span>
+                  <span class="cap">5/20</span>
+                </span>
+              </summary>
+              <ul role="group">
+                <li>
+                  <details>
+                    <summary>
+                      <span class="twisty">▶</span>
+                      <span class="node-name">Комната 1</span>
+                      <span class="node-meta">
+                        <span class="progress sm" title="30%"
+                          ><span style="width: 30%"></span
+                        ></span>
+                        <span class="cap">3/10</span>
+                      </span>
+                    </summary>
+                    <ul role="group">
+                      <li>
+                        <details>
+                          <summary>
+                            <span class="twisty">▶</span>
+                            <span class="node-name">Шкаф 3</span>
+                            <span class="node-meta">
+                              <span class="progress sm" title="40%"
+                                ><span style="width: 40%"></span
+                              ></span>
+                              <span class="cap">2/5</span>
+                            </span>
+                          </summary>
+                          <ul role="group">
+                            <li>
+                              <div class="leaf">
+                                <span class="node-name">Полка A-1</span>
+                                <span class="node-meta"><span class="cap">0/10</span></span>
+                              </div>
+                            </li>
+                          </ul>
+                        </details>
+                      </li>
+                      <li>
+                        <div class="leaf">
+                          <span class="node-name">Полка A</span>
+                          <span class="node-meta"><span class="cap">0/10</span></span>
+                        </div>
+                      </li>
+                    </ul>
+                  </details>
+                </li>
+
+                <li>
+                  <details>
+                    <summary>
+                      <span class="twisty">▶</span>
+                      <span class="node-name">Комната 2</span>
+                      <span class="node-meta">
+                        <span class="progress sm" title="40%"
+                          ><span style="width: 40%"></span
+                        ></span>
+                        <span class="cap">2/5</span>
+                      </span>
+                    </summary>
+                    <ul role="group">
+                      <li>
+                        <div class="leaf">
+                          <span class="node-name">Стеллаж 1</span>
+                          <span class="node-meta"><span class="cap">1/5</span></span>
+                        </div>
+                      </li>
+                      <li>
+                        <div class="leaf">
+                          <span class="node-name">Стеллаж 2</span>
+                          <span class="node-meta"><span class="cap">1/5</span></span>
+                        </div>
+                      </li>
+                    </ul>
+                  </details>
+                </li>
+
+                <li>
+                  <div class="leaf">
+                    <span class="node-name">Полка А</span>
+                    <span class="node-meta"><span class="cap">0/10</span></span>
+                  </div>
+                </li>
+              </ul>
+            </details>
+          </nav>
+        </div>
+      </main>
+    </div>
+
+    <!-- Модальное окно создания хранилища -->
+    <div class="modal-overlay" id="createStorageModal" style="display: none">
+      <div class="modal">
+        <div class="h1" style="font-size: 18px; margin-bottom: 20px">Добавить хранилище</div>
+
+        <form class="grid" id="createStorageForm">
+          <div>
+            <label class="label">Название*</label>
+            <input class="input" placeholder="Например: Комната 3" required maxlength="50" />
+            <div class="help">Обязательное поле (до 50 символов)</div>
+          </div>
+
+          <div>
+            <label class="label">Единицы измерения объема*</label>
+            <select class="select" required>
+              <option value="">Выберите единицы</option>
+              <option value="quantity">Количество (шт.)</option>
+              <option value="weight">Вес (кг)</option>
+              <option value="volume">Объем (л)</option>
+              <option value="area">Площадь (м²)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="label">Максимальный объем*</label>
+            <input class="input" type="number" placeholder="0" required min="1" />
+          </div>
+
+          <div>
+            <label class="label">Родительское хранилище</label>
+            <select class="select">
+              <option value="">Без родителя (корневое)</option>
+              <option value="1">Главный склад</option>
+              <option value="2">Главный склад → Комната 1</option>
+              <option value="3">Главный склад → Комната 2</option>
+            </select>
+            <div class="help">Опционально. Если не выбрано, создается корневое хранилище</div>
+          </div>
+
+          <div
+            class="toolbar"
+            style="justify-content: flex-end; grid-column: 1 / -1; margin-top: 20px"
+          >
+            <button type="button" class="btn ghost" data-close-modal>Отмена</button>
+            <button type="submit" class="btn primary">Создать</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const expandAllBtn = document.querySelector('[data-expand-all]');
+      const collapseAllBtn = document.querySelector('[data-collapse-all]');
+      const openCreateStorageBtn = document.querySelector('[data-open-create-storage]');
+      const modal = document.getElementById('createStorageModal');
+      const closeModalBtn = document.querySelector('[data-close-modal]');
+      const form = document.getElementById('createStorageForm');
+
+      expandAllBtn?.addEventListener('click', () => {
+        document.querySelectorAll('.tree details').forEach((d) => (d.open = true));
+      });
+
+      collapseAllBtn?.addEventListener('click', () => {
+        document.querySelectorAll('.tree details').forEach((d) => (d.open = false));
+      });
+
+      openCreateStorageBtn?.addEventListener('click', () => {
+        modal.style.display = 'flex';
+      });
+
+      closeModalBtn?.addEventListener('click', () => {
+        modal.style.display = 'none';
+        form.reset();
+      });
+
+      // Закрытие по клику вне модального окна
+      modal?.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+          form.reset();
+        }
+      });
+
+      // Обработка отправки формы
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        console.log('Создание хранилища:', {
+          name: formData.get('name'),
+          unit: formData.get('unit'),
+          maxCapacity: formData.get('maxCapacity'),
+          parentId: formData.get('parentId'),
+        });
+
+        // Здесь будет логика создания хранилища
+        modal.style.display = 'none';
+        form.reset();
+      });
+    </script>
+  </body>
+</html>

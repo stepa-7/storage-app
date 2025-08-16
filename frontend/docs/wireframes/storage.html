@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Хранилище — Wireframe</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="brand">
+          <div class="logo">□</div>
+          Система хранения
+          <nav class="nav nav-left">
+            <a href="./index.html">Хранилища</a>
+            <a href="./templates.html">Шаблоны</a>
+          </nav>
+        </div>
+        <nav class="nav nav-right">
+          <a href="./login.html">Выйти</a>
+        </nav>
+      </header>
+      <aside class="sidebar">
+        <div class="section">Навигация</div>
+        <a class="item" href="./index.html">Хранилища</a>
+        <a class="item" href="./templates.html">Шаблоны</a>
+      </aside>
+      <main class="content">
+        <div class="breadcrumb"><a href="./index.html">Хранилища</a> / Главный склад</div>
+        <div class="h1">
+          Главный склад
+          <div class="progress" style="margin-left: 12px"><span style="width: 25%"></span></div>
+          <div style="margin-left: auto" class="toolbar">
+            <button class="btn" id="deleteStorageBtn" disabled>Удалить</button>
+          </div>
+        </div>
+
+        <h3>Вложенные хранилища</h3>
+        <div class="row">
+          <div class="card sm">
+            <div class="thumb">preview</div>
+            <div style="font-weight: 700; margin-top: 8px">Комната 1</div>
+            <div class="progress"><span style="width: 30%"></span></div>
+            <div class="cap">3/10</div>
+          </div>
+          <div class="card sm">
+            <div class="thumb">preview</div>
+            <div style="font-weight: 700; margin-top: 8px">Комната 2</div>
+            <div class="progress"><span style="width: 40%"></span></div>
+            <div class="cap">2/5</div>
+          </div>
+          <div class="card sm">
+            <div class="thumb">preview</div>
+            <div style="font-weight: 700; margin-top: 8px">Полка А</div>
+            <div class="progress"><span style="width: 0%"></span></div>
+            <div class="cap">0/10</div>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="toolbar">
+          <div class="h1" style="font-size: 18px">Объекты</div>
+          <button class="btn" onclick="location.href='./object-new.html'">Добавить объект</button>
+        </div>
+        <div class="row">
+          <div class="card sm">
+            <div class="thumb">фото</div>
+            <div style="font-weight: 700; margin-top: 8px">Книга</div>
+            <div class="badge">12.08.2024</div>
+          </div>
+          <div class="card sm">
+            <div class="thumb">фото</div>
+            <div style="font-weight: 700; margin-top: 8px">Папка</div>
+            <div class="badge">10.08.2024</div>
+          </div>
+          <div class="card sm">
+            <div class="empty">Нет изображения</div>
+            <div style="font-weight: 700; margin-top: 8px">Документ</div>
+            <div class="badge">09.08.2024</div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // Логика кнопки "Удалить" - активна только для пустых хранилищ
+      const deleteStorageBtn = document.getElementById('deleteStorageBtn');
+
+      // Функция проверки, можно ли удалить хранилище
+      function checkStorageDeletable() {
+        // Подсчитываем общее количество объектов и вложенных хранилищ
+        const nestedStorages = document.querySelectorAll('.row .card.sm').length; // 3 вложенных хранилища
+        const objects = document.querySelectorAll('.row .card.sm').length; // 3 объекта
+
+        // Хранилище можно удалить только если оно пустое
+        const isEmpty = nestedStorages === 0 && objects === 0;
+
+        if (isEmpty) {
+          deleteStorageBtn.disabled = false;
+          deleteStorageBtn.textContent = 'Удалить';
+          deleteStorageBtn.style.opacity = '1';
+        } else {
+          deleteStorageBtn.disabled = true;
+          deleteStorageBtn.textContent = 'Удалить (не пустое)';
+          deleteStorageBtn.style.opacity = '0.5';
+        }
+      }
+
+      // Проверяем при загрузке страницы
+      checkStorageDeletable();
+
+      // Обработчик кнопки удаления
+      deleteStorageBtn.addEventListener('click', () => {
+        if (
+          confirm(
+            'Вы уверены, что хотите удалить хранилище "Главный склад"? Это действие нельзя отменить.',
+          )
+        ) {
+          // Здесь будет логика удаления хранилища
+          console.log('Удаление хранилища: Главный склад');
+          alert('Хранилище удалено');
+          // Перенаправляем на главную страницу
+          location.href = './index.html';
+        }
+      });
+
+      // Демонстрация: показываем текущее состояние
+      console.log('Текущее состояние хранилища:');
+      console.log('- Вложенных хранилищ:', document.querySelectorAll('.row .card.sm').length);
+      console.log('- Объектов:', document.querySelectorAll('.row .card.sm').length);
+      console.log('- Можно удалить:', deleteStorageBtn.disabled ? 'Нет' : 'Да');
+    </script>
+  </body>
+</html>
