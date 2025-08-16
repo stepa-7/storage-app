@@ -7,16 +7,13 @@
     state: present
     update_cache: yes
 
-
-
-- name: Clone repository
-  git:
-    repo: "{{ frontend_repo }}"
+- name: Copy project files
+  synchronize:
+    src: "{{ local_project_dir }}/frontend/"
     dest: "{{ deploy_dir }}"
-    version: "{{ frontend_branch }}"
-    force: yes
-  environment:
-    GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no -i /home/team_user/.ssh/id_rsa"
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=node_modules"
 
 - name: Build Docker image
   docker_image:
