@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: storage-module
+          uri: http://localhost:8081  # URL микросервиса
+          predicates:
+            - Path=/storages/**, /objects/**, /units/**, /templates/**
+
+        - id: qr-module
+          uri: http://localhost:8082  # URL микросервиса
+          predicates:
+              - Path=/qr
