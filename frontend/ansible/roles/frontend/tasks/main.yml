@@ -28,7 +28,7 @@
     - -lock.json
 
 - name: Copy source files
-  copy:
+  ansible.builtin.copy:
     src: "{{ playbook_dir }}/../src/"
     dest: "{{ deploy_dir }}/src/"
     remote_src: false
@@ -38,7 +38,7 @@
     recursive: yes
 
 - name: Copy public files
-  copy:
+  ansible.builtin.copy:
     src: "{{ playbook_dir }}/../public/"
     dest: "{{ deploy_dir }}/public/"
     remote_src: false
