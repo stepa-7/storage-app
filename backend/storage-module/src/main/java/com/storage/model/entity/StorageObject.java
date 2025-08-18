@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -52,5 +53,7 @@ public class StorageObject {
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID createdBy;
 
-    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Timestamp createdAt;
 }

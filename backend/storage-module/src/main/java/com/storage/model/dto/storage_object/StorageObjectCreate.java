@@ -36,5 +36,6 @@ public class StorageObjectCreate {
     private Map<String, Object> attributes;
 
     @JsonProperty("photo_url")
+//    @Pattern(regexp = "^[0-9a-fA-F-]{36}\\.[a-zA-Z0-9]{3,4}$\n")
     private String photoUrl;
 }

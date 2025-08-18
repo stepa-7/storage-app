@@ -53,6 +53,22 @@ public class FileImageServiceImpl implements FileImageService {
         }
     }
 
+    @Override
+    public boolean exists(String fileName) {
+        try {
+            minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(minioProperties.getBucket())
+                            .object(fileName)
+                            .build()
+            );
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
     @SneakyThrows
     private void createBucket() {
         boolean found = minioClient.bucketExists(BucketExistsArgs.builder()

@@ -33,17 +33,17 @@ public class StorageObjectController {
         return new ResponseEntity<>(service.find(storage_id, template_id, decommissioned), HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<StorageObject> create(@RequestBody @Valid StorageObjectCreate create) {
-        StorageObject storageObject = service.create(create);
-        return new ResponseEntity<>(storageObject, HttpStatus.valueOf(201));
-    }
-
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<StorageObject> createFromFile(
             @ModelAttribute @Valid StorageObjectCreateWithFileDto dto) {
         StorageObject storageObject = service.createWithFile(dto);
         return new ResponseEntity<>(storageObject, HttpStatus.CREATED);
+    }
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StorageObject> createFromJson(@RequestBody @Valid StorageObjectCreate dto) {
+        StorageObject created = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping("/{id}/image")
@@ -57,12 +57,6 @@ public class StorageObjectController {
                 .body(image);
     }
 
-
-//    @PostMapping("/{id}/image")
-//    public ResponseEntity<StorageObject> updateWithFile(@PathVariable @Valid UUID id, @RequestBody @Valid StorageObjectUpdateWithFileDto update) {
-//
-//    }
-
     @GetMapping("/{id}")
     public ResponseEntity<StorageObject> get(@PathVariable @Valid UUID id) {
         return new ResponseEntity<>(service.getById(id), HttpStatus.valueOf(200));
@@ -71,6 +65,14 @@ public class StorageObjectController {
     @PatchMapping("/{id}")
     public ResponseEntity<StorageObject> patch(@PathVariable @Valid UUID id, @RequestBody @Valid StorageObjectUpdate update) {
         return new ResponseEntity<>(service.patch(id, update), HttpStatus.valueOf(200));
+    }
+
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<StorageObject> updateFromFile(
+            @PathVariable UUID id,
+            @ModelAttribute @Valid StorageObjectUpdateWithFileDto dto) {
+        StorageObject storageObject = service.updateWithFile(id, dto);
+        return new ResponseEntity<>(storageObject, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

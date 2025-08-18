@@ -6,5 +6,6 @@ public interface FileImageService {
 
     String upload(MultipartFile file);
     byte[] getObject(String fileName);
+    boolean exists(String photoUrl);
 
 }
