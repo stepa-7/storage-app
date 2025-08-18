@@ -3,4 +3,4 @@ services:
     build:
       context: .
     ports:
-      - "${SERVER_PORT}:8082"
+      - "${SERVER_PORT}:8081"

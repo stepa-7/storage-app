@@ -25,13 +25,13 @@ services:
       db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: ${DB_URL_FOR_DOCKER}
+      SPRING_DATASOURCE_URL: ${DB_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL}
       SPRING_SQL_INIT_MODE: ${SPRING_SQL_INIT_MODE}
     ports:
-      - "${SERVER_PORT}:8081"
+      - "${SERVER_PORT}:8082"
     restart: unless-stopped
 
   minio:

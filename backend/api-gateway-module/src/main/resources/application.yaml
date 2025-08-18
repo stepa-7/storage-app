@@ -8,11 +8,11 @@ spring:
     gateway:
       routes:
         - id: storage-module
-          uri: http://storage-module:8081  # URL микросервиса
+          uri: http://storage-app:8082  # Имя сервиса из docker-compose
           predicates:
             - Path=/storages/**, /objects/**, /units/**, /templates/**
 
         - id: qr-module
-          uri: http://qr-module:8082  # URL микросервиса
+          uri: http://qr-module:8081  # Имя сервиса из docker-compose
           predicates:
-              - Path=/qr/**
+            - Path=/qr/**

@@ -70,7 +70,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com/storage/QRApplication</mainClass>
+                    <mainClass>com.storage.QRApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

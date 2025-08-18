@@ -5,17 +5,28 @@ services:
     build: .
     ports:
       - "8080:8080"
-#    depends_on:
-#      - storage-module
-#      - qr-module
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - storage-app
+      - qr-module
+    networks:
+      - app-network
 
-#  storage-module:
-#    build: ../storage-module
-#      - "8081:8081"
-#
-#  qr-module:
-#    build: ../qr-module
-#    ports:
-#      - "8082:8082"
+  storage-app:  # Должно совпадать с именем в URI
+    build: ../storage-module
+    ports:
+      - "8082:8082"
+    networks:
+      - app-network
+    env_file:
+      - ../storage-module/.env
+
+  qr-module:
+    build: ../qr-module
+    ports:
+      - "8081:8081"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
