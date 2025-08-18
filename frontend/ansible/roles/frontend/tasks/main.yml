@@ -28,24 +28,22 @@
     - -lock.json
 
 - name: Copy source files
-  ansible.builtin.copy:
+  synchronize:
     src: "{{ playbook_dir }}/../src/"
     dest: "{{ deploy_dir }}/src/"
-    remote_src: false
+    recursive: yes
     owner: team_user
     group: team_user
     mode: '0644'
-    recursive: yes
 
 - name: Copy public files
-  ansible.builtin.copy:
+  synchronize:
     src: "{{ playbook_dir }}/../public/"
     dest: "{{ deploy_dir }}/public/"
-    remote_src: false
+    recursive: yes
     owner: team_user
     group: team_user
     mode: '0644'
-    recursive: yes
 
 - name: Copy configuration files
   copy:
@@ -64,13 +62,13 @@
     - eslint.config.mjs
 
 - name: Stop and remove existing container
-  docker_container:
+  community.docker.docker_container:
     name: "{{ container_name }}"
     state: absent
   ignore_errors: yes
 
 - name: Build Docker image
-  docker_image:
+  community.docker.docker_image:
     name: "{{ docker_image_name }}"
     build:
       path: "{{ deploy_dir }}"
@@ -87,7 +85,7 @@
     mode: 0640
 
 - name: Run container
-  docker_container:
+  community.docker.docker_container:
     name: "{{ container_name }}"
     image: "{{ docker_image_name }}"
     ports:
