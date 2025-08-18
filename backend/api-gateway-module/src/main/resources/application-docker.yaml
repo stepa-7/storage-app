@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: storage-module
+          uri: http://storage-module:8081
+          predicates:
+            - Path=/storages/**, /objects/**, /units/**, /templates/**
+        - id: qr-module
+          uri: http://qr-module:8082
+          predicates:
+            - Path=/qr/**
