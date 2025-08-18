@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="412f3633-def1-4718-8d23-2def721c5344" name="Changes" comment="" />
+    <list default="true" id="412f3633-def1-4718-8d23-2def721c5344" name="Changes" comment="1 commit в api-gateway">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway-module.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway-module/src/main/resources/applicaton.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway-module/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/docker-compose.yaml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -29,18 +38,81 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.APIGatewayApplication.executor": "Debug",
+    "Application.QRApplication.executor": "Debug",
+    "Application.StorageApplication.executor": "Debug",
+    "Maven.api-gateway-module [clean].executor": "Run",
+    "Maven.api-gateway-module [package].executor": "Run",
+    "Maven.qr-module [clean].executor": "Run",
+    "Maven.qr-module [package].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "dev-task-api",
     "last_opened_file_path": "D:/T1 Lessons/проект/t1-team-29/backend",
-    "onboarding.tips.debug.path": "D:/T1 Lessons/проект/t1-team-29/backend/qr-module/src/main/java/com/storage/Main.java",
+    "onboarding.tips.debug.path": "D:/T1 Lessons/проект/t1-team-29/backend/api-gateway-module/src/main/java/com/storage/Main.java",
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
+  <component name="RunManager" selected="Application.APIGatewayApplication">
+    <configuration name="APIGatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.storage.APIGatewayApplication" />
+      <module name="api-gateway-module" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.storage.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="QRApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.storage.QRApplication" />
+      <module name="qr-module" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.storage.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="StorageApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="envFilePaths">
+        <option value="$PROJECT_DIR$/storage-module/.env" />
+      </option>
+      <option name="MAIN_CLASS_NAME" value="com.storage.StorageApplication" />
+      <module name="storage-module" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.storage.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.APIGatewayApplication" />
+      <item itemvalue="Application.QRApplication" />
+      <item itemvalue="Application.StorageApplication" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.APIGatewayApplication" />
+        <item itemvalue="Application.StorageApplication" />
+        <item itemvalue="Application.QRApplication" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="412f3633-def1-4718-8d23-2def721c5344" name="Changes" comment="" />
@@ -49,6 +121,15 @@
       <option name="presentableId" value="Default" />
       <updated>1755409791959</updated>
     </task>
+    <task id="LOCAL-00001" summary="1 commit в api-gateway">
+      <option name="closed" value="true" />
+      <created>1755496339516</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1755496339517</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -88,5 +169,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="1 commit в api-gateway" />
+    <option name="LAST_COMMIT_MESSAGE" value="1 commit в api-gateway" />
   </component>
 </project>
