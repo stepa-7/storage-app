@@ -16,3 +16,8 @@ spring:
           uri: http://qr-module:8081  # Имя сервиса из docker-compose
           predicates:
             - Path=/qr/**
+
+        - id: auth-service
+          uri: http://auth-service:8083
+          predicates:
+            - Path=/auth/**

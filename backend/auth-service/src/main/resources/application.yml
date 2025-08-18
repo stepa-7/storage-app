@@ -1,3 +1,6 @@
+server:
+  port: 8083
+
 spring:
   application:
     name: auth-service
@@ -16,3 +19,11 @@ security:
   expireTimeMs: ${JWT_EXPIRATION_MS}
 jwt:
   refreshExpirationMs: ${REFRESH_TOKEN_EXPIRATION_MS}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

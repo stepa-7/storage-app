@@ -36,13 +36,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   auth-service:
     build: ./auth-service
     container_name: auth_service
     env_file: ./auth-service/.env
     ports:
-      - "8083:8080"
+      - "8083:8083"
     depends_on:
       auth-db:
         condition: service_healthy
@@ -53,7 +54,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -79,6 +80,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   storage-app:
     build: ./storage-module
@@ -100,6 +102,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   # QR Module
   qr-module:
