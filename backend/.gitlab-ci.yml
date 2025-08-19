@@ -39,9 +39,8 @@ deploy:
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H 10.10.146.218 >> ~/.ssh/known_hosts
   script:
-    - ansible-playbook -i backend/ansible/inventory/hosts.yml \
-        --extra-vars "tag=${CI_COMMIT_SHORT_SHA} registry=${CI_REGISTRY_IMAGE}" \
-        backend/ansible/playbook.yml
+    - ansible-playbook -i backend/ansible/inventory/hosts.yml --extra-vars "tag=${CI_COMMIT_SHORT_SHA} registry=${CI_REGISTRY_IMAGE}" backend/ansible/playbook.yml
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
   needs: ["docker"]
