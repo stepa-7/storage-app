@@ -1,23 +1,30 @@
 server:
   port: 8080
-#logging:
-#  level:
-#    org.springframework.cloud.gateway: TRACE
+
 spring:
   cloud:
     gateway:
       routes:
         - id: storage-module
-          uri: http://storage-app:8082  # Имя сервиса из docker-compose
+          uri: http://storage-app:8082
           predicates:
             - Path=/storages/**, /objects/**, /units/**, /templates/**
+          filters:
+            - JwtAuthenticationFilter
 
         - id: qr-module
-          uri: http://qr-module:8081  # Имя сервиса из docker-compose
+          uri: http://qr-module:8081
           predicates:
             - Path=/qr/**
+          filters:
+            - JwtAuthenticationFilter
 
         - id: auth-service
           uri: http://auth-service:8083
           predicates:
             - Path=/auth/**
+
+jwt:
+  secret: n123aa4d89abcdef01c3bb6789ab1c3bb6789abcdefxyz9876b1c3bb6789ab
+
+
