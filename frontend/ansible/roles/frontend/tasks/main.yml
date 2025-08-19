@@ -1,44 +1,39 @@
 ---
 - hosts: frontend
-  become: yes
+  gather_facts: no
   vars:
-    frontend_image: "{{ CI_REGISTRY_IMAGE }}/frontend:{{ CI_COMMIT_SHORT_SHA }}"
-    deploy_dir: "/home/team_user/frontend"
-
+    container_name: frontend
+    host_port: 8080
+    container_port: 80
   tasks:
-    - name: Install Docker and Docker Compose
-      apt:
-        name:
-          - docker.io
-          - docker-compose
+
+    - name: Ensure Docker installed
+      ansible.builtin.package:
+        name: docker
         state: present
-        update_cache: yes
 
-    - name: Create deployment directory
-      file:
-        path: "{{ deploy_dir }}"
-        state: directory
-        owner: team_user
-        group: team_user
-
-    - name: Copy Docker Compose file
-      copy:
-        src: "docker-compose.prod.yml"
-        dest: "{{ deploy_dir }}/docker-compose.prod.yml"
-        owner: team_user
-        group: team_user
-
-    - name: Login to Docker registry
+    - name: Login to registry
       community.docker.docker_login:
-        registry_url: "{{ CI_REGISTRY }}"
-        username: "{{ CI_REGISTRY_USER }}"
-        password: "{{ CI_REGISTRY_PASSWORD }}"
+        registry_url: "{{ lookup('env','CI_REGISTRY') }}"
+        username: "{{ lookup('env','CI_REGISTRY_USER') }}"
+        password: "{{ lookup('env','CI_REGISTRY_PASSWORD') }}"
 
-    - name: Deploy frontend
-      community.docker.docker_compose:
-        project_src: "{{ deploy_dir }}"
-        files:
-          - "{{ deploy_dir }}/docker-compose.prod.yml"
-        state: present
-        pull: yes
-        restart: yes
+    - name: Pull frontend image
+      community.docker.docker_image:
+        name: "{{ docker_image }}"
+        tag: "{{ tag }}"
+        source: pull
+
+    - name: Stop existing container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: Run frontend container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ docker_image }}:{{ tag }}"
+        ports:
+          - "{{ host_port }}:{{ container_port }}"
+        restart_policy: unless-stopped
