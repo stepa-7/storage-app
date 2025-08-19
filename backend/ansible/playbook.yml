@@ -54,26 +54,34 @@
         group: "{{ app_group }}"
         mode: "0600"
 
-    - name: Login to container registry
+    - name: Docker login (registry)
       community.docker.docker_login:
         registry_url: "{{ ci_registry }}"
         username: "{{ ci_registry_user }}"
         password: "{{ ci_registry_password }}"
       when: ci_registry != ""
 
-    - name: Pull images as per compose
+    - name: Compose down (no volumes) to avoid stale ContainerConfig
       community.docker.docker_compose:
         project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
-        files: ["docker-compose.yml"]
+        files: ["{{ compose_file }}"]
+        state: absent
+        remove_orphans: true
+        remove_images: "none"
+        remove_volumes: false
+
+    - name: Pull images
+      community.docker.docker_compose:
+        project_name: "{{ project_name }}"
+        project_src: "{{ compose_dir }}"
+        files: ["{{ compose_file }}"]
         pull: yes
 
-    - name: Up stack (recreate smart, remove orphans)
+    - name: Up stack (fresh)
       community.docker.docker_compose:
         project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
         files: ["{{ compose_file }}"]
         state: present
-        restarted: true
-        remove_orphans: true
-        recreate: smart
+        

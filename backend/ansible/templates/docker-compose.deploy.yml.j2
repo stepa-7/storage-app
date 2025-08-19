@@ -1,32 +1,21 @@
 version: '3.8'
 
 services:
-  # === API Gateway ===
+  # === API Gateway (внешний вход) ===
   api-gateway:
     image: "{{ registry }}/api-gateway:{{ tag }}"
     ports:
       - "8080:8080"
     depends_on:
-      storage-app:
-        condition: service_healthy
-      qr-module:
-        condition: service_healthy
-      auth-service:
-        condition: service_healthy
+      - storage-app
+      - qr-module
+      - auth-service
     networks: [app-network]
-    healthcheck:
-      test: ["CMD","curl","-f","http://localhost:8080/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
-  # === Auth DB ===
+  # === Auth DB (без публикации портов) ===
   auth-db:
     image: postgres:14
     env_file: [./auth-service.env]
-    # ports: 
-    #   - "5433:5432"
     volumes:
       - auth_db_data:/var/lib/postgresql/data
     networks: [app-network]
@@ -42,8 +31,7 @@ services:
     image: "{{ registry }}/auth-service:{{ tag }}"
     env_file: [./auth-service.env]
     depends_on:
-      auth-db:
-        condition: service_healthy
+      - auth-db
     environment:
       DB_URL: jdbc:postgresql://auth-db:5432/${POSTGRES_DB}
       DB_USERNAME: ${POSTGRES_USER}
@@ -51,24 +39,16 @@ services:
     ports:
       - "8083:8083"
     networks: [app-network]
-    healthcheck:
-      test: ["CMD","curl","-f","http://localhost:8083/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   # === Storage DB (без публикации портов) ===
   storage_db:
     image: postgres:16
     env_file: [./storage-module.env]
-    # ports:
-    #   - "5432:5432"
     volumes:
       - storage_db_data:/var/lib/postgresql/data
     networks: [app-network]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -79,8 +59,7 @@ services:
     image: "{{ registry }}/storage-module:{{ tag }}"
     env_file: [./storage-module.env]
     depends_on:
-      storage_db:
-        condition: service_healthy
+      - storage_db
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://storage_db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
@@ -88,12 +67,6 @@ services:
     ports:
       - "8082:8082"
     networks: [app-network]
-    healthcheck:
-      test: ["CMD","curl","-f","http://localhost:8082/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   # === QR Module ===
   qr-module:
@@ -101,14 +74,8 @@ services:
     ports:
       - "8081:8081"
     networks: [app-network]
-    healthcheck:
-      test: ["CMD","curl","-f","http://localhost:8081/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
-  # === MinIO  ===
+  # === MinIO ===
   minio:
     image: minio/minio:latest
     env_file: [./storage-module.env]
