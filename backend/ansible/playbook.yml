@@ -68,9 +68,12 @@
         files: ["docker-compose.yml"]
         pull: yes
 
-    - name: Deploy/Update containers
+    - name: Up stack (recreate smart, remove orphans)
       community.docker.docker_compose:
         project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
-        files: ["docker-compose.yml"]
+        files: ["{{ compose_file }}"]
         state: present
+        restarted: true
+        remove_orphans: true
+        recreate: smart
