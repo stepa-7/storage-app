@@ -10,29 +10,38 @@
     registry: "{{ registry | default(ci_registry, true) }}"
     tag: "{{ tag | default(image_tag, true) }}"
     compose_abs_path: "{{ compose_dir }}/{{ compose_file }}"
-    # Порты, которые публикуем наружу (для проверки конфликтов)
-    published_ports:
-      - 8080   # api-gateway
-      - 8081   # qr-module
-      - 8082   # storage-app
-      - 8083   # auth-service
-      - 9000   # MinIO S3
-      - 9090   # MinIO console
-    force_free_ports: true
 
   pre_tasks:
     - name: Ensure base packages present
-      ansible.builtin.apt:
+      apt:
         name:
           - ca-certificates
           - curl
+          - gnupg
           - python3
           - python3-pip
         state: present
         update_cache: yes
 
+    - name: Install Docker Engine and Compose plugin
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin     
+        state: present
+        update_cache: yes
+
+    - name: Ensure docker service running
+      service:
+        name: docker
+        state: started
+        enabled: true
+
     - name: Ensure required secrets exist
-      ansible.builtin.assert:
+      assert:
         that:
           - auth_postgres_password | length > 8
           - storage_postgres_password | length > 8
@@ -41,7 +50,7 @@
         fail_msg: "Missing/weak secrets in GitLab CI Variables."
 
     - name: Ensure deploy directory exists with owner
-      ansible.builtin.file:
+      file:
         path: "{{ compose_dir }}"
         state: directory
         owner: "{{ app_user }}"
@@ -53,7 +62,7 @@
 
   tasks:
     - name: Render deploy docker-compose from template
-      ansible.builtin.template:
+      template:
         src: "{{ playbook_dir }}/templates/docker-compose.deploy.yml.j2"
         dest: "{{ compose_abs_path }}"
         owner: "{{ app_user }}"
@@ -64,7 +73,7 @@
         tag: "{{ tag }}"
 
     - name: Render auth-service .env
-      ansible.builtin.template:
+      template:
         src: "{{ playbook_dir }}/templates/auth-service.env.j2"
         dest: "{{ compose_dir }}/auth-service.env"
         owner: "{{ app_user }}"
@@ -72,7 +81,7 @@
         mode: "0600"
 
     - name: Render storage-module .env
-      ansible.builtin.template:
+      template:
         src: "{{ playbook_dir }}/templates/storage-module.env.j2"
         dest: "{{ compose_dir }}/storage-module.env"
         owner: "{{ app_user }}"
@@ -86,8 +95,8 @@
         password: "{{ ci_registry_password }}"
       when: ci_registry != ""
 
-    # --- мягко опускаем стек до чистого состояния (volumes не трогаем) ---
-    - name: Compose down (no volumes) to avoid stale resources
+    # Мягко опускаем проект (не трогаем тома/образы; если не поднят — не падаем)
+    - name: Compose down (no volumes)
       community.docker.docker_compose:
         project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
@@ -96,58 +105,22 @@
         remove_orphans: true
       ignore_errors: true
 
-    # --- безопасно получаем список контейнеров и их порты (без JSON/Jinja конфликта) ---
-    - name: List running containers (ID|Ports)
-      ansible.builtin.command:
-        argv:
-          - bash
-          - -lc
-          - "docker ps --format '{{'{{'}}.ID{{'}}'}}|{{'{{'}}.Ports{{'}}'}}'"
-      register: docker_ps_lines
-      changed_when: false
+    - name: Pull images
+      community.docker.docker_compose:
+        project_name: "{{ project_name }}"
+        project_src: "{{ compose_dir }}"
+        files: ["{{ compose_file }}"]
+        pull: yes
 
-    - name: Build list of conflicting container IDs (publishing target ports)
-      ansible.builtin.set_fact:
-        conflicting_ids: >-
-          {{
-            docker_ps_lines.stdout_lines
-            | map('split','|', 1)
-            | selectattr(1, 'search', '0\\.0\\.0\\.0:(' ~ (published_ports | join('|')) ~ ')')
-            | map('first')
-            | list
-          }}
-
-    - name: Stop conflicting containers that hold our ports
-      when: force_free_ports and (conflicting_ids | length > 0)
-      community.docker.docker_container:
-        name: "{{ item }}"
-        state: stopped
-      loop: "{{ conflicting_ids }}"
-      ignore_errors: true
-
-    # --- тянем образы без запуска контейнеров ---
-    - name: Compose pull images only
-      ansible.builtin.command:
-        argv:
-          - bash
-          - -lc
-          - "docker compose -f '{{ compose_abs_path }}' pull"
-      args:
-        chdir: "{{ compose_dir }}"
-      register: pull_out
-      changed_when: "'Downloaded' in pull_out.stdout or 'Pulled' in pull_out.stdout"
-
-    # --- поднимаем стек ---
-    - name: Up stack (fresh)
+    - name: Up stack
       community.docker.docker_compose:
         project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
         files: ["{{ compose_file }}"]
         state: present
 
-    # --- диагностика на всякий случай ---
-    - name: docker compose ps
-      ansible.builtin.command:
+    - name: Compose ps (diagnostic)
+      command:
         argv:
           - bash
           - -lc
@@ -157,6 +130,5 @@
       register: ps_out
       changed_when: false
 
-    - name: Show compose ps
-      ansible.builtin.debug:
+    - debug:
         var: ps_out.stdout
