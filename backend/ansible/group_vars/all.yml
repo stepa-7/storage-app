@@ -1,0 +1,17 @@
+# Docker settings
+docker_image_name: "backend"
+container_name: "backend"
+host_port: 8081
+container_port: 8080
+nginx_conf_path: "/etc/nginx/sites-available/backend.conf"
+
+
+# Git-репозиторий
+backend_repo: "git@it-camp.innoca.local:t1-camp-29/backend.git"
+backend_branch: "main"
+
+# Deploy directory
+deploy_dir: "/home/team_user/29/backend"
+
+# Nginx settings
+nginx_conf_path: "/etc/nginx/conf.d/backend.conf"
