@@ -1,39 +1,31 @@
 ---
-- hosts: frontend
-  gather_facts: no
-  vars:
-    container_name: frontend
-    host_port: 8080
-    container_port: 80
-  tasks:
+- name: Ensure Docker installed
+  ansible.builtin.package:
+    name: docker
+    state: present
 
-    - name: Ensure Docker installed
-      ansible.builtin.package:
-        name: docker
-        state: present
+- name: Login to registry
+  community.docker.docker_login:
+    registry_url: "{{ lookup('env','CI_REGISTRY') }}"
+    username: "{{ lookup('env','CI_REGISTRY_USER') }}"
+    password: "{{ lookup('env','CI_REGISTRY_PASSWORD') }}"
 
-    - name: Login to registry
-      community.docker.docker_login:
-        registry_url: "{{ lookup('env','CI_REGISTRY') }}"
-        username: "{{ lookup('env','CI_REGISTRY_USER') }}"
-        password: "{{ lookup('env','CI_REGISTRY_PASSWORD') }}"
+- name: Pull frontend image
+  community.docker.docker_image:
+    name: "{{ docker_image }}"
+    tag: "{{ tag }}"
+    source: pull
 
-    - name: Pull frontend image
-      community.docker.docker_image:
-        name: "{{ docker_image }}"
-        tag: "{{ tag }}"
-        source: pull
+- name: Stop existing container
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    state: absent
+  ignore_errors: yes
 
-    - name: Stop existing container
-      community.docker.docker_container:
-        name: "{{ container_name }}"
-        state: absent
-      ignore_errors: yes
-
-    - name: Run frontend container
-      community.docker.docker_container:
-        name: "{{ container_name }}"
-        image: "{{ docker_image }}:{{ tag }}"
-        ports:
-          - "{{ host_port }}:{{ container_port }}"
-        restart_policy: unless-stopped
+- name: Run frontend container
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    image: "{{ docker_image }}:{{ tag }}"
+    ports:
+      - "{{ host_port }}:{{ container_port }}"
+    restart_policy: unless-stopped
