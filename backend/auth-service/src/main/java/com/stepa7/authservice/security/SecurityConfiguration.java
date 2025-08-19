@@ -60,16 +60,36 @@ public class SecurityConfiguration {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptions ->
+                        exceptions.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                )
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(authorize -> authorize
+                        // health-check
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/auth/**", "/login", "/register").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/profile").authenticated()
-                        .anyRequest().permitAll())
+
+                        // аутентификация (публичные)
+                        .requestMatchers("/auth/signup", "/auth/signin").permitAll()
+
+                        // refresh/logout — нужен refresh-cookie → обрабатывает твой TokenFilter
+                        .requestMatchers("/auth/refresh", "/auth/logout").authenticated()
+
+                        // админские
+                        .requestMatchers("/admin/**", "/user/*/roles").hasRole("ADMIN")
+
+                        // остальные API — только авторизованные пользователи
+                        .requestMatchers(
+                                "/storages/**",
+                                "/objects/**",
+                                "/templates/**",
+                                "/units/**"
+                        ).authenticated()
+
+                        // все остальное пропускаем
+                        .anyRequest().permitAll()
+                )
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

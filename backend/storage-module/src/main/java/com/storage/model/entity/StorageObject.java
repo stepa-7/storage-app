@@ -45,7 +45,7 @@ public class StorageObject {
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> attributes;
 
-    @Column(name = "photo_url", unique = true)
+    @Column(name = "photo_url", unique = false)
     private String photoUrl;
 
     private boolean decommissioned = false;

@@ -20,6 +20,7 @@
         <module>backend/api-gateway-module</module>
         <module>backend/qr-module</module>
         <module>frontend</module>
+        <module>backend/auth-service</module>
     </modules>
 
     <build>
