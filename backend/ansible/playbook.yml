@@ -4,6 +4,13 @@
   become: true
   gather_facts: yes
 
+  vars:
+    app_user: "{{ ansible_user | default('team_user') }}"
+    app_group: "{{ ansible_user | default('team_user') }}"
+    # Образы из реестра (придут из CI, иначе дефолты из group_vars/all.yml)
+    registry: "{{ registry | default(ci_registry, true) }}"
+    tag: "{{ tag | default(image_tag, true) }}"
+
   pre_tasks:
     - name: Ensure base packages present
       ansible.builtin.apt:
@@ -14,6 +21,15 @@
           - python3-pip
         state: present
         update_cache: yes
+
+    - name: Ensure required secrets exist
+      ansible.builtin.assert:
+        that:
+          - auth_postgres_password | length > 8
+          - storage_postgres_password | length > 8
+          - jwt_secret | length >= 16
+          - minio_secret_key | length >= 12
+        fail_msg: "Missing/weak secrets in GitLab CI Variables."
 
     - name: Ensure deploy directory exists with owner
       ansible.builtin.file:
@@ -35,8 +51,9 @@
         group: "{{ app_group }}"
         mode: "0644"
       vars:
-        registry: "{{ registry | default(ci_registry, true) }}"
-        tag: "{{ tag | default(image_tag, true) }}"
+        registry: "{{ registry }}"
+        tag: "{{ tag }}"
+      register: compose_tpl
 
     - name: Render auth-service .env
       ansible.builtin.template:
@@ -61,15 +78,15 @@
         password: "{{ ci_registry_password }}"
       when: ci_registry != ""
 
-    - name: Compose down (no volumes) to avoid stale ContainerConfig
+    # Мягкий down: не падаем, если проект ещё не поднят; vol/образы не трогаем
+    - name: Compose down (no volumes) to avoid stale resources
       community.docker.docker_compose:
         project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
         files: ["{{ compose_file }}"]
         state: absent
         remove_orphans: true
-        remove_images: "none"
-        remove_volumes: false
+      ignore_errors: true
 
     - name: Pull images
       community.docker.docker_compose:
@@ -84,4 +101,3 @@
         project_src: "{{ compose_dir }}"
         files: ["{{ compose_file }}"]
         state: present
-        
