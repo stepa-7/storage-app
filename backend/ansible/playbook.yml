@@ -9,7 +9,8 @@
     app_group: "{{ ansible_user | default('team_user') }}"
     registry: "{{ registry | default(ci_registry, true) }}"
     tag: "{{ tag | default(image_tag, true) }}"
-    # Порты, которые публикуем наружу (нужны для preflight-проверки)
+    compose_abs_path: "{{ compose_dir }}/{{ compose_file }}"
+    # Порты, которые публикуем наружу (для проверки конфликтов)
     published_ports:
       - 8080   # api-gateway
       - 8081   # qr-module
@@ -17,9 +18,7 @@
       - 8083   # auth-service
       - 9000   # MinIO S3
       - 9090   # MinIO console
-    # Автоматически освобождать порты, если заняты контейнерами
     force_free_ports: true
-    compose_abs_path: "{{ compose_dir }}/{{ compose_file }}"
 
   pre_tasks:
     - name: Ensure base packages present
@@ -87,7 +86,7 @@
         password: "{{ ci_registry_password }}"
       when: ci_registry != ""
 
-    # 1) Мягко гасим текущий проект (не трогаем volumes/образы)
+    # --- мягко опускаем стек до чистого состояния (volumes не трогаем) ---
     - name: Compose down (no volumes) to avoid stale resources
       community.docker.docker_compose:
         project_name: "{{ project_name }}"
@@ -97,51 +96,49 @@
         remove_orphans: true
       ignore_errors: true
 
-    # 2) Preflight — проверяем, не заняты ли наши порты другими контейнерами
-    - name: Find containers publishing our target ports
-      ansible.builtin.shell: |
-        set -euo pipefail
-        docker ps --format '{{"{{"}}.ID{{"}}"}} {{ "{{" }}.Names{{ "}}" }} {{ "{{" }}.Ports{{ "}}" }}' \
-        | awk '/0\.0\.0\.0/ {print}'
-      args:
-        executable: /bin/bash
-      register: docker_ps_ports
+    # --- проверяем конфликты портов и гасим сторонние контейнеры при необходимости ---
+    - name: List running containers as JSON lines
+      ansible.builtin.command:
+        argv:
+          - bash
+          - -lc
+          - "docker ps --format '{{json .}}'"
+      register: docker_ps_json
       changed_when: false
 
-    - name: Build list of conflicting containers
+    - name: Build list of conflicting container IDs (publishing target ports)
       ansible.builtin.set_fact:
-        conflicting_containers: >-
+        conflicting_ids: >-
           {{
-            docker_ps_ports.stdout_lines
-            | map('regex_search', '^(\\S+)\\s+(\\S+)\\s+(.+)$')
-            | list
-            | map('last')
-            | select('defined')
-            | selectattr('2','search', '(' ~ (published_ports | join("|")) ~ ')')
+            docker_ps_json.stdout_lines
+            | map('from_json')
+            | selectattr('Ports', 'defined')
+            | selectattr('Ports', 'search', '0\\.0\\.0\\.0:(' ~ (published_ports | join('|')) ~ ')')
+            | map(attribute='ID')
             | list
           }}
 
-    - name: Stop conflicting containers (auto-fix)
-      when: force_free_ports and (conflicting_containers | length > 0)
-      vars:
-        ids: "{{ conflicting_containers | map('first') | list }}"
+    - name: Stop conflicting containers that hold our ports
+      when: force_free_ports and (conflicting_ids | length > 0)
       community.docker.docker_container:
         name: "{{ item }}"
         state: stopped
-      loop: "{{ ids }}"
-      # Пытаемся по ID; если по имени нужно — можно дописать аналогичный цикл по именам
+      loop: "{{ conflicting_ids }}"
       ignore_errors: true
 
-    # 3) Pull образов (явной командой — точно не запускает контейнеры)
+    # --- тянем образы без запуска контейнеров ---
     - name: Compose pull images only
       ansible.builtin.command:
-        cmd: docker compose -f "{{ compose_abs_path }}" pull
+        argv:
+          - bash
+          - -lc
+          - "docker compose -f '{{ compose_abs_path }}' pull"
       args:
         chdir: "{{ compose_dir }}"
       register: pull_out
       changed_when: "'Downloaded' in pull_out.stdout or 'Pulled' in pull_out.stdout"
 
-    # 4) Поднимаем стек
+    # --- поднимаем стек ---
     - name: Up stack (fresh)
       community.docker.docker_compose:
         project_name: "{{ project_name }}"
@@ -149,10 +146,13 @@
         files: ["{{ compose_file }}"]
         state: present
 
-    # 5) (Диагностика на случай сбоев — можно закомментировать позже)
+    # --- диагностика на всякий случай ---
     - name: docker compose ps
       ansible.builtin.command:
-        cmd: docker compose -f "{{ compose_abs_path }}" ps
+        argv:
+          - bash
+          - -lc
+          - "docker compose -f '{{ compose_abs_path }}' ps"
       args:
         chdir: "{{ compose_dir }}"
       register: ps_out
