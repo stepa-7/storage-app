@@ -12,7 +12,7 @@
     compose_abs_path: "{{ compose_dir }}/{{ compose_file }}"
 
   pre_tasks:
-    - name: Ensure base packages present
+    - name: Ensure base packages present (remote host)
       apt:
         name:
           - ca-certificates
@@ -23,12 +23,12 @@
         state: present
         update_cache: yes
 
-    
-    - name: Install Docker and Docker Compose
+    - name: Install Docker engine)
       apt:
         name:
-          - docker.io
-          - docker-compose
+          - docker.io                  
+          - docker-compose-plugin
+          - python3-docker             
         state: present
         update_cache: yes
 
@@ -93,7 +93,7 @@
         password: "{{ ci_registry_password }}"
       when: ci_registry != ""
 
-    # Мягко опускаем проект (не трогаем тома/образы; если не поднят — не падаем)
+    # Мягкий down (без томов), чтобы убрать застрявшие контейнеры/сети
     - name: Compose down (no volumes)
       community.docker.docker_compose:
         project_name: "{{ project_name }}"
@@ -122,7 +122,7 @@
         argv:
           - bash
           - -lc
-          - "docker compose -f '{{ compose_abs_path }}' ps"
+          - "docker compose -f '{{ compose_abs_path }}' ps || docker-compose -f '{{ compose_abs_path }}' ps"
       args:
         chdir: "{{ compose_dir }}"
       register: ps_out
