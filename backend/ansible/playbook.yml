@@ -38,24 +38,21 @@
         registry: "{{ registry | default(ci_registry, true) }}"
         tag: "{{ tag | default(image_tag, true) }}"
 
-    # Копируем .env файлы, если они есть в репозитории
-    - name: Stat env files in repo
-      ansible.builtin.stat:
-        path: "{{ item }}"
-      register: env_stats
-      loop:
-        - "{{ playbook_dir }}/../auth-service/.env"
-        - "{{ playbook_dir }}/../storage-module/.env"
-
-    - name: Copy env files next to compose
-      ansible.builtin.copy:
-        src: "{{ item.stat.path }}"
-        dest: "{{ compose_dir }}/{{ (item.stat.path | basename).replace('.env','') }}.env"
+    - name: Render auth-service .env
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/templates/auth-service.env.j2"
+        dest: "{{ compose_dir }}/auth-service.env"
         owner: "{{ app_user }}"
         group: "{{ app_group }}"
         mode: "0600"
-      loop: "{{ env_stats.results }}"
-      when: item.stat.exists
+
+    - name: Render storage-module .env
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/templates/storage-module.env.j2"
+        dest: "{{ compose_dir }}/storage-module.env"
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0600"
 
     - name: Login to container registry
       community.docker.docker_login:
@@ -68,15 +65,12 @@
       community.docker.docker_compose:
         project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
-        files:
-          - "docker-compose.yml"
+        files: ["docker-compose.yml"]
         pull: yes
 
     - name: Deploy/Update containers
       community.docker.docker_compose:
         project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
-        files:
-          - "docker-compose.yml"
+        files: ["docker-compose.yml"]
         state: present
-
