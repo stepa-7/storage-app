@@ -33,13 +33,15 @@ deploy:
   stage: deploy
   image: alpine:3.20
   before_script:
-    - apk add --no-cache openssh-client ansible
-    - mkdir -p ~/.ssh
-    - echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - ssh-keyscan -H 10.10.146.218 >> ~/.ssh/known_hosts
+  - apk add --no-cache openssh-client ansible
+  - ansible-galaxy collection install -r backend/ansible/requirements.yml
+  - export ANSIBLE_HOST_KEY_CHECKING=False
+  - mkdir -p ~/.ssh
+  - echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - ssh-keyscan -H 10.10.146.218 >> ~/.ssh/known_hosts
   script:
-    - ansible-playbook -i backend/ansible/inventory/hosts.yml --extra-vars "tag=${CI_COMMIT_SHORT_SHA} registry=${CI_REGISTRY_IMAGE}" backend/ansible/playbook.yml
+  - ansible-playbook -i backend/ansible/inventory/hosts.yml --extra-vars "tag=${CI_COMMIT_SHORT_SHA} registry=${CI_REGISTRY_IMAGE}" backend/ansible/playbook.yml
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'

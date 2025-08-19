@@ -1,17 +1,27 @@
-# Docker settings
-docker_image_name: "backend"
-container_name: "backend"
-host_port: 8081
+# Docker / Compose
+project_name: "team29-backend"
+deploy_root: "/home/team_user/29/backend"   
+compose_dir: "{{ deploy_root }}"
+compose_file: "docker-compose.yml"
+
+# Контейнеры / порты
 container_port: 8080
-nginx_conf_path: "/etc/nginx/sites-available/backend.conf"
+host_port: 8080
 
+# Nginx
+nginx_conf_path: "/etc/nginx/conf.d/backend.conf"
+nginx_listen_port: 80
+proxy_upstream: "http://127.0.0.1:8080"    # куда проксировать (host-port api-gateway)
 
-# Git-репозиторий
+# Registry из окружения CI (fallback пустой)
+ci_registry: "{{ lookup('env','CI_REGISTRY') | default('', true) }}"
+ci_registry_user: "{{ lookup('env','CI_REGISTRY_USER') | default('', true) }}"
+ci_registry_password: "{{ lookup('env','CI_REGISTRY_PASSWORD') | default('', true) }}"
+image_tag: "{{ lookup('env','CI_COMMIT_SHORT_SHA') | default('latest', true) }}"
+
 backend_repo: "git@it-camp.innoca.local:t1-camp-29/backend.git"
 backend_branch: "main"
 
-# Deploy directory
-deploy_dir: "/home/team_user/29/backend"
-
-# Nginx settings
-nginx_conf_path: "/etc/nginx/conf.d/backend.conf"
+# Системные пользователи
+app_user: "team_user"
+app_group: "team_user"

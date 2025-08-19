@@ -1,32 +1,59 @@
 ---
-- hosts: backend
-  gather_facts: no
-  vars:
-    compose_dir: "/home/team_user/29/backend"
-  tasks:
+- name: Deploy backend stack
+  hosts: backend
+  become: true
+  gather_facts: yes
 
-    - name: Ensure deployment directory exists
-      file:
+  pre_tasks:
+    - name: Ensure base packages present
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - python3
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Ensure deploy directory exists with owner
+      ansible.builtin.file:
         path: "{{ compose_dir }}"
         state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0755"
 
-    - name: Copy docker-compose file
-      copy:
+  roles:
+    - role: nginx
+
+  tasks:
+    - name: Copy docker-compose file from repo
+      ansible.builtin.copy:
         src: "{{ playbook_dir }}/../docker-compose.yml"
-        dest: "{{ compose_dir }}/docker-compose.yml"
+        dest: "{{ compose_dir }}/{{ compose_file }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0644"
 
-    - name: Login to registry
+    - name: Login to container registry
       community.docker.docker_login:
-        registry_url: "{{ lookup('env','CI_REGISTRY') }}"
-        username: "{{ lookup('env','CI_REGISTRY_USER') }}"
-        password: "{{ lookup('env','CI_REGISTRY_PASSWORD') }}"
+        registry_url: "{{ ci_registry }}"
+        username: "{{ ci_registry_user }}"
+        password: "{{ ci_registry_password }}"
+      when: ci_registry != ""
 
-    - name: Pull images according to compose
+    - name: Pull images as per compose
       community.docker.docker_compose:
+        project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
+        files:
+          - "{{ compose_file }}"
         pull: yes
 
-    - name: Deploy containers
+    - name: Deploy/Update containers
       community.docker.docker_compose:
+        project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
+        files:
+          - "{{ compose_file }}"
         state: present
