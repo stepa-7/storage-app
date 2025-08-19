@@ -37,9 +37,8 @@ deploy:
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H 10.10.146.218 >> ~/.ssh/known_hosts
   script:
-    - ansible-playbook -i frontend/ansible/inventory/hosts.yml \
-        --extra-vars "docker_image=$DOCKER_IMAGE tag=$DOCKER_TAG" \
-        frontend/ansible/playbook.yml
+    - ansible-playbook -i frontend/ansible/inventory/hosts.yml --extra-vars "docker_image=$DOCKER_IMAGE tag=$DOCKER_TAG" frontend/ansible/playbook.yml
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "dev-frontend"'
       changes:
