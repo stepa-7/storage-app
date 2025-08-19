@@ -1,5 +1,4 @@
 stages:
-  - build
   - docker
   - deploy
 
@@ -8,28 +7,13 @@ variables:
   DOCKER_USER: $CI_REGISTRY_USER
   DOCKER_PASSWORD: $CI_REGISTRY_PASSWORD
 
-build:
-  stage: build
-  image: maven:3.9-openjdk-21
-  script:
-    - mvn clean package -DskipTests
-  artifacts:
-    paths:
-      - backend/auth-service/target
-      - backend/api-gateway-module/target
-      - backend/storage-module/target
-      - backend/qr-module/target
-    expire_in: 1h
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-
 docker:
   stage: docker
-  image: docker:20.10
+  image: docker:25.0
   services:
-    - docker:20.10-dind
+    - name: docker:25.0-dind
   before_script:
-    - docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD" "$DOCKER_REGISTRY"
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
     - docker build -t ${CI_REGISTRY_IMAGE}/api-gateway:${CI_COMMIT_SHORT_SHA} backend/api-gateway-module
     - docker push ${CI_REGISTRY_IMAGE}/api-gateway:${CI_COMMIT_SHORT_SHA}
@@ -44,12 +28,10 @@ docker:
     - docker push ${CI_REGISTRY_IMAGE}/qr-module:${CI_COMMIT_SHORT_SHA}
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-  needs:
-    - build
 
 deploy:
   stage: deploy
-  image: alpine
+  image: alpine:3.20
   before_script:
     - apk add --no-cache openssh-client ansible
     - mkdir -p ~/.ssh
@@ -62,5 +44,4 @@ deploy:
         backend/ansible/playbook.yml
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-  needs:
-    - docker
+  needs: ["docker"]
