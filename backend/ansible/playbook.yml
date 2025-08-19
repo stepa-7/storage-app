@@ -23,14 +23,12 @@
         state: present
         update_cache: yes
 
-    - name: Install Docker Engine and Compose plugin
+    
+    - name: Install Docker and Docker Compose
       apt:
         name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-          - docker-buildx-plugin
-          - docker-compose-plugin     
+          - docker.io
+          - docker-compose
         state: present
         update_cache: yes
 
