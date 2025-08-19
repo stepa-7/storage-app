@@ -6,11 +6,11 @@ container_port: 80
 
 
 # Git-репозиторий фронтенда
-frontend_repo: "git@it-camp.innoca.local:t1-camp-23/frontend.git"
+frontend_repo: "git@it-camp.innoca.local:t1-camp-29/frontend.git"
 frontend_branch: "main"
 
 # Домен 
-#domain_name: "example.com"
+domain_name: "T29Vault.innoca.local"
 
 # Директория для фронта
 deploy_dir: "/home/team_user/29/frontend"
