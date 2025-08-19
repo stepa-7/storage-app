@@ -1,94 +1,44 @@
 ---
-- name: Install Docker
-  apt:
-    name:
-      - docker.io
-      - docker-compose
-    state: present
-    update_cache: yes
+- hosts: frontend
+  become: yes
+  vars:
+    frontend_image: "{{ CI_REGISTRY_IMAGE }}/frontend:{{ CI_COMMIT_SHORT_SHA }}"
+    deploy_dir: "/home/team_user/frontend"
 
-- name: Ensure deployment directory exists
-  file:
-    path: "{{ deploy_dir }}"
-    state: directory
-    owner: team_user
-    group: team_user
-    mode: '0755'
+  tasks:
+    - name: Install Docker and Docker Compose
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+        state: present
+        update_cache: yes
 
-- name: Copy package.json and package-lock.json
-  copy:
-    src: "{{ playbook_dir }}/../package{{ item }}"
-    dest: "{{ deploy_dir }}/"
-    remote_src: false
-    owner: team_user
-    group: team_user
-    mode: '0644'
-  loop:
-    - .json
-    - -lock.json
+    - name: Create deployment directory
+      file:
+        path: "{{ deploy_dir }}"
+        state: directory
+        owner: team_user
+        group: team_user
 
-- name: Copy source files
-  synchronize:
-    src: "{{ playbook_dir }}/../src/"
-    dest: "{{ deploy_dir }}/src/"
-    recursive: yes
-    owner: team_user
-    group: team_user
-    mode: '0644'
+    - name: Copy Docker Compose file
+      copy:
+        src: "docker-compose.prod.yml"
+        dest: "{{ deploy_dir }}/docker-compose.prod.yml"
+        owner: team_user
+        group: team_user
 
-- name: Copy public files
-  synchronize:
-    src: "{{ playbook_dir }}/../public/"
-    dest: "{{ deploy_dir }}/public/"
-    recursive: yes
-    owner: team_user
-    group: team_user
-    mode: '0644'
+    - name: Login to Docker registry
+      community.docker.docker_login:
+        registry_url: "{{ CI_REGISTRY }}"
+        username: "{{ CI_REGISTRY_USER }}"
+        password: "{{ CI_REGISTRY_PASSWORD }}"
 
-- name: Copy configuration files
-  copy:
-    src: "{{ playbook_dir }}/../{{ item }}"
-    dest: "{{ deploy_dir }}/"
-    remote_src: false
-    owner: team_user
-    group: team_user
-    mode: '0644'
-  loop:
-    - index.html
-    - vite.config.ts
-    - tsconfig.json
-    - Dockerfile
-    - nginx.conf
-    - eslint.config.mjs
-
-- name: Stop and remove existing container
-  community.docker.docker_container:
-    name: "{{ container_name }}"
-    state: absent
-  ignore_errors: yes
-
-- name: Build Docker image
-  community.docker.docker_image:
-    name: "{{ docker_image_name }}"
-    build:
-      path: "{{ deploy_dir }}"
-      dockerfile: "{{ deploy_dir }}/Dockerfile"
-    source: build
-    force_source: yes
-
-- name: Ensure .env file exists
-  file:
-    path: "{{ deploy_dir }}/.env"
-    state: touch
-    owner: team_user
-    group: team_user
-    mode: 0640
-
-- name: Run container
-  community.docker.docker_container:
-    name: "{{ container_name }}"
-    image: "{{ docker_image_name }}"
-    ports:
-      - "{{ host_port }}:{{ container_port }}"
-    env_file: "{{ deploy_dir }}/.env"
-    restart_policy: unless-stopped
+    - name: Deploy frontend
+      community.docker.docker_compose:
+        project_src: "{{ deploy_dir }}"
+        files:
+          - "{{ deploy_dir }}/docker-compose.prod.yml"
+        state: present
+        pull: yes
+        restart: yes

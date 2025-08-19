@@ -12,7 +12,7 @@ cache:
   paths:
     - frontend/node_modules/
 
-build:
+build-:
   stage: build
   image: docker:20.10.16
   services:
@@ -26,18 +26,22 @@ build:
       changes:
         - frontend/**/*
 
-deploy:
+
+deploy-frontend:
   stage: deploy
   image: alpine
   before_script:
-    - apk add --no-cache openssh-client ansible  
-  script:
+    - apk add --no-cache openssh-client rsync
     - mkdir -p ~/.ssh
-    - echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
-    - chmod 700 ~/.ssh
-    - ansible-playbook -i frontend/ansible/inventory/hosts.yml frontend/ansible/playbook.yml
+  script:
+    - rsync -avz frontend/docker-compose.prod.yml team_user@$10.10.146.218:/home/team_user/frontend/
+    - ssh team_user@$10.10.146.218 "
+        cd /home/team_user/frontend &&
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+        docker-compose -f docker-compose.prod.yml pull &&
+        docker-compose -f docker-compose.prod.yml up -d
+      "
   rules:
-    - if: $CI_COMMIT_BRANCH
-      changes:
-        - frontend/**/*
+    - if: $CI_COMMIT_BRANCH == "main"
