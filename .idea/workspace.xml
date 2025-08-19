@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+<<<<<<< HEAD
+    <list default="true" id="f31c790b-5ffb-4221-9b67-41a845dc96dd" name="Changes" comment="" />
+=======
+    <list default="true" id="57153f35-ac46-4634-a72d-bd127c99c6d3" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/storage_module_1_0_SNAPSHOT.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/t1-team-29.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/.env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/controller/ExceptionHandlers.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/controller/ExceptionHandlers.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/controller/StorageObjectController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/controller/StorageObjectController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/model/dto/storage/StorageUpdate.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/model/dto/storage/StorageUpdate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/model/dto/storage_object/StorageObjectUpdate.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/model/dto/storage_object/StorageObjectUpdate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/model/entity/StorageObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/model/entity/StorageObject.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/repository/StorageObjectRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/repository/StorageObjectRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/repository/StorageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/repository/StorageRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/service/StorageObjectService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/service/StorageObjectService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/service/StorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/src/main/java/com/storage/service/StorageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/storage-module/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/storage-module/src/main/resources/application.yaml" afterDir="false" />
+    </list>
+>>>>>>> dev-task-8
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+<<<<<<< HEAD
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 4
+}]]></component>
+  <component name="ProjectId" id="31OxY8dj9obGQiaplet577bjnp9" />
+=======
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+        <option value="Exception" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitLabMergeRequestFiltersHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPENED&quot;,
+    &quot;assignee&quot;: {
+      &quot;type&quot;: &quot;org.jetbrains.plugins.gitlab.mergerequest.ui.filters.GitLabMergeRequestsFiltersValue.MergeRequestsMemberFilterValue.MergeRequestsAssigneeFilterValue&quot;,
+      &quot;username&quot;: &quot;IT-CAMP-CS-S-154&quot;,
+      &quot;fullname&quot;: &quot;IT-CAMP-CS-S-154 IT-CAMP-CS-S-154&quot;
+    }
+  }
+}</component>
+  <component name="GitLabMergeRequestsSettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;first&quot;: &quot;https://it-camp.innoca.local/IT-CAMP-CS-S-111/t1-team-29.git&quot;,
+    &quot;second&quot;: &quot;fdc41942-72c8-47e6-a9a1-43a312f2ef22&quot;
+  }
+}</component>
+  <component name="HttpClientEndpointsTabState">
+    <option name="cachedRequestData" value="&lt;CachedHttpClientTabRequests&gt;&#10;  &lt;entry key=&quot;59c32a145f2307726e79e23b1d967cdf00183cc8&quot; value=&quot;###&amp;#10;GET http://localhost:${SERVER_PORT:8081}/objects/{{id}}&quot; /&gt;&#10;&lt;/CachedHttpClientTabRequests&gt;" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="31KzNCvZzHF0MosFlwebNK3w4cq" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+>>>>>>> dev-task-8
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+<<<<<<< HEAD
+    "git-widget-placeholder": "dev-task-11",
+    "last_opened_file_path": "D:/T1 Lessons/проект/t1-team-29"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f31c790b-5ffb-4221-9b67-41a845dc96dd" name="Changes" comment="" />
+      <created>1755408964479</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1755408964479</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+=======
+    "git-widget-placeholder": "dev-task-8",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/book/IdeaProjects/t1-team-29/backend/task-8",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/backend/storage-module" />
+      <recent name="$PROJECT_DIR$/backend" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="task-8" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="task-8" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration name="StorageApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="storage-module" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.storage.StorageApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.218" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.218" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="57153f35-ac46-4634-a72d-bd127c99c6d3" name="Changes" comment="" />
+      <created>1755287509927</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1755287509927</updated>
+      <workItem from="1755287511026" duration="749000" />
+      <workItem from="1755332780563" duration="708000" />
+      <workItem from="1755336129664" duration="14810000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+>>>>>>> dev-task-8
+  </component>
+</project>
