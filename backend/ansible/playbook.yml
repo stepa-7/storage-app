@@ -96,25 +96,24 @@
         remove_orphans: true
       ignore_errors: true
 
-    # --- проверяем конфликты портов и гасим сторонние контейнеры при необходимости ---
-    - name: List running containers as JSON lines
+    # --- безопасно получаем список контейнеров и их порты (без JSON/Jinja конфликта) ---
+    - name: List running containers (ID|Ports)
       ansible.builtin.command:
         argv:
           - bash
           - -lc
-          - "docker ps --format '{{json .}}'"
-      register: docker_ps_json
+          - "docker ps --format '{{'{{'}}.ID{{'}}'}}|{{'{{'}}.Ports{{'}}'}}'"
+      register: docker_ps_lines
       changed_when: false
 
     - name: Build list of conflicting container IDs (publishing target ports)
       ansible.builtin.set_fact:
         conflicting_ids: >-
           {{
-            docker_ps_json.stdout_lines
-            | map('from_json')
-            | selectattr('Ports', 'defined')
-            | selectattr('Ports', 'search', '0\\.0\\.0\\.0:(' ~ (published_ports | join('|')) ~ ')')
-            | map(attribute='ID')
+            docker_ps_lines.stdout_lines
+            | map('split','|', 1)
+            | selectattr(1, 'search', '0\\.0\\.0\\.0:(' ~ (published_ports | join('|')) ~ ')')
+            | map('first')
             | list
           }}
 
