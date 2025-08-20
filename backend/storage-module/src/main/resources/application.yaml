@@ -1,3 +1,4 @@
+
 spring:
 #  cloud:
 #    gateway:
@@ -8,6 +9,8 @@ spring:
 #            - Path=/api/storage/**  # все такие запросы отправляем туда
 #          filters:
 #            - RewritePath=/api/storage/(?<segment>.*), /${segment}
+  kafka:
+    bootstrap-servers: ${KAFKA_PORT}
   config:
     import: optional:file:.env
   datasource:

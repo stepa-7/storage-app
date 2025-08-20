@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="api-gateway-module" />
+        <module name="notification-module" />
       </profile>
       <profile name="Annotation profile for storage-module" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -17,6 +18,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
         <module name="storage-module" />
+        <module name="auth-service" />
         <module name="qr-module" />
       </profile>
     </annotationProcessing>
@@ -24,6 +26,8 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway-module" options="-parameters" />
+      <module name="auth-service" options="-parameters" />
+      <module name="notification-module" options="-parameters" />
       <module name="qr-module" options="-parameters" />
       <module name="storage-module" options="-parameters" />
     </option>

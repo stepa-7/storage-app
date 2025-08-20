@@ -6,11 +6,13 @@ import com.storage.exception.StorageNotEmptyException;
 import com.storage.model.dto.storage.StorageCreate;
 import com.storage.model.dto.storage.StorageUpdate;
 import com.storage.model.entity.Storage;
+import com.storage.model.notification.StorageIsFullEvent;
 import com.storage.repository.StorageObjectRepository;
 import com.storage.repository.StorageRepository;
 import com.storage.repository.UnitRepository;
 import com.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class StorageServiceImpl implements StorageService {
     private final StorageRepository storageRepository;
     private final StorageObjectRepository objectRepository;
     private final UnitRepository unitRepository;
+    private final KafkaTemplate<String, StorageIsFullEvent> kafkaTemplate;
 
     @Transactional(readOnly = true)
     @Override
@@ -87,6 +90,13 @@ public class StorageServiceImpl implements StorageService {
             updateParentStorage(storage, dto.getParentId());
             hasChanges = true;
         }
+        StorageIsFullEvent event = new StorageIsFullEvent(
+                storage.getId(),
+                storage.getName(),
+                storage.getCapacity(),
+                storage.getFullness()
+        );
+        kafkaTemplate.send("storage-notification", event);
 
         return hasChanges ? storageRepository.save(storage) : storage;
     }

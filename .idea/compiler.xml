@@ -16,7 +16,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="storage-app" options="-parameters" />
-      <module name="storage-module" options="-parameters" />
+      <module name="storage-module" options="" />
     </option>
   </component>
 </project>
