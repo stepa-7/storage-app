@@ -22,9 +22,11 @@ build-:
     - docker build -t $DOCKER_IMAGE:$DOCKER_TAG frontend/
     - docker push $DOCKER_IMAGE:$DOCKER_TAG
   rules:
-    - if: $CI_COMMIT_BRANCH
-      changes:
-        - frontend/**/*
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: always
+      changes: [ "frontend/**/*" ]
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "dev-frontend"'
+      changes: [ "frontend/**/*" ]
 
 
 deploy:
@@ -40,6 +42,8 @@ deploy:
     - ansible-playbook -i frontend/ansible/inventory/hosts.yml --extra-vars "docker_image=$DOCKER_IMAGE tag=$DOCKER_TAG" frontend/ansible/playbook.yml
 
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: always
+      changes: [ "frontend/**/*" ]
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "dev-frontend"'
-      changes:
-        - frontend/**/*
+      changes: [ "frontend/**/*" ]
