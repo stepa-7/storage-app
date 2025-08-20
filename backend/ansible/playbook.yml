@@ -27,7 +27,7 @@
       apt:
         name:
           - docker.io                  
-          - docker-compose-plugin
+          - docker-compose
           - python3-docker             
         state: present
         update_cache: yes
