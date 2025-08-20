@@ -1,33 +1,35 @@
 ---
 - name: Install Nginx
-  apt:
+  ansible.builtin.apt:
     name: nginx
     state: present
     update_cache: yes
   notify: Restart Nginx
 
 - name: Ensure Nginx config directory exists
-  file:
+  ansible.builtin.file:
     path: /etc/nginx/conf.d
     state: directory
     mode: '0755'
 
-- name: Copy main Nginx config
-  template:
+- name: Copy main Nginx config (validate)
+  ansible.builtin.template:
     src: "nginx.conf.j2"
     dest: "/etc/nginx/nginx.conf"
     mode: '0644'
+    validate: "nginx -t -c %s"
   notify: Restart Nginx
 
-- name: Copy backend Nginx config
-  template:
-    src: "../backend/templates/nginx-backend.conf.j2"
-    dest: "/etc/nginx/conf.d/backend.conf"
+
+- name: Copy backend vhost
+  ansible.builtin.template:
+    src: "backend.conf.j2"
+    dest: "{{ nginx_conf_path }}"
     mode: '0644'
   notify: Restart Nginx
 
 - name: Ensure Nginx is running
-  service:
+  ansible.builtin.service:
     name: nginx
     state: started
     enabled: yes

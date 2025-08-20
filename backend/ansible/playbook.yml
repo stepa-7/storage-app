@@ -1,32 +1,132 @@
 ---
-- hosts: backend
-  gather_facts: no
-  vars:
-    compose_dir: "/home/team_user/29/backend"
-  tasks:
+- name: Deploy backend stack
+  hosts: backend
+  become: true
+  gather_facts: yes
 
-    - name: Ensure deployment directory exists
+  vars:
+    app_user: "{{ ansible_user | default('team_user') }}"
+    app_group: "{{ ansible_user | default('team_user') }}"
+    registry: "{{ registry | default(ci_registry, true) }}"
+    tag: "{{ tag | default(image_tag, true) }}"
+    compose_abs_path: "{{ compose_dir }}/{{ compose_file }}"
+
+  pre_tasks:
+    - name: Ensure base packages present (remote host)
+      apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - python3
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Install Docker engine)
+      apt:
+        name:
+          - docker.io                  
+          - docker-compose
+          - python3-docker             
+        state: present
+        update_cache: yes
+
+    - name: Ensure docker service running
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Ensure required secrets exist
+      assert:
+        that:
+          - auth_postgres_password | length > 8
+          - storage_postgres_password | length > 8
+          - jwt_secret | length >= 16
+          - minio_secret_key | length >= 12
+        fail_msg: "Missing/weak secrets in GitLab CI Variables."
+
+    - name: Ensure deploy directory exists with owner
       file:
         path: "{{ compose_dir }}"
         state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0755"
 
-    - name: Copy docker-compose file
-      copy:
-        src: "{{ playbook_dir }}/../docker-compose.yml"
-        dest: "{{ compose_dir }}/docker-compose.yml"
+  roles:
+    - role: nginx
 
-    - name: Login to registry
+  tasks:
+    - name: Render deploy docker-compose from template
+      template:
+        src: "{{ playbook_dir }}/templates/docker-compose.deploy.yml.j2"
+        dest: "{{ compose_abs_path }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0644"
+      vars:
+        registry: "{{ registry }}"
+        tag: "{{ tag }}"
+
+    - name: Render auth-service .env
+      template:
+        src: "{{ playbook_dir }}/templates/auth-service.env.j2"
+        dest: "{{ compose_dir }}/auth-service.env"
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0600"
+
+    - name: Render storage-module .env
+      template:
+        src: "{{ playbook_dir }}/templates/storage-module.env.j2"
+        dest: "{{ compose_dir }}/storage-module.env"
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0600"
+
+    - name: Docker login (registry)
       community.docker.docker_login:
-        registry_url: "{{ lookup('env','CI_REGISTRY') }}"
-        username: "{{ lookup('env','CI_REGISTRY_USER') }}"
-        password: "{{ lookup('env','CI_REGISTRY_PASSWORD') }}"
+        registry_url: "{{ ci_registry }}"
+        username: "{{ ci_registry_user }}"
+        password: "{{ ci_registry_password }}"
+      when: ci_registry != ""
 
-    - name: Pull images according to compose
+    # Мягкий down (без томов), чтобы убрать застрявшие контейнеры/сети
+    - name: Compose down (no volumes)
       community.docker.docker_compose:
+        project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
+        files: ["{{ compose_file }}"]
+        state: absent
+        remove_orphans: true
+      ignore_errors: true
+
+    - name: Pull images
+      community.docker.docker_compose:
+        project_name: "{{ project_name }}"
+        project_src: "{{ compose_dir }}"
+        files: ["{{ compose_file }}"]
         pull: yes
 
-    - name: Deploy containers
+    - name: Up stack
       community.docker.docker_compose:
+        project_name: "{{ project_name }}"
         project_src: "{{ compose_dir }}"
+        files: ["{{ compose_file }}"]
         state: present
+
+    - name: Compose ps (diagnostic)
+      command:
+        argv:
+          - bash
+          - -lc
+          - "docker compose -f '{{ compose_abs_path }}' ps || docker-compose -f '{{ compose_abs_path }}' ps"
+      args:
+        chdir: "{{ compose_dir }}"
+      register: ps_out
+      changed_when: false
+
+    - debug:
+        var: ps_out.stdout
