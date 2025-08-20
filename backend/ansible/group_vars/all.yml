@@ -55,3 +55,6 @@ backend_branch: "main"
 # Системные пользователи
 app_user: "team_user"
 app_group: "team_user"
+
+
+api_gateway_host_port: 18080

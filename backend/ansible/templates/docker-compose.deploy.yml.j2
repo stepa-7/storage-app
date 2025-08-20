@@ -5,7 +5,7 @@ services:
   api-gateway:
     image: "{{ registry }}/api-gateway:{{ tag }}"
     ports:
-      - "8080:8080"
+      - "{{ api_gateway_host_port | default(18080) }}:8080"   
     depends_on:
       - storage-app
       - qr-module
