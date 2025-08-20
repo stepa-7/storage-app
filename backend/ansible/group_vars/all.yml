@@ -58,3 +58,13 @@ app_group: "team_user"
 
 
 api_gateway_host_port: 18080
+
+nginx_user_map:
+  Debian: www-data
+  Ubuntu: www-data
+  RedHat: nginx
+  Rocky: nginx
+  CentOS: nginx
+  Alpine: nginx
+
+nginx_user: "{{ nginx_user_map.get(ansible_facts.os_family, 'www-data') }}"
