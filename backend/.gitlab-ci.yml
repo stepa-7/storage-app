@@ -3,6 +3,7 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
       when: always
     - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 stages:
   - docker
