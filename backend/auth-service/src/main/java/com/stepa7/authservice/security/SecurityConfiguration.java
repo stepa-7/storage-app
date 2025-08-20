@@ -71,10 +71,10 @@ public class SecurityConfiguration {
                         .requestMatchers("/actuator/health").permitAll()
 
                         // аутентификация (публичные)
-                        .requestMatchers("/auth/signup", "/auth/signin").permitAll()
+                        .requestMatchers("/auth/signup", "/auth/signin", "/auth/refresh").permitAll()
 
                         // refresh/logout — нужен refresh-cookie → обрабатывает твой TokenFilter
-                        .requestMatchers("/auth/refresh", "/auth/logout").authenticated()
+                        .requestMatchers( "/auth/logout").authenticated()
 
                         // админские
                         .requestMatchers("/admin/**", "/user/*/roles").hasRole("ADMIN")

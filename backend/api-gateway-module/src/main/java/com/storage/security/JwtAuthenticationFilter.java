@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
-            final List<String> apiEndpoints = List.of("/auth/signin", "/auth/signup", "/actuator/health");
+            final List<String> apiEndpoints = List.of("/auth/signin", "/auth/signup", "/auth/refresh", "/actuator/health");
 
             Predicate<ServerHttpRequest> isApiSecured = r -> apiEndpoints.stream()
                     .noneMatch(uri -> r.getURI().getPath().contains(uri));
