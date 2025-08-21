@@ -21,7 +21,7 @@ public class StorageObjectUpdate {
     @Pattern(regexp = "^[a-zA-Z0-9\\sа-яА-ЯёЁ]+$", message = "Only letters, numbers and spaces allowed")
     private String name;
 
-    @NotBlank
+    @NotNull
     @JsonProperty("storage_id")
     private UUID storageId;
 

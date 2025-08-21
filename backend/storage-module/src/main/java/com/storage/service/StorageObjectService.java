@@ -4,6 +4,7 @@ import com.storage.model.dto.storage_object.StorageObjectCreate;
 import com.storage.model.dto.storage_object.StorageObjectCreateWithFileDto;
 import com.storage.model.dto.storage_object.StorageObjectUpdate;
 import com.storage.model.dto.storage_object.StorageObjectUpdateWithFileDto;
+import com.storage.model.entity.Storage;
 import com.storage.model.entity.StorageObject;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,14 +20,16 @@ public interface StorageObjectService {
     StorageObject create(StorageObjectCreate dto);
 
     @Transactional
+    StorageObject createWithFile(StorageObjectCreateWithFileDto createWithFileDto);
+
+    @Transactional
     StorageObject patch(UUID id, StorageObjectUpdate dto);
+
+    @Transactional
+    StorageObject updateWithFile(UUID id, StorageObjectUpdateWithFileDto updateWithFileDto);
 
     @Transactional
     void delete(UUID id);
 
-    @Transactional
-    StorageObject createWithFile(StorageObjectCreateWithFileDto createWithFileDto);
-
-    @Transactional
-    StorageObject updateWithFile(UUID id, StorageObjectUpdateWithFileDto updateWithFileDto);
+    void checkAccommodation(Storage storage, Double size, Double delta);
 }

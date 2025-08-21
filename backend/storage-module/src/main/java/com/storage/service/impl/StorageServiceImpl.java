@@ -207,8 +207,9 @@ public class StorageServiceImpl implements StorageService {
         Storage storage = storageRepository.findByIdAndIsDeletedFalse(storageId)
                 .orElseThrow(() -> new NotFoundException("Storage not found: " + storageId));
 
-        double fullness = calculateFullness(storageId);
-        return fullness + deltaSize <= storage.getCapacity();
+//        double fullness = calculateFullness(storageId);
+//        return fullness + deltaSize <= storage.getCapacity();
+        return storage.getFullness() + deltaSize <= storage.getCapacity();
     }
 
     @Override
