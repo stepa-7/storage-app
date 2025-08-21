@@ -33,4 +33,5 @@
     image: "{{ docker_image }}:{{ tag }}"
     ports:
       - "{{ host_port }}:{{ container_port }}"
+    env: "{{ container_env }}"
     restart_policy: unless-stopped
