@@ -1,22 +1,54 @@
-.page {
-  min-height: 100vh;
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 24px;
-  background: var(--bg-primary);
-}
+@use '../../shared/styles/theme.scss' as t;
 
 .container {
-  width: 100%;
-  max-width: 1200px;
+  overflow-y: auto;
+  max-height: 100%;
 }
 
-.title {
-  color: var(--text-primary);
+.templates {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
 }
 
-.text {
-  color: var(--text-secondary);
+.table {
+  :global(.mantine-Table-thead) {
+    background: light-dark(rgba(0, 0, 0, 0.02), rgba(255, 255, 255, 0.02));
+  }
+
+  :global(.mantine-Table-th) {
+    font-weight: 600;
+    color: light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-1));
+    border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.08));
+    padding: var(--mantine-spacing-md) var(--mantine-spacing-sm);
+  }
+
+  :global(.mantine-Table-td) {
+    vertical-align: top;
+    border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
+    padding: var(--mantine-spacing-md) var(--mantine-spacing-sm);
+  }
+
+  :global(.mantine-Table-tr) {
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: light-dark(rgba(59, 130, 246, 0.04), rgba(59, 130, 246, 0.08));
+    }
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  font-size: 16px;
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-gray-4));
+}
+
+.hintText {
+  margin-top: -4px;
 }

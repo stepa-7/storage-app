@@ -1,69 +1,56 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { objectsApi } from '@shared/api';
-import { type StorageObject, type CreateObjectRequest, type ApiError } from '@shared/types';
+import {
+  type StorageObject,
+  type CreateObjectRequest,
+  type UpdateObjectRequest,
+  type ApiError,
+} from '@shared/types';
+
+interface StorageStoreInterface {
+  updateStorageFullness: (storageId: string, delta: number) => void;
+}
 
 export class ObjectStore {
   objects: StorageObject[] = [];
   currentObject: StorageObject | null = null;
-  pagination = {
-    page: 1,
-    limit: 20,
-    total: 0,
-  };
   isLoading = false;
   error: string | null = null;
+
+  // Инъекция зависимости для StorageStore
+  private storageStore?: StorageStoreInterface;
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  // Загрузка списка объектов с пагинацией
-  loadObjects = async (page = 1, limit = 20): Promise<void> => {
-    this.setLoading(true);
-    this.clearError();
-
-    try {
-      const response = await objectsApi.getObjects(page, limit);
-      runInAction(() => {
-        this.objects = response.data;
-        this.pagination = {
-          page: response.page,
-          limit: response.limit,
-          total: response.total,
-        };
-      });
-    } catch (error) {
-      const apiError = error as ApiError;
-      runInAction(() => {
-        this.error = apiError.message || 'Ошибка загрузки объектов';
-      });
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
-    }
+  // Метод для инъекции StorageStore
+  setStorageStore = (storageStore: StorageStoreInterface): void => {
+    this.storageStore = storageStore;
   };
 
-  // Загрузка объектов по хранилищу
-  loadObjectsByStorage = async (storageId: string, page = 1, limit = 20): Promise<void> => {
+  // Загрузка списка объектов
+
+  // Загрузка списка объектов
+
+  loadObjects = async (params?: {
+    storage_id?: string;
+    template_id?: string;
+    decommissioned?: boolean;
+  }): Promise<void> => {
     this.setLoading(true);
     this.clearError();
 
     try {
-      const response = await objectsApi.getObjectsByStorage(storageId, page, limit);
+      const objects = await objectsApi.getObjects(params);
       runInAction(() => {
-        this.objects = response.data;
-        this.pagination = {
-          page: response.page,
-          limit: response.limit,
-          total: response.total,
-        };
+        this.objects = objects;
       });
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка загрузки объектов хранилища';
+        this.error = apiError.error || 'Ошибка загрузки объектов';
       });
     } finally {
       runInAction(() => {
@@ -85,7 +72,7 @@ export class ObjectStore {
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка загрузки объекта';
+        this.error = apiError.error || 'Ошибка загрузки объекта';
       });
     } finally {
       runInAction(() => {
@@ -100,18 +87,47 @@ export class ObjectStore {
     this.clearError();
 
     try {
+      // ВРЕМЕННЫЙ МОК: создаем объект локально
+      // TODO: Убрать после подключения бэкенда
+      const newObject: StorageObject = {
+        id: Date.now().toString(),
+        name: data.name,
+        template_id: data.template_id,
+        storage_id: data.storage_id,
+        size: data.size,
+        unit_id: data.unit_id,
+        attributes: data.attributes,
+        photo_url: undefined, // TODO: обработать загрузку фото
+        is_decommissioned: false,
+        created_by: '1',
+        created_at: new Date().toISOString(),
+      };
+
+      runInAction(() => {
+        this.objects.unshift(newObject);
+      });
+
+      // Обновляем заполненность хранилища
+      if (this.storageStore) {
+        this.storageStore.updateStorageFullness(newObject.storage_id, newObject.size);
+      }
+
+      return newObject;
+
+      // ЗАКОММЕНТИРОВАНО: оригинальный код для бэкенда
+      /*
       const newObject = await objectsApi.createObject(data);
 
       runInAction(() => {
         this.objects.unshift(newObject);
-        this.pagination.total += 1;
       });
 
       return newObject;
+      */
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка создания объекта';
+        this.error = apiError.error || 'Ошибка создания объекта';
       });
       return null;
     } finally {
@@ -122,14 +138,38 @@ export class ObjectStore {
   };
 
   // Обновление объекта
-  updateObject = async (
-    id: string,
-    data: Partial<CreateObjectRequest>,
-  ): Promise<StorageObject | null> => {
+  updateObject = async (id: string, data: UpdateObjectRequest): Promise<StorageObject | null> => {
     this.setLoading(true);
     this.clearError();
 
     try {
+      // ВРЕМЕННЫЙ МОК: обновляем объект локально
+      // TODO: Убрать после подключения бэкенда
+      const existingObject = this.objects.find((o) => o.id === id);
+      if (!existingObject) {
+        throw new Error('Объект не найден');
+      }
+
+      const updatedObject: StorageObject = {
+        ...existingObject,
+        ...data,
+      };
+
+      runInAction(() => {
+        const index = this.objects.findIndex((o) => o.id === id);
+        if (index !== -1) {
+          this.objects[index] = updatedObject;
+        }
+
+        if (this.currentObject?.id === id) {
+          this.currentObject = updatedObject;
+        }
+      });
+
+      return updatedObject;
+
+      // ЗАКОММЕНТИРОВАНО: оригинальный код для бэкенда
+      /*
       const updatedObject = await objectsApi.updateObject(id, data);
 
       runInAction(() => {
@@ -144,10 +184,11 @@ export class ObjectStore {
       });
 
       return updatedObject;
+      */
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка обновления объекта';
+        this.error = apiError.error || 'Ошибка обновления объекта';
       });
       return null;
     } finally {
@@ -163,11 +204,31 @@ export class ObjectStore {
     this.clearError();
 
     try {
+      // ВРЕМЕННЫЙ МОК: удаляем объект локально
+      // TODO: Убрать после подключения бэкенда
+      const objectToDelete = this.objects.find((o) => o.id === id);
+
+      runInAction(() => {
+        this.objects = this.objects.filter((o) => o.id !== id);
+
+        if (this.currentObject?.id === id) {
+          this.currentObject = null;
+        }
+      });
+
+      // Обновляем заполненность хранилища
+      if (objectToDelete && this.storageStore) {
+        this.storageStore.updateStorageFullness(objectToDelete.storage_id, -objectToDelete.size);
+      }
+
+      return true;
+
+      // ЗАКОММЕНТИРОВАНО: оригинальный код для бэкенда
+      /*
       await objectsApi.deleteObject(id);
 
       runInAction(() => {
         this.objects = this.objects.filter((o) => o.id !== id);
-        this.pagination.total = Math.max(0, this.pagination.total - 1);
 
         if (this.currentObject?.id === id) {
           this.currentObject = null;
@@ -175,10 +236,11 @@ export class ObjectStore {
       });
 
       return true;
+      */
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка удаления объекта';
+        this.error = apiError.error || 'Ошибка удаления объекта';
       });
       return false;
     } finally {
@@ -188,36 +250,24 @@ export class ObjectStore {
     }
   };
 
-  // Перемещение объекта в другое хранилище
-  moveObject = async (id: string, newStorageId: string): Promise<boolean> => {
-    this.setLoading(true);
-    this.clearError();
-
+  // Получение QR-кода для объекта
+  getObjectQRCode = async (): Promise<Blob | null> => {
     try {
-      const movedObject = await objectsApi.moveObject(id, newStorageId);
+      // ВРЕМЕННЫЙ МОК: возвращаем пустой blob
+      // TODO: Убрать после подключения бэкенда
+      return new Blob(['Mock QR Code'], { type: 'image/png' });
 
-      runInAction(() => {
-        const index = this.objects.findIndex((o) => o.id === id);
-        if (index !== -1) {
-          this.objects[index] = movedObject;
-        }
-
-        if (this.currentObject?.id === id) {
-          this.currentObject = movedObject;
-        }
-      });
-
-      return true;
+      // ЗАКОММЕНТИРОВАНО: оригинальный код для бэкенда
+      /*
+      const qrCode = await objectsApi.getObjectQRCode(id);
+      return qrCode;
+      */
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка перемещения объекта';
+        this.error = apiError.error || 'Ошибка получения QR-кода';
       });
-      return false;
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
+      return null;
     }
   };
 
@@ -238,7 +288,7 @@ export class ObjectStore {
 
   // Получение объектов по хранилищу
   getObjectsByStorage = (storageId: string): StorageObject[] => {
-    return this.objects.filter((o) => o.storageId === storageId);
+    return this.objects.filter((o) => o.storage_id === storageId);
   };
 
   // Проверка, есть ли объекты
@@ -251,34 +301,22 @@ export class ObjectStore {
     return this.objects.length;
   }
 
-  // Проверка, есть ли следующая страница
-  get hasNextPage(): boolean {
-    return this.pagination.page * this.pagination.limit < this.pagination.total;
-  }
+  // Получение объектов для конкретного хранилища
+  getObjectsForStorage = (storageId: string): StorageObject[] => {
+    const plainObjects = this.objects.map((obj) => ({
+      id: obj.id,
+      name: obj.name,
+      template_id: obj.template_id,
+      storage_id: obj.storage_id,
+      size: obj.size,
+      unit_id: obj.unit_id,
+      attributes: obj.attributes,
+      photo_url: obj.photo_url,
+      is_decommissioned: obj.is_decommissioned,
+      created_by: obj.created_by,
+      created_at: obj.created_at,
+    }));
 
-  // Проверка, есть ли предыдущая страница
-  get hasPrevPage(): boolean {
-    return this.pagination.page > 1;
-  }
-
-  // Переход на следующую страницу
-  nextPage = async (): Promise<void> => {
-    if (this.hasNextPage) {
-      await this.loadObjects(this.pagination.page + 1, this.pagination.limit);
-    }
-  };
-
-  // Переход на предыдущую страницу
-  prevPage = async (): Promise<void> => {
-    if (this.hasPrevPage) {
-      await this.loadObjects(this.pagination.page - 1, this.pagination.limit);
-    }
-  };
-
-  // Переход на конкретную страницу
-  goToPage = async (page: number): Promise<void> => {
-    if (page >= 1 && page <= Math.ceil(this.pagination.total / this.pagination.limit)) {
-      await this.loadObjects(page, this.pagination.limit);
-    }
+    return plainObjects.filter((o) => o.storage_id === storageId && !o.is_decommissioned);
   };
 }

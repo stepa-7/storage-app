@@ -1,7 +1,12 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { templatesApi } from '@shared/api';
-import { type ObjectTemplate, type CreateTemplateRequest, type ApiError } from '@shared/types';
+import {
+  type ObjectTemplate,
+  type CreateTemplateRequest,
+  type UpdateTemplateRequest,
+  type ApiError,
+} from '@shared/types';
 
 export class TemplateStore {
   templates: ObjectTemplate[] = [];
@@ -15,19 +20,20 @@ export class TemplateStore {
   }
 
   // Загрузка списка шаблонов
-  loadTemplates = async (): Promise<void> => {
+  loadTemplates = async (params?: { is_deleted?: boolean; name?: string }): Promise<void> => {
     this.setLoading(true);
     this.clearError();
 
     try {
-      const response = await templatesApi.getTemplates();
+      const templates = await templatesApi.getTemplates(params);
       runInAction(() => {
-        this.templates = response.data;
+        this.templates = templates;
+        this.updateActiveTemplatesList();
       });
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка загрузки шаблонов';
+        this.error = apiError.error || 'Ошибка загрузки шаблонов';
       });
     } finally {
       runInAction(() => {
@@ -49,7 +55,7 @@ export class TemplateStore {
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка загрузки активных шаблонов';
+        this.error = apiError.error || 'Ошибка загрузки активных шаблонов';
       });
     } finally {
       runInAction(() => {
@@ -71,7 +77,7 @@ export class TemplateStore {
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка загрузки шаблона';
+        this.error = apiError.error || 'Ошибка загрузки шаблона';
       });
     } finally {
       runInAction(() => {
@@ -86,20 +92,19 @@ export class TemplateStore {
     this.clearError();
 
     try {
+      // Реальный вызов API
       const newTemplate = await templatesApi.createTemplate(data);
 
       runInAction(() => {
         this.templates.push(newTemplate);
-        if (newTemplate.isActive) {
-          this.activeTemplates.push(newTemplate);
-        }
+        this.updateActiveTemplatesList();
       });
 
       return newTemplate;
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка создания шаблона';
+        this.error = apiError.error || 'Ошибка создания шаблона';
       });
       return null;
     } finally {
@@ -112,7 +117,7 @@ export class TemplateStore {
   // Обновление шаблона
   updateTemplate = async (
     id: string,
-    data: Partial<CreateTemplateRequest>,
+    data: UpdateTemplateRequest,
   ): Promise<ObjectTemplate | null> => {
     this.setLoading(true);
     this.clearError();
@@ -138,7 +143,7 @@ export class TemplateStore {
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка обновления шаблона';
+        this.error = apiError.error || 'Ошибка обновления шаблона';
       });
       return null;
     } finally {
@@ -146,6 +151,18 @@ export class TemplateStore {
         this.isLoading = false;
       });
     }
+  };
+
+  // Деактивация шаблона (мягкое удаление)
+  deactivateTemplate = async (id: string): Promise<boolean> => {
+    const result = await this.updateTemplate(id, { is_deleted: true });
+    return result !== null;
+  };
+
+  // Активация шаблона
+  activateTemplate = async (id: string): Promise<boolean> => {
+    const result = await this.updateTemplate(id, { is_deleted: false });
+    return result !== null;
   };
 
   // Удаление шаблона
@@ -157,44 +174,12 @@ export class TemplateStore {
       await templatesApi.deleteTemplate(id);
 
       runInAction(() => {
+        // Удаляем шаблон из списка
         this.templates = this.templates.filter((t) => t.id !== id);
-        this.activeTemplates = this.activeTemplates.filter((t) => t.id !== id);
 
+        // Если это текущий шаблон, очищаем его
         if (this.currentTemplate?.id === id) {
           this.currentTemplate = null;
-        }
-      });
-
-      return true;
-    } catch (error) {
-      const apiError = error as ApiError;
-      runInAction(() => {
-        this.error = apiError.message || 'Ошибка удаления шаблона';
-      });
-      return false;
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
-    }
-  };
-
-  // Переключение статуса шаблона (активен/неактивен)
-  toggleTemplateStatus = async (id: string, isActive: boolean): Promise<boolean> => {
-    this.setLoading(true);
-    this.clearError();
-
-    try {
-      const updatedTemplate = await templatesApi.toggleTemplateStatus(id, isActive);
-
-      runInAction(() => {
-        const index = this.templates.findIndex((t) => t.id === id);
-        if (index !== -1) {
-          this.templates[index] = updatedTemplate;
-        }
-
-        if (this.currentTemplate?.id === id) {
-          this.currentTemplate = updatedTemplate;
         }
 
         // Обновляем активные шаблоны
@@ -205,7 +190,7 @@ export class TemplateStore {
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка изменения статуса шаблона';
+        this.error = apiError.error || 'Ошибка удаления шаблона';
       });
       return false;
     } finally {
@@ -227,7 +212,7 @@ export class TemplateStore {
 
   // Обновление списка активных шаблонов
   private updateActiveTemplatesList = () => {
-    this.activeTemplates = this.templates.filter((t) => t.isActive);
+    this.activeTemplates = this.templates.filter((t) => !t.is_deleted);
   };
 
   // Получение шаблона по ID

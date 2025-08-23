@@ -2,22 +2,23 @@ import { API_ENDPOINTS } from '@shared/constants';
 import {
   type ObjectTemplate,
   type CreateTemplateRequest,
-  type PaginatedResponse,
+  type UpdateTemplateRequest,
 } from '@shared/types';
 
 import { api } from './client';
 
 export const templatesApi = {
   // Получение списка шаблонов
-  getTemplates: async (page = 1, limit = 20): Promise<PaginatedResponse<ObjectTemplate>> => {
-    return api.get<PaginatedResponse<ObjectTemplate>>(
-      `${API_ENDPOINTS.TEMPLATES.LIST}?page=${page}&limit=${limit}`,
-    );
+  getTemplates: async (params?: {
+    is_deleted?: boolean;
+    name?: string;
+  }): Promise<ObjectTemplate[]> => {
+    return api.get<ObjectTemplate[]>(API_ENDPOINTS.TEMPLATES.LIST, { params });
   },
 
   // Получение активных шаблонов
   getActiveTemplates: async (): Promise<ObjectTemplate[]> => {
-    return api.get<ObjectTemplate[]>(`${API_ENDPOINTS.TEMPLATES.LIST}?isActive=true`);
+    return api.get<ObjectTemplate[]>(`${API_ENDPOINTS.TEMPLATES.LIST}?is_deleted=false`);
   },
 
   // Получение шаблона по ID
@@ -27,24 +28,30 @@ export const templatesApi = {
 
   // Создание нового шаблона
   createTemplate: async (data: CreateTemplateRequest): Promise<ObjectTemplate> => {
-    return api.post<ObjectTemplate>(API_ENDPOINTS.TEMPLATES.CREATE, data);
+    const backendData = {
+      name: data.name,
+      description: data.description || '',
+      schema: data.schema,
+    };
+    return api.post<ObjectTemplate>(API_ENDPOINTS.TEMPLATES.CREATE, backendData);
   },
 
   // Обновление шаблона
-  updateTemplate: async (
-    id: string,
-    data: Partial<CreateTemplateRequest>,
-  ): Promise<ObjectTemplate> => {
-    return api.put<ObjectTemplate>(API_ENDPOINTS.TEMPLATES.UPDATE(id), data);
+  updateTemplate: async (id: string, data: UpdateTemplateRequest): Promise<ObjectTemplate> => {
+    const backendData: Partial<{
+      name: string;
+      description: string;
+      is_deleted: boolean;
+    }> = {};
+    if (data.name) backendData.name = data.name;
+    if (data.description) backendData.description = data.description;
+    if (data.is_deleted !== undefined) backendData.is_deleted = data.is_deleted;
+
+    return api.patch<ObjectTemplate>(API_ENDPOINTS.TEMPLATES.UPDATE(id), backendData);
   },
 
   // Удаление шаблона
   deleteTemplate: async (id: string): Promise<void> => {
     return api.delete(API_ENDPOINTS.TEMPLATES.DELETE(id));
-  },
-
-  // Активация/деактивация шаблона
-  toggleTemplateStatus: async (id: string, isActive: boolean): Promise<ObjectTemplate> => {
-    return api.patch<ObjectTemplate>(`/templates/${id}/status`, { isActive });
   },
 };

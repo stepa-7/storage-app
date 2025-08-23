@@ -1,26 +1,26 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import { API_BASE_URL } from '@shared/constants';
+import { API_BASE_URL, TOKEN_STORAGE_KEY } from '@shared/constants';
 import type { ApiError } from '@shared/types';
 
-// Создаем базовый экземпляр Axios
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Включаем передачу cookies для refresh токена
+  withCredentials: true,
 });
 
 // Interceptor для добавления access token в заголовки
 apiClient.interceptors.request.use(
   (config) => {
-    // Получаем access token из памяти (не из localStorage)
     const token = getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.error('API Request - No token, no Authorization header');
     }
     return config;
   },
@@ -37,8 +37,11 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Если ошибка 401 и это не повторный запрос
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Если ошибка 401 и это не повторный запрос — пробуем refresh, НО не для /auth/*
+    const status401 = error.response?.status === 401;
+    const url: string = originalRequest?.url || '';
+    const isAuthPath = /\/auth\/(signin|signup|refresh)/.test(url);
+    if (status401 && !originalRequest._retry && !isAuthPath) {
       originalRequest._retry = true;
 
       try {
@@ -46,7 +49,7 @@ apiClient.interceptors.response.use(
         const refreshResponse = await axios.post(
           `${API_BASE_URL}/auth/refresh`,
           {},
-          { withCredentials: true }, // Важно: передаем cookies
+          { withCredentials: true },
         );
 
         const { accessToken } = refreshResponse.data;
@@ -57,41 +60,74 @@ apiClient.interceptors.response.use(
         // Повторяем оригинальный запрос с новым токеном
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
-      } catch (refreshError) {
-        // Если не удалось обновить токен, очищаем данные и перенаправляем на логин
+      } catch {
+        // Если не удалось обновить токен, пробрасываем исходную ошибку
         clearAccessToken();
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
+        return Promise.reject(error);
       }
     }
 
-    // Обработка других ошибок
+    let errorMessage = 'Произошла ошибка';
+    const status = error.response?.status as number | undefined;
+    if (status === 401) {
+      const responseData = error.response?.data;
+      if (typeof responseData === 'string') {
+        errorMessage = responseData;
+      } else if (responseData?.error) {
+        errorMessage = responseData.error;
+      } else {
+        errorMessage = 'invalid_credentials';
+      }
+    } else if (status === 400) {
+      const responseData = error.response.data;
+
+      if (typeof responseData === 'string') {
+        errorMessage = responseData;
+      } else if (responseData?.error) {
+        errorMessage = responseData.error;
+      }
+    } else if (status === 404) {
+      errorMessage = 'Пользователь не найден';
+    } else if (status && status >= 500) {
+      errorMessage = 'Произошла ошибка';
+    } else if (error.response?.data?.error) {
+      errorMessage = error.response.data.error;
+    }
+
     const apiError: ApiError = {
-      message: error.response?.data?.message || 'Произошла ошибка',
-      code: error.response?.data?.code,
-      details: error.response?.data?.details,
+      error: errorMessage,
+      status,
     };
 
     return Promise.reject(apiError);
   },
 );
 
-// Функции для работы с access token в памяти (не в localStorage)
-let accessToken: string | null = null;
-
 const getAccessToken = (): string | null => {
-  return accessToken;
+  try {
+    return localStorage.getItem(TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
 };
 
 const setAccessToken = (token: string): void => {
-  accessToken = token;
+  try {
+    localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  } catch {
+    console.error('Could not set access token in localStorage');
+  }
 };
 
 const clearAccessToken = (): void => {
-  accessToken = null;
+  try {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+  } catch {
+    console.error('Could not remove access token from localStorage');
+  }
 };
 
-// Экспортируем функции для использования в stores
+// Экспорт функций для использования в stores
 export { getAccessToken, setAccessToken, clearAccessToken };
 
 // Типизированные методы для работы с API

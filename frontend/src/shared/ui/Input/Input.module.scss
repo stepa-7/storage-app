@@ -3,14 +3,14 @@
 /* Контейнер */
 .inputContainer {
   position: relative;
-  margin: 4px 0 0 0;
 }
 
 /* Поле ввода*/
 .inputField {
   display: block;
   width: 100%;
-  padding: 10px 0;
+  border-radius: 8px 8px 0 0;
+  padding: 8px 0px 8px 0px;
   font-size: 16px;
   border: none;
   border-bottom: 2px solid var(--border);
@@ -31,22 +31,11 @@
 /* Лейбл */
 .inputLabel {
   position: absolute;
-  top: 8px;
+  top: 0;
   left: 0;
   font-size: 16px;
   color: var(--text-secondary);
   pointer-events: none;
-  transition: all 0.3s ease;
-}
-
-/* Хайлайт */
-.inputHighlight {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 2px;
-  width: 0;
-  background-color: var(--text-primary);
   transition: all 0.3s ease;
 }
 
@@ -57,10 +46,6 @@
   color: var(--text-primary);
 }
 
-.inputField:focus + .inputLabel + .inputHighlight {
-  width: 100%;
-}
-
 /* Заполненное поле */
 .inputField:not(:placeholder-shown) + .inputLabel {
   top: -20px;
@@ -68,13 +53,28 @@
   color: var(--text-primary);
 }
 
-.inputField:not(:placeholder-shown) + .inputLabel + .inputHighlight {
-  width: 100%;
-}
-
 /* Сообщение об ошибке */
 .error {
   color: var(--error);
   font-size: 14px;
-  margin-top: 6px;
+  margin-top: 8px;
+}
+
+/* Анимация появления ошибки */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Стили для поля с ошибкой */
+.inputContainer.hasError .inputField {
+  border-radius: 8px 8px 0 0;
+  background-color: rgba(244, 67, 54, 0.08);
+  border-bottom-color: var(--error);
 }

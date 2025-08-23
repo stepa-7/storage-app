@@ -1,0 +1,86 @@
+.container {
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+  overflow-y: auto;
+  max-height: calc(100vh - 255px);
+}
+
+.storageNode {
+  display: flex;
+  flex-direction: column;
+}
+
+.storageCard {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.08));
+  border-radius: var(--mantine-radius-md);
+  padding: var(--mantine-spacing-lg);
+  background: light-dark(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.02));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  &:hover {
+    border-color: light-dark(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.4));
+    border-width: 2px;
+  }
+
+  &:active {
+    border-color: light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.6));
+  }
+
+  /* Liquid glass overlay */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: inherit;
+    background: light-dark(
+      linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, transparent 50%)
+    );
+  }
+}
+
+.expandButton {
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: var(--text-primary);
+    background-color: var(--button-subtle-bg-hover);
+  }
+}
+
+.storageName {
+  color: var(--text-primary);
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+.children {
+  margin-top: var(--mantine-spacing-sm);
+  padding-left: var(--mantine-spacing-lg);
+  border-left: 2px solid var(--border);
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--mantine-spacing-2xl);
+  color: var(--text-secondary);
+}

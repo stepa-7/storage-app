@@ -1,7 +1,6 @@
 #root {
   width: 100%;
   margin: 0 auto;
-  text-align: center;
 }
 
 html,
@@ -13,9 +12,17 @@ body,
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+.app-shell :global(.mantine-AppShell-navbar) {
+  transition: width 0.2s ease;
+}
+
+.app-shell :global(.mantine-AppShell-main) {
+  transition: margin-left 0.2s ease;
+  height: 100vh;
+  overflow: hidden;
 }

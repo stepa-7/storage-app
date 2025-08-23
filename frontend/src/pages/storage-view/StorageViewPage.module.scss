@@ -1,0 +1,146 @@
+@use '../../shared/styles/colors.scss' as c;
+
+.page {
+  min-height: 100vh;
+  background: var(--bg-surface);
+  height: 100vh;
+  overflow: hidden;
+}
+
+.container {
+  margin: 0 auto;
+  padding: var(--mantine-spacing-lg);
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  height: 100%;
+  padding-top: var(--mantine-spacing-md);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.titleSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-xs);
+}
+
+.title {
+  margin-bottom: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.childStorageCard {
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: var(--mantine-shadow-md);
+    border-color: var(--accent);
+  }
+}
+
+.objectCard {
+  background: var(--mantine-color-gray-0);
+  border: 1px solid var(--mantine-color-gray-3);
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: var(--mantine-shadow-md);
+    border-color: var(--mantine-color-blue-5);
+  }
+}
+
+.objectPhoto {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mantine-color-gray-1);
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+
+  .photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.noPhoto {
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--mantine-color-gray-1);
+  border-radius: var(--mantine-radius-md);
+  border: 2px dashed var(--mantine-color-gray-3);
+}
+
+.objectInfo {
+  flex: 1;
+}
+
+.objectName {
+  font-weight: 600;
+  color: var(--mantine-color-dark-9);
+  margin-bottom: 0.25rem;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem;
+  text-align: center;
+  border: 2px dashed var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-lg);
+}
+
+.themeIcon {
+  color: var(--mantine-color-gray-6);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--mantine-color-gray-4);
+  }
+}
+
+.emptyText {
+  color: var(--mantine-color-gray-6);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--mantine-color-gray-4);
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+}
+
+.progressCard {
+  position: relative;
+  margin: 16px 0;
+  box-shadow:
+    0 4px 16px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
+    inset 0 1px 0 light-dark(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2));
+}

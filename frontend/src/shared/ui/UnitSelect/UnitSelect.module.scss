@@ -1,0 +1,29 @@
+@use '../../styles/colors.scss' as c;
+
+.selectContainer {
+  width: 100%;
+}
+
+.label {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  display: block;
+
+  &.required::after {
+    content: ' *';
+    color: var(--error);
+  }
+}
+
+.select {
+  width: 100%;
+}
+
+.error {
+  color: var(--error);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+}

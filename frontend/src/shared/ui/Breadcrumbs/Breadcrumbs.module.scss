@@ -1,0 +1,59 @@
+.breadcrumbs {
+  background: transparent;
+  padding: 0;
+  color: var(--mantine-color-text);
+  font-size: var(--mantine-font-size-sm);
+
+  :global(.mantine-Breadcrumbs-root) {
+    color: var(--mantine-color-text);
+    font-size: var(--mantine-font-size-sm);
+  }
+
+  :global(.mantine-Breadcrumbs-separator) {
+    color: var(--mantine-color-text);
+    font-size: var(--mantine-font-size-sm);
+  }
+
+  :global(.mantine-Anchor-root) {
+    color: var(--mantine-color-text) !important;
+    font-size: var(--mantine-font-size-sm) !important;
+  }
+}
+
+.item {
+  border-radius: var(--mantine-radius-sm);
+  transition: all 0.2s ease;
+  color: var(--mantine-color-text);
+  text-decoration: none;
+  position: relative;
+  cursor: pointer;
+  font-size: var(--mantine-font-size-sm);
+
+  &.current {
+    color: var(--mantine-color-text) !important;
+    font-weight: 700 !important;
+    cursor: default;
+  }
+}
+
+.separator {
+  color: var(--mantine-color-text);
+  font-size: var(--mantine-font-size-sm);
+  opacity: 0.6;
+}
+
+.itemCount {
+  color: var(--mantine-color-text);
+  font-size: var(--mantine-font-size-sm);
+  opacity: 0.7;
+  margin-left: var(--mantine-spacing-xs);
+
+  .item.current & {
+    color: var(--mantine-color-text);
+  }
+
+  .item:hover:not(.current) & {
+    color: var(--mantine-color-text);
+    opacity: 0.7;
+  }
+}

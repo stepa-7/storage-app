@@ -6,9 +6,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  background: var(--bg-primary);
-  isolation: isolate; /* корректная слойность для псевдоэлементов */
+  padding: 24px;
+  background: var(--paper-bg);
+  isolation: isolate;
+  transition: background-color 0.3s ease;
 }
 
 /* слой под контент для GridMotion */
@@ -35,10 +36,13 @@
 .form {
   position: relative;
   isolation: isolate;
-  padding: 40px;
+  padding: 48px;
   background-color: transparent !important;
   overflow: hidden;
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 0 32px var(--form-shadow),
+    0 8px 32px var(--form-shadow-hover);
+  transition: all 0.3s ease;
 
   /* поднимаем весь контент над оверлеями */
   & > * {
@@ -46,7 +50,7 @@
     z-index: 1;
   }
 
-  /* liquid glass overlays */
+  /* liquid glass overlays с адаптацией к темам */
   &::before {
     content: '';
     position: absolute;
@@ -54,9 +58,18 @@
     z-index: -1;
     pointer-events: none;
     border-radius: 24px;
-    /* белый тинт поверх блюра */
-    background-color: rgba(255, 255, 255, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  :global([data-mantine-color-scheme='light']) &::before {
+    background-color: var(--glass-overlay);
+    border-color: var(--glass-border);
+  }
+
+  :global([data-mantine-color-scheme='dark']) &::before {
+    background-color: var(--glass-overlay);
+    border-color: var(--glass-border);
   }
 
   &::after {
@@ -78,41 +91,56 @@
   margin-bottom: 24px;
 }
 
-.title {
-  color: var(--text-primary) !important;
-  margin-bottom: 12px;
-  font-family: 'ALS Hauss', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important;
-  font-weight: 800 !important;
-  font-style: italic !important;
-  font-size: 48px !important;
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+
+  svg {
+    width: 200px;
+    height: auto;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
 }
 
 .subtitle {
   color: var(--text-secondary) !important;
-}
-
-.submitButton {
-  margin-top: 24px;
-  background: #000000 !important;
-  background-image: none !important;
-  color: #ffffff !important;
-  border: none !important;
-
-  &:hover {
-    background: #151515 !important;
-  }
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  opacity: 0.9;
+  transition: all 0.3s ease;
 }
 
 .footerText {
-  color: rgba(0, 0, 0, 0.8); // Darker
-  & span {
-    // For "Зарегистрироваться"
-    text-decoration: underline;
-    cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+
+  &:hover {
+    color: var(--text-primary);
+    border-bottom-color: var(--text-primary);
   }
 }
 
-// Глобально убираем любые разделители Mantine
 :global(.mantine-Text-root[data-error]),
 :global(.mantine-Text-root[data-invalid]),
 :global(.mantine-Text-root[aria-invalid='true']) {
@@ -128,65 +156,21 @@
   background: none !important;
 }
 
-.errorMessage {
+.error {
+  border-radius: 8px;
   color: var(--error);
   font-size: 14px;
   text-align: center;
   margin-top: 8px;
-
-  // Убираем любые разделители и подчеркивания
-  &::after,
-  &::before {
-    display: none !important;
-    content: none !important;
-  }
-
-  // Убираем border и outline
-  border: none !important;
-  outline: none !important;
-  text-decoration: none !important;
-
-  // Убираем любые возможные границы Mantine
-  &[data-error],
-  &[data-invalid] {
-    border: none !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
-  }
-
-  // Убираем любые фоновые элементы
-  background: none !important;
-  background-image: none !important;
-
-  // Убираем любые тени и эффекты
-  box-shadow: none !important;
-  filter: none !important;
+  font-weight: 500;
+  padding: 8px 12px;
+  background-color: rgba(244, 67, 54, 0.1);
 }
 
 .formFields {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.themeButton {
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-  background: transparent;
-  border-radius: 8px;
-  width: 36px;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
-
-  &:hover {
-    background: var(--text-secondary);
-    color: var(--bg-primary);
-  }
+  gap: 32px;
 }
 
 @media (max-width: 480px) {

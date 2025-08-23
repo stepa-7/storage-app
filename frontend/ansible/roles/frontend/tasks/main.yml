@@ -7,90 +7,29 @@
     state: present
     update_cache: yes
 
-- name: Ensure deployment directory exists
-  file:
-    path: "{{ deploy_dir }}"
-    state: directory
-    owner: team_user
-    group: team_user
-    mode: '0755'
-
-- name: Copy package.json and package-lock.json
-  copy:
-    src: "{{ playbook_dir }}/../package{{ item }}"
-    dest: "{{ deploy_dir }}/"
-    remote_src: false
-    owner: team_user
-    group: team_user
-    mode: '0644'
-  loop:
-    - .json
-    - -lock.json
-
-- name: Copy source files
-  copy:
-    src: "{{ playbook_dir }}/../src/"
-    dest: "{{ deploy_dir }}/src/"
-    remote_src: false
-    owner: team_user
-    group: team_user
-    mode: '0644'
-    recursive: yes
-
-- name: Copy public files
-  copy:
-    src: "{{ playbook_dir }}/../public/"
-    dest: "{{ deploy_dir }}/public/"
-    remote_src: false
-    owner: team_user
-    group: team_user
-    mode: '0644'
-    recursive: yes
-
-- name: Copy configuration files
-  copy:
-    src: "{{ playbook_dir }}/../{{ item }}"
-    dest: "{{ deploy_dir }}/"
-    remote_src: false
-    owner: team_user
-    group: team_user
-    mode: '0644'
-  loop:
-    - index.html
-    - vite.config.ts
-    - tsconfig.json
-    - Dockerfile
-    - nginx.conf
-    - eslint.config.mjs
-
-- name: Stop and remove existing container
-  docker_container:
-    name: "{{ container_name }}"
-    state: absent
-  ignore_errors: yes
+- name: Clone repository
+  git:
+    repo: '{{ frontend_repo }}'
+    dest: '{{ deploy_dir }}'
+    version: '{{ frontend_branch }}'
+    force: yes
+  environment:
+    GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=no -i /home/team_user/.ssh/id_rsa'
 
 - name: Build Docker image
   docker_image:
-    name: "{{ docker_image_name }}"
+    name: '{{ docker_image_name }}'
     build:
-      path: "{{ deploy_dir }}"
-      dockerfile: "{{ deploy_dir }}/Dockerfile"
+      path: '{{ deploy_dir }}'
+      dockerfile: '{{ deploy_dir }}/Dockerfile'
     source: build
     force_source: yes
 
-- name: Ensure .env file exists
-  file:
-    path: "{{ deploy_dir }}/.env"
-    state: touch
-    owner: team_user
-    group: team_user
-    mode: 0640
-
 - name: Run container
   docker_container:
-    name: "{{ container_name }}"
-    image: "{{ docker_image_name }}"
+    name: '{{ container_name }}'
+    image: '{{ docker_image_name }}'
     ports:
-      - "{{ host_port }}:{{ container_port }}"
-    env_file: "{{ deploy_dir }}/.env"
+      - '{{ host_port }}:{{ container_port }}'
+    env_file: '{{ deploy_dir }}/.env'
     restart_policy: unless-stopped

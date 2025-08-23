@@ -1,0 +1,104 @@
+/* Главный файл стилей приложения */
+@use './colors.scss' as c;
+@use './theme.scss' as t;
+@use './typography.scss' as typo;
+@use './fonts.scss' as fonts;
+@use './variables.scss' as v;
+
+/* Глобальные стили */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--mantine-font-family);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--text-primary);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* Утилиты для цветов */
+.text-primary {
+  color: var(--text-primary) !important;
+}
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+.text-accent {
+  color: var(--accent) !important;
+}
+.text-error {
+  color: var(--error) !important;
+}
+
+.bg-surface {
+  background-color: var(--bg-surface) !important;
+}
+
+.border {
+  border-color: var(--border) !important;
+}
+.border-light {
+  border-color: var(--button-outline-border) !important;
+}
+
+/* Глобальные стили для скролла */
+.page-container {
+  overflow-y: auto;
+  height: 100vh;
+  padding: var(--mantine-spacing-md);
+}
+
+.content-wrapper {
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+/* Стили для скроллбара */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--mantine-color-gray-1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mantine-color-gray-4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mantine-color-gray-6);
+}
+
+/* Глобальные стили для кнопок в темной теме */
+[data-mantine-color-scheme='dark'] .mantine-Button-root[data-variant='filled'] {
+  background-color: var(--mantine-color-gray-3) !important;
+  color: var(--mantine-color-dark-9) !important;
+  border: 1px solid var(--mantine-color-gray-4) !important;
+}
+
+[data-mantine-color-scheme='dark'] .mantine-Button-root[data-variant='filled']:hover {
+  background-color: var(--mantine-color-gray-2) !important;
+  border-color: var(--mantine-color-gray-5) !important;
+}
+
+[data-mantine-color-scheme='dark'] .mantine-Button-root[data-variant='filled']:active {
+  background-color: var(--mantine-color-white) !important;
+  border-color: var(--mantine-color-white) !important;
+}
+
+[data-mantine-color-scheme='dark'] .mantine-Button-root[data-variant='filled']:disabled {
+  background-color: var(--mantine-color-gray-5) !important;
+  color: var(--mantine-color-gray-7) !important;
+  border-color: var(--mantine-color-gray-6) !important;
+  cursor: not-allowed !important;
+}

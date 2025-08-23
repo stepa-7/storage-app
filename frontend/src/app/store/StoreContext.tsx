@@ -1,22 +1,19 @@
 import React, { createContext, useContext, type ReactNode } from 'react';
 
-import { type RootStoreType } from './index';
+import { type RootStore } from './index';
 
-// Создаем контекст для stores
-const StoreContext = createContext<RootStoreType | null>(null);
+const StoreContext = createContext<RootStore | null>(null);
 
-// Провайдер для stores
 interface StoreProviderProps {
   children: ReactNode;
-  store: RootStoreType;
+  store: RootStore;
 }
 
 export const StoreProvider: React.FC<StoreProviderProps> = ({ children, store }) => {
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 };
 
-// Хук для использования stores в компонентах
-export const useStore = (): RootStoreType => {
+export const useStore = (): RootStore => {
   const store = useContext(StoreContext);
   if (!store) {
     throw new Error('useStore must be used within StoreProvider');
@@ -24,8 +21,8 @@ export const useStore = (): RootStoreType => {
   return store;
 };
 
-// Хуки для отдельных stores
 export const useAuthStore = () => useStore().authStore;
 export const useStorageStore = () => useStore().storageStore;
 export const useTemplateStore = () => useStore().templateStore;
 export const useObjectStore = () => useStore().objectStore;
+export const useUnitStore = () => useStore().unitStore;

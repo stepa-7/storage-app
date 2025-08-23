@@ -1,29 +1,40 @@
-import { Container, Paper, Title, Text, Stack, ActionIcon } from '@mantine/core';
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Container, Paper, Text, Stack, Button } from '@mantine/core';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 
 import { useAuthStore } from '@app/store/StoreContext';
-import { ROUTES, VALIDATION } from '@shared/constants';
-import { Input, Button } from '@shared/ui';
+import LogoText from '@shared/assets/icons/logo_text/logo_text.svg?react';
+import { ROUTES } from '@shared/constants';
+import { useZodForm } from '@shared/lib';
+import { signinSchema, type SigninSchema } from '@shared/schemas';
+import { Input, ThemeToggle } from '@shared/ui';
 import GridMotion from '@shared/ui/GridMotion/GridMotion';
 
 import styles from './LoginPage.module.scss';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { signin, isAuthenticated, isLoading, error } = useAuthStore();
+  const {
+    signin,
+    isAuthenticated,
+    isLoading,
+    error,
+    clearError: clearErrorFromStore,
+  } = useAuthStore();
 
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const clearError = useCallback(() => {
+    clearErrorFromStore();
+  }, [clearErrorFromStore]);
 
-  const [formErrors, setFormErrors] = useState({
-    email: '',
-    password: '',
-  });
+  // Локальное состояние для ошибки API
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  const form = useZodForm(signinSchema, {
+    login: '',
+    password: '',
+  });
 
   // Перенаправление если уже авторизован
   useEffect(() => {
@@ -32,66 +43,58 @@ export const LoginPage: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const validateForm = (): boolean => {
-    const errors = {
-      email: '',
-      password: '',
-    };
+  // Очистка ошибок при монтировании компонента
+  const resetForm = useCallback(() => {
+    form.clearErrors();
+    form.reset();
+  }, []); // form стабилен, не добавляем в зависимости
 
-    // Валидация email
-    if (!formData.email) {
-      errors.email = 'Email обязателен';
-    } else if (!VALIDATION.EMAIL.PATTERN.test(formData.email)) {
-      errors.email = 'Неверный формат email';
-    } else if (formData.email.length < VALIDATION.EMAIL.MIN_LENGTH) {
-      errors.email = `Email должен содержать минимум ${VALIDATION.EMAIL.MIN_LENGTH} символа`;
-    } else if (formData.email.length > VALIDATION.EMAIL.MAX_LENGTH) {
-      errors.email = `Email не должен превышать ${VALIDATION.EMAIL.MAX_LENGTH} символов`;
-    }
+  useEffect(() => {
+    clearError();
+    setApiError(null);
+    resetForm();
+  }, [clearError, resetForm]);
 
-    // Валидация пароля
-    if (!formData.password) {
-      errors.password = 'Пароль обязателен';
-    } else if (formData.password.length < VALIDATION.PASSWORD.MIN_LENGTH) {
-      errors.password = `Пароль должен содержать минимум ${VALIDATION.PASSWORD.MIN_LENGTH} символов`;
-    } else if (formData.password.length > VALIDATION.PASSWORD.MAX_LENGTH) {
-      errors.password = `Пароль не должен превышать ${VALIDATION.PASSWORD.MAX_LENGTH} символов`;
-    }
+  const handleSubmit = async (values: SigninSchema) => {
+    setApiError(null);
 
-    setFormErrors(errors);
-    return !errors.email && !errors.password;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    const success = await signin(formData);
+    const { success, error: returnedError } = await signin(values);
     if (success) {
       navigate(ROUTES.STORAGE);
+    } else {
+      const effectiveError = returnedError || error || 'Произошла ошибка';
+
+      // Под формой показываем системные ошибки и ошибки аутентификации
+      if (
+        effectiveError === 'Пользователь не найден' ||
+        effectiveError === 'Произошла ошибка' ||
+        effectiveError === 'Неверный логин или пароль' ||
+        effectiveError.includes('Неверный') ||
+        effectiveError.includes('неверный')
+      ) {
+        setApiError(effectiveError);
+      } else {
+        // Остальные ошибки пытаемся привязать к конкретным полям
+        if (effectiveError.includes('логин') || effectiveError.includes('login')) {
+          form.setFieldError('login', effectiveError);
+        } else if (effectiveError.includes('пароль') || effectiveError.includes('password')) {
+          form.setFieldError('password', effectiveError);
+        } else {
+          // Если не можем определить поле - показываем под формой
+          setApiError(effectiveError);
+        }
+      }
     }
   };
 
-  const handleInputChange = (field: 'email' | 'password', value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // Очищаем ошибку при вводе
-    if (formErrors[field]) {
-      setFormErrors((prev) => ({ ...prev, [field]: '' }));
+  const handleInputChange = (field: keyof SigninSchema, value: string) => {
+    form.setFieldValue(field, value);
+    // Очищаем ошибку поля при вводе
+    if (form.errors[field]) {
+      form.clearFieldError(field);
     }
-  };
-
-  const toggleTheme = () => {
-    const root = document.documentElement;
-    const current = root.getAttribute('data-mantine-color-scheme') ?? 'light';
-    const next = current === 'light' ? 'dark' : 'light';
-    root.setAttribute('data-mantine-color-scheme', next);
-    try {
-      localStorage.setItem('app-color-scheme', next);
-    } catch (err) {
-      console.warn('Failed to persist color scheme', err);
+    if (apiError) {
+      setApiError(null);
     }
   };
 
@@ -120,36 +123,29 @@ export const LoginPage: React.FC = () => {
 
       {/* Переключатель темы */}
       <div className={styles.themeToggle}>
-        <ActionIcon
-          variant="transparent"
-          className={styles.themeButton}
-          aria-label="Toggle theme"
-          onClick={toggleTheme}
-          title="Переключить тему"
-        >
-          🌓
-        </ActionIcon>
+        <ThemeToggle size="xl" radius="md" />
       </div>
 
       <Container size={560} className={styles.container}>
         <Paper shadow="md" p="xl" radius={24} className={styles.form}>
           <Stack gap="lg">
             <div className={styles.header}>
-              <Title ta="center" className={styles.title}>
-                Vaultify
-              </Title>
+              <div className={styles.logoContainer}>
+                <LogoText />
+              </div>
               <Text className={styles.subtitle} ta="center" size="md">
                 Цифровая система хранения
               </Text>
             </div>
 
-            <form ref={formRef} onSubmit={handleSubmit}>
+            <form ref={formRef} onSubmit={form.onSubmit(handleSubmit)}>
               <div className={styles.formFields}>
                 <Input
-                  label="Эл. почта"
-                  type="email"
-                  value={formData.email}
-                  onChange={(value) => handleInputChange('email', value)}
+                  label="Логин"
+                  type="text"
+                  value={form.values.login}
+                  onChange={(value) => handleInputChange('login', value)}
+                  error={form.errors.login as string}
                   required
                   disabled={isLoading}
                 />
@@ -157,25 +153,19 @@ export const LoginPage: React.FC = () => {
                 <Input
                   label="Пароль"
                   type="password"
-                  value={formData.password}
+                  value={form.values.password}
                   onChange={(value) => handleInputChange('password', value)}
+                  error={form.errors.password as string}
                   required
                   disabled={isLoading}
                 />
 
-                {(formErrors.email || formErrors.password) && (
-                  <div className={styles.errorMessage}>
-                    {formErrors.email || formErrors.password}
-                  </div>
-                )}
-
-                {error && <div className={styles.errorMessage}>{error}</div>}
+                {(apiError || error) && <div className={styles.error}>{apiError || error}</div>}
 
                 <Button
-                  variant="primary"
+                  variant="filled"
                   size="lg"
                   loading={isLoading}
-                  className={styles.submitButton}
                   fullWidth
                   onClick={() => formRef.current?.requestSubmit()}
                 >
@@ -185,7 +175,10 @@ export const LoginPage: React.FC = () => {
             </form>
 
             <Text className={styles.footerText} ta="center" size="sm">
-              Нет аккаунта? <span>Зарегистрироваться</span>
+              Нет аккаунта?{' '}
+              <Link to={ROUTES.REGISTER} className={styles.link}>
+                Зарегистрироваться
+              </Link>
             </Text>
           </Stack>
         </Paper>

@@ -1,0 +1,66 @@
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mantine-spacing-xl);
+  padding: var(--mantine-spacing-2xl);
+  text-align: center;
+  min-height: 400px;
+  background: light-dark(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.02));
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
+  border-radius: var(--mantine-radius-lg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+
+  /* Liquid glass overlay */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: inherit;
+    background: light-dark(
+      linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, transparent 50%)
+    );
+  }
+
+  &.minimal {
+    min-height: 300px;
+    padding: var(--mantine-spacing-xl);
+    gap: var(--mantine-spacing-lg);
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: light-dark(rgba(0, 0, 0, 0.03), rgba(255, 255, 255, 0.03));
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
+  transition: all 0.2s ease;
+
+  svg {
+    width: 40px;
+    height: 40px;
+    color: var(--mantine-color-gray-5);
+    stroke-width: 1.5;
+  }
+}
+
+.description {
+  max-width: 400px;
+  line-height: 1.5;
+  color: var(--mantine-color-gray-5);
+}
+
+.actionButton {
+  margin-top: var(--mantine-spacing-sm);
+  transition: all 0.2s ease;
+}
