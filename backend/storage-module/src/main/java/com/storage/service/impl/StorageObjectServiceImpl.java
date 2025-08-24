@@ -119,20 +119,38 @@ public class StorageObjectServiceImpl implements StorageObjectService {
         if (fileName == null || fileName.isEmpty() || fileName.getOriginalFilename() == null) {
             throw new ImageUploadException("Image must have name and exist");
         }
+        String url = fileImageService.upload(fileName);
 
-        StorageObject object = create(StorageObjectCreate.builder()
+        Map<String, Object> parsedAttributes = parseAttributes(createWithFileDto.getAttributes());
+
+        StorageObject object = StorageObject.builder()
                 .name(createWithFileDto.getName())
                 .size(createWithFileDto.getSize())
                 .storageId(createWithFileDto.getStorageId())
                 .unitId(createWithFileDto.getUnitId())
                 .templateId(createWithFileDto.getTemplateId())
-                .build());
-        String url = fileImageService.upload(fileName);
-        object.setPhotoUrl(url);
-
-        storage.setFullness(storage.getFullness() + object.getSize());
+                .photoUrl(url)
+                .attributes(parsedAttributes)
+                .decommissioned(false)
+                .createdBy(userContext.getCurrentUserId())
+                .build();
 
         return objectRepo.save(object);
+    }
+
+    private Map<String, Object> parseAttributes(String attributes) {
+        Map<String, Object> parsedAttributes = null;
+        if (attributes != null) {
+            try {
+                parsedAttributes = new ObjectMapper().readValue(
+                        attributes,
+                        new TypeReference<Map<String, Object>>() {
+                        });
+            } catch (Exception e) {
+                throw new NotValidException("Invalid attributes format");
+            }
+        }
+        return parsedAttributes;
     }
 
     @Transactional
@@ -221,17 +239,7 @@ public class StorageObjectServiceImpl implements StorageObjectService {
     @Transactional
     @Override
     public StorageObject updateWithFile(UUID id, StorageObjectUpdateWithFileDto updateWithFileDto) {
-        Map<String, Object> parsedAttributes = null;
-        if (updateWithFileDto.getAttributes() != null) {
-            try {
-                parsedAttributes = new ObjectMapper().readValue(
-                        updateWithFileDto.getAttributes(),
-                        new TypeReference<Map<String, Object>>() {
-                        });
-            } catch (Exception e) {
-                throw new NotValidException("Invalid attributes format");
-            }
-        }
+        Map<String, Object> parsedAttributes = parseAttributes(updateWithFileDto.getAttributes());
 
         StorageObject updated = patch(id, StorageObjectUpdate.builder()
                 .name(updateWithFileDto.getName())
