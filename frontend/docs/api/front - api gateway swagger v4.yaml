@@ -29,15 +29,15 @@ paths:
                 properties:
                   signup:
                     type: string
-                    example: 'success'
+                    example: "success"
         '400':
-          description: Эл. почта или почта уже заняты
+          description: Логин или почта уже заняты
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  error: { type: string, example: 'login_exists' }
+                  error: { type: string, example: "login_exists" }
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -65,7 +65,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error: { type: string, example: 'invalid_credentials' }
+                  error: { type: string, example: "invalid_credentials" }
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -89,7 +89,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error: { type: string, example: 'refresh_invalid_or_expired' }
+                  error: { type: string, example: "refresh_invalid_or_expired" }
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -107,7 +107,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  logout: { type: string, example: 'ok' }
+                  logout: { type: string, example: "ok" }
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -154,7 +154,7 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/UserRole'
-              example: ['ADMIN', 'GUEST']
+              example: ["ADMIN","GUEST"]
       responses:
         '200':
           description: Роли успешно обновлены
@@ -162,7 +162,7 @@ paths:
             application/json:
               schema:
                 type: string
-                example: 'Roles updated'
+                example: "Roles updated"
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -174,7 +174,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  error: { type: string, example: 'User not found' }
+                  error: { type: string, example: "User not found" }
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -194,7 +194,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Storage'
-
+    
     post:
       summary: Создать хранилище
       requestBody:
@@ -226,7 +226,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Storage'
-
+    
     patch:
       summary: Обновить хранилище
       parameters:
@@ -246,7 +246,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Storage'
-
+    
     delete:
       summary: Удалить хранилище
       parameters:
@@ -286,7 +286,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/StorageObject'
-
+    
     post:
       summary: Создать объект
       requestBody:
@@ -321,7 +321,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StorageObject'
-
+    
     patch:
       summary: Обновить объект
       parameters:
@@ -344,7 +344,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StorageObject'
-
+    
     delete:
       summary: Удалить объект
       parameters:
@@ -356,19 +356,36 @@ paths:
         '204':
           description: Deleted
 
-  /objects/{id}/qrcode:
-    get:
-      summary: Сгенерировать QR-код для объекта
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
+  /qr:
+    post:
+      summary: Сгенерировать QR-код для URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  example: "https://example.com/object/123"
       responses:
         '200':
           description: QR code image
           content:
             image/png: {}
+        '400':
+          description: Неверный URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { type: string, example: "Invalid URL" }
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /templates:
     get:
@@ -389,7 +406,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Template'
-
+    
     post:
       summary: Создать шаблон
       requestBody:
@@ -421,7 +438,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Template'
-
+    
     patch:
       summary: Обновить шаблон
       parameters:
@@ -455,6 +472,160 @@ paths:
                 items:
                   $ref: '#/components/schemas/Unit'
 
+  /notifications/rules:
+    get:
+      tags: [Notifications]
+      summary: Получить список всех правил уведомлений
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список правил уведомлений
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationRule'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    
+    post:
+      tags: [Notifications]
+      summary: Создать правило уведомления (UC12)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRuleCreate'
+      responses:
+        '201':
+          description: Правило создано успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationRule'
+        '400':
+          description: Ошибка валидации или дублирование правила
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { type: string, example: "duplicate_rule" }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Хранилище не найдено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { type: string, example: "Storage not found" }
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /notifications/rules/{id}:
+    get:
+      tags: [Notifications]
+      summary: Получить правило уведомления по ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationRule'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Правило не найдено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { type: string, example: "Rule not found" }
+        '500':
+          $ref: '#/components/responses/InternalError'
+    
+    delete:
+      tags: [Notifications]
+      summary: Удалить правило уведомления (UC14)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204':
+          description: Правило удалено
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Правило не найдено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { type: string, example: "Rule not found" }
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /notifications/history:
+    get:
+      tags: [Notifications]
+      summary: Получить историю отправленных уведомлений
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: rule_id
+          in: query
+          schema: { type: string, format: uuid, nullable: true }
+        - name: storage_id
+          in: query
+          schema: { type: string, format: uuid, nullable: true }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200':
+          description: История уведомлений
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NotificationHistory'
+                  total:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -476,16 +647,16 @@ components:
           example: 1
         login:
           type: string
-          example: 'ivan'
+          example: "ivan"
         mail:
           type: string
           format: email
-          example: 'ivan@example.com'
+          example: "ivan@example.com"
         role:
           type: array
           items:
             $ref: '#/components/schemas/UserRole'
-          example: ['GUEST']
+          example: ["GUEST"]
 
     UserRole:
       type: string
@@ -498,22 +669,22 @@ components:
       type: object
       required: [login, password]
       properties:
-        login: { type: string, example: 'ivan' }
-        password: { type: string, example: 'secret' }
+        login: { type: string, example: "ivan" }
+        password: { type: string, example: "secret" }
 
     SignupRequest:
       type: object
       required: [login, email, password]
       properties:
-        login: { type: string, example: 'ivan' }
-        email: { type: string, format: email, example: 'ivan@example.com' }
-        password: { type: string, example: 'secret' }
+        login: { type: string, example: "ivan" }
+        email: { type: string, format: email, example: "ivan@example.com" }
+        password: { type: string, example: "secret" }
 
     AuthResponse:
       type: object
       properties:
         accessToken: { type: string }
-        tokenType: { type: string, example: 'Bearer' }
+        tokenType: { type: string, example: "Bearer" }
         expiresIn: { type: integer }
 
     SimpleMessage:
@@ -610,7 +781,7 @@ components:
         size: { type: number }
         unit_id: { type: string, format: uuid }
         attributes: { type: string }
-        photo:
+        photo: 
           type: string
           format: binary
           nullable: true
@@ -632,7 +803,7 @@ components:
         size: { type: number }
         attributes: { type: string }
         is_decommissioned: { type: boolean }
-        photo:
+        photo: 
           type: string
           format: binary
           nullable: true
@@ -651,6 +822,54 @@ components:
         name: { type: string }
         description: { type: string }
         is_deleted: { type: boolean }
+
+    NotificationRule:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        storage_id: { type: string, format: uuid }
+        threshold_value: { type: integer }
+        condition: { $ref: '#/components/schemas/NotificationCondition' }
+        is_active: { type: boolean }
+        created_by: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    NotificationRuleCreate:
+      type: object
+      required: [name, storage_id, threshold_value, condition]
+      properties:
+        name: { type: string }
+        description: { type: string, nullable: true }
+        storage_id: { type: string, format: uuid }
+        threshold_value: { type: integer }
+        condition: { $ref: '#/components/schemas/NotificationCondition' }
+
+    NotificationCondition:
+      type: string
+      enum:
+        - ABOVE
+        - BELOW
+      example: ABOVE
+      description: |
+        ABOVE - уведомление, если заполненность > значения
+        BELOW - уведомление, если заполненность < значения
+
+    NotificationHistory:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        rule_id: { type: string, format: uuid }
+        storage_id: { type: string, format: uuid }
+        threshold_value: { type: integer }
+        actual_value: { type: number }
+        condition: { $ref: '#/components/schemas/NotificationCondition' }
+        triggered_at: { type: string, format: date-time }
+        email_sent: { type: boolean }
+        email_subject: { type: string, nullable: true }
+        email_content: { type: string, nullable: true }
 
   responses:
     Unauthorized:
@@ -671,12 +890,15 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-
+  
 tags:
   - name: Authentication
     description: Аутентификация и управление токенами
   - name: Admin
     description: Операции, доступные только администраторам
+  - name: Notifications
+    description: Управление правилами уведомлений и история отправки
 
 security:
   - bearerAuth: []
+

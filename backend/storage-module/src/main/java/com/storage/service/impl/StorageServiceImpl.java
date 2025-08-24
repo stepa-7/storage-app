@@ -15,11 +15,13 @@ import com.storage.repository.UnitRepository;
 import com.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -197,11 +199,27 @@ public class StorageServiceImpl implements StorageService {
         StorageData event = StorageData.builder()
                 .storageId(storage.getId())
                 .storageName(storage.getName())
-                .capacity(storage.getCapacity())
                 .fullness(storage.getFullness())
+                .capacity(storage.getCapacity())
                 .build();
 
-            kafkaTemplate.send("storage-notification" ,event);
+//        kafkaTemplate.send("storage-notification" ,event);
+        try {
+            CompletableFuture<SendResult<String, StorageData>> future =
+                    kafkaTemplate.send("storage-notification", storage.getId().toString(), event);
 
+            future.whenComplete((result, ex) -> {
+                if (ex != null) {
+                    System.err.println("Failed to send message to Kafka: " + ex.getMessage());
+                    // Можно добавить логику повторной отправки или логирования ошибки
+                } else {
+                    System.out.println("Message sent successfully to partition: " +
+                            result.getRecordMetadata().partition());
+                }
+            });
+        } catch (RuntimeException e) {
+            System.err.println("Kafka send error: " + e.getMessage());
+            // Не бросаем исключение, чтобы не прерывать основную бизнес-логику
+        }
     }
 }

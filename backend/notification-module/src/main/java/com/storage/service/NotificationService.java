@@ -1,9 +1,10 @@
 package com.storage.service;
 
-import com.storage.model.StorageData;
 import com.storage.model.StorageEvent;
 import com.storage.model.StorageEventCreate;
+import com.storage.model.notification.StorageData;
 import com.storage.repository.EventRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,8 +12,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationService {
-    private EventRepository eventRepository;
+    private final EventRepository eventRepository;
 
     public List<StorageEvent> getAll(){
         return eventRepository.findAll();
@@ -50,14 +52,19 @@ public class NotificationService {
     }
 
     public Optional<String> checkRule(StorageData data) {
-        if(eventRepository.existsByStorageId(data.getStorageId())){
-            StorageEvent event = eventRepository.getByStorageId(data.getStorageId()).get();
-            Double limit = data.getFullness() / data.getCapacity();
-            if (event.getLowerLimit() > limit){
-                return Optional.of("Storage " + data.getStorageName() + "fullness below " + event.getLowerLimit() + "%") ;
+        if (eventRepository.existsByStorageId(data.getStorageId())) {
+            StorageEvent event = eventRepository.getByStorageId(data.getStorageId())
+                    .orElseThrow(() -> new RuntimeException("Event not found for storage"));
+
+            double fullnessPercentage = (data.getFullness() / data.getCapacity()) * 100;
+
+            if (fullnessPercentage < event.getLowerLimit()) {
+                return Optional.of("Storage " + data.getStorageName() + " fullness is below " +
+                        event.getLowerLimit() + "% (current: " + String.format("%.1f", fullnessPercentage) + "%)");
             }
-            else if(event.getUpperLimit() < limit) {
-                return Optional.of("Storage " + data.getStorageName() + "fullness is higher " + event.getUpperLimit() + "%") ;
+            else if (fullnessPercentage > event.getUpperLimit()) {
+                return Optional.of("Storage " + data.getStorageName() + " fullness is above " +
+                        event.getUpperLimit() + "% (current: " + String.format("%.1f", fullnessPercentage) + "%)");
             }
         }
         return Optional.empty();

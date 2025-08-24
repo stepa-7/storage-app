@@ -257,8 +257,8 @@ public class StorageObjectServiceImpl implements StorageObjectService {
         StorageData event = StorageData.builder()
                 .storageId(storage.getId())
                 .storageName(storage.getName())
-                .capacity(storage.getFullness())
-                .fullness(storage.getCapacity())
+                .fullness(storage.getFullness())
+                .capacity(storage.getCapacity())
                 .build();
         try {
             kafkaTemplate.send("storage-notification", event);
