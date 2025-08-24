@@ -84,7 +84,8 @@ public class SecurityConfiguration {
                                 "/storages/**",
                                 "/objects/**",
                                 "/templates/**",
-                                "/units/**"
+                                "/units/**",
+                                "/notifications/**"
                         ).authenticated()
 
                         // все остальное пропускаем

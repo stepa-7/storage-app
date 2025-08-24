@@ -97,7 +97,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.storage.NotificationApplication</mainClass>
+                    <mainClass>com.notification.NotificationApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

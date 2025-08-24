@@ -204,8 +204,7 @@ public class StorageObjectServiceImpl implements StorageObjectService {
 
         storageRepo.save(storage);
         objectRepo.deleteById(id);
-        // TODO: послать данные
-//        checkNotificationRules(dto.storageId());
+        sendData(storage);
     }
 
     @Override
@@ -247,8 +246,6 @@ public class StorageObjectServiceImpl implements StorageObjectService {
             String newFileName = fileImageService.upload(photo);
             updated.setPhotoUrl(newFileName);
         }
-// TODO: послать данные
-        //        checkNotificationRules(dto.storageId());
 
         return objectRepo.save(updated);
     }
