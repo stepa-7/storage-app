@@ -7,9 +7,9 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-public class StorageIsFullEvent {
-    private UUID storageUuid;
+public class StorageData {
+    private UUID storageId;
     private String storageName;
-    private Double size;
-    private Double used;
+    private Double capacity;
+    private Double fullness;
 }

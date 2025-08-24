@@ -14,6 +14,7 @@ import com.storage.model.entity.Storage;
 import com.storage.model.entity.StorageObject;
 import com.storage.model.entity.Template;
 import com.storage.model.entity.Unit;
+import com.storage.model.notification.StorageData;
 import com.storage.repository.StorageObjectRepository;
 import com.storage.repository.StorageRepository;
 import com.storage.repository.TemplateRepository;
@@ -22,6 +23,7 @@ import com.storage.service.FileImageService;
 import com.storage.service.StorageObjectService;
 import com.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +41,7 @@ public class StorageObjectServiceImpl implements StorageObjectService {
     private final TemplateRepository templateRepo;
     private final FileImageService fileImageService;
     private final StorageService storageService;
+    private final KafkaTemplate<String, StorageData> kafkaTemplate;
 
     @Override
     public List<StorageObject> find(UUID storageId, UUID templateId, Boolean decommissioned) {
@@ -97,6 +100,7 @@ public class StorageObjectServiceImpl implements StorageObjectService {
         // TODO
 //        checkNotificationRules(dto.storageId());
 
+        sendData(storage);
         return objectRepo.save(obj);
     }
 
@@ -154,6 +158,9 @@ public class StorageObjectServiceImpl implements StorageObjectService {
             oldStorage.setFullness(oldStorage.getFullness() - obj.getSize());
             newStorage.setFullness(newStorage.getFullness() + dto.getSize());
             storageRepo.saveAll(List.of(oldStorage, newStorage));
+
+            sendData(oldStorage);
+            sendData(newStorage);
         } else {
 //            double delta = oldStorage.getFullness() - newSize;
             double delta = newSize - obj.getSize();
@@ -161,6 +168,8 @@ public class StorageObjectServiceImpl implements StorageObjectService {
 //            oldStorage.setFullness(dto.getSize());
             oldStorage.setFullness(oldStorage.getFullness() + delta);
             storageRepo.save(oldStorage);
+
+            sendData(oldStorage);
         }
 
         if (!dto.getName().equals(dto.getName())) {
@@ -249,5 +258,19 @@ public class StorageObjectServiceImpl implements StorageObjectService {
         //        checkNotificationRules(dto.storageId());
 
         return objectRepo.save(updated);
+    }
+
+    private void sendData(Storage storage) {
+        StorageData event = StorageData.builder()
+                .storageId(storage.getId())
+                .storageName(storage.getName())
+                .capacity(storage.getFullness())
+                .fullness(storage.getCapacity())
+                .build();
+        try {
+            kafkaTemplate.send("storage-notification" ,event);
+        } catch (RuntimeException e){
+            throw new RuntimeException("Can't send notification data");
+        }
     }
 }
