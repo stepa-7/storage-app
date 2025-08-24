@@ -2,6 +2,7 @@ package com.storage.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.storage.config.UserContext;
 import com.storage.exception.ImageUploadException;
 import com.storage.exception.NotFoundException;
 import com.storage.exception.NotValidException;
@@ -42,6 +43,7 @@ public class StorageObjectServiceImpl implements StorageObjectService {
     private final FileImageService fileImageService;
     private final StorageService storageService;
     private final KafkaTemplate<String, StorageData> kafkaTemplate;
+    private final UserContext userContext;
 
     @Override
     public List<StorageObject> find(UUID storageId, UUID templateId, Boolean decommissioned) {
@@ -62,7 +64,6 @@ public class StorageObjectServiceImpl implements StorageObjectService {
         Storage storage = storageRepo.findByIdForUpdate(dto.getStorageId())
                 .orElseThrow(() -> new NotFoundException("Storage not found with id: " + dto.getStorageId()));
 
-//        double delta = storage.getFullness() - dto.getSize();
         double delta = dto.getSize();
         checkAccommodation(storage, dto.getSize(), delta);
 
@@ -76,6 +77,8 @@ public class StorageObjectServiceImpl implements StorageObjectService {
             throw new NotFoundException("File not found in storage");
         }
 
+        UUID currentUserId = userContext.getCurrentUserId();
+
         StorageObject obj = StorageObject.builder()
                 .name(dto.getName())
                 .size(dto.getSize())
@@ -84,6 +87,7 @@ public class StorageObjectServiceImpl implements StorageObjectService {
                 .templateId(template.getId())
                 .photoUrl(dto.getPhotoUrl())
                 .decommissioned(false)
+                .createdBy(currentUserId)
                 .build();
 
         try {
@@ -97,9 +101,6 @@ public class StorageObjectServiceImpl implements StorageObjectService {
         storage.setFullness(storage.getFullness() + obj.getSize());
         storageRepo.save(storage);
 
-        // TODO
-//        checkNotificationRules(dto.storageId());
-
         sendData(storage);
         return objectRepo.save(obj);
     }
@@ -111,7 +112,6 @@ public class StorageObjectServiceImpl implements StorageObjectService {
         Storage storage = storageRepo.findByIdForUpdate(createWithFileDto.getStorageId())
                 .orElseThrow(() -> new NotFoundException("Storage not found with id: " + createWithFileDto.getStorageId()));
 
-//        double delta = storage.getFullness() - createWithFileDto.getSize();
         double delta = createWithFileDto.getSize();
         checkAccommodation(storage, createWithFileDto.getSize(), delta);
 
@@ -132,8 +132,6 @@ public class StorageObjectServiceImpl implements StorageObjectService {
 
         storage.setFullness(storage.getFullness() + object.getSize());
 
-//        checkNotificationRules(dto.storageId());
-
         return objectRepo.save(object);
     }
 
@@ -152,7 +150,6 @@ public class StorageObjectServiceImpl implements StorageObjectService {
 
         double newSize = dto.getSize() != null ? dto.getSize() : obj.getSize();
         if (newStorageId != null && !oldStorageId.equals(newStorageId)) {
-//            double delta = newStorage.getFullness() - newSize;
             double delta = newSize;
             checkAccommodation(newStorage, newSize, delta);
             oldStorage.setFullness(oldStorage.getFullness() - obj.getSize());
@@ -162,10 +159,8 @@ public class StorageObjectServiceImpl implements StorageObjectService {
             sendData(oldStorage);
             sendData(newStorage);
         } else {
-//            double delta = oldStorage.getFullness() - newSize;
             double delta = newSize - obj.getSize();
             checkAccommodation(oldStorage, dto.getSize(), delta);
-//            oldStorage.setFullness(dto.getSize());
             oldStorage.setFullness(oldStorage.getFullness() + delta);
             storageRepo.save(oldStorage);
 
@@ -193,8 +188,6 @@ public class StorageObjectServiceImpl implements StorageObjectService {
             obj.setDecommissioned(dto.getIsDecommissioned());
         }
 
-//        checkNotificationRules(dto.storageId());
-
         return objectRepo.save(obj);
     }
 
@@ -211,7 +204,7 @@ public class StorageObjectServiceImpl implements StorageObjectService {
 
         storageRepo.save(storage);
         objectRepo.deleteById(id);
-
+        // TODO: послать данные
 //        checkNotificationRules(dto.storageId());
     }
 
@@ -254,7 +247,7 @@ public class StorageObjectServiceImpl implements StorageObjectService {
             String newFileName = fileImageService.upload(photo);
             updated.setPhotoUrl(newFileName);
         }
-
+// TODO: послать данные
         //        checkNotificationRules(dto.storageId());
 
         return objectRepo.save(updated);
@@ -268,7 +261,7 @@ public class StorageObjectServiceImpl implements StorageObjectService {
                 .fullness(storage.getCapacity())
                 .build();
         try {
-            kafkaTemplate.send("storage-notification" ,event);
+            kafkaTemplate.send("storage-notification", event);
         } catch (RuntimeException e){
             throw new RuntimeException("Can't send notification data");
         }

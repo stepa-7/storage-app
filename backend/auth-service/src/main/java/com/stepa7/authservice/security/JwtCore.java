@@ -33,6 +33,8 @@ public class JwtCore {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         return Jwts.builder()
                 .subject(userDetails.getLogin())
+                .claim("userId", userDetails.getId().toString())
+                .claim("roles", userDetails.getRoles())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + Long.parseLong(expireTimeMs)))
                 .signWith(key)
