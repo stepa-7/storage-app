@@ -6,7 +6,7 @@ import com.storage.exception.StorageNotEmptyException;
 import com.storage.model.dto.storage.StorageCreate;
 import com.storage.model.dto.storage.StorageUpdate;
 import com.storage.model.entity.Storage;
-import com.storage.model.notification.StorageIsFullEvent;
+import com.storage.model.notification.StorageData;
 import com.storage.repository.StorageObjectRepository;
 import com.storage.repository.StorageRepository;
 import com.storage.repository.UnitRepository;
@@ -26,7 +26,7 @@ public class StorageServiceImpl implements StorageService {
     private final StorageRepository storageRepository;
     private final StorageObjectRepository objectRepository;
     private final UnitRepository unitRepository;
-    private final KafkaTemplate<String, StorageIsFullEvent> kafkaTemplate;
+    private final KafkaTemplate<String, StorageData> kafkaTemplate;
 
     @Transactional(readOnly = true)
     @Override
@@ -86,17 +86,11 @@ public class StorageServiceImpl implements StorageService {
             hasChanges = true;
         }
 
-        if (!dto.getParentId().equals(storage.getParentId())) {
+        if (dto.getParentId()!=null && !dto.getParentId().equals(storage.getParentId())) {
             updateParentStorage(storage, dto.getParentId());
             hasChanges = true;
         }
-        StorageIsFullEvent event = new StorageIsFullEvent(
-                storage.getId(),
-                storage.getName(),
-                storage.getCapacity(),
-                storage.getFullness()
-        );
-        kafkaTemplate.send("storage-notification", event);
+        sendData(storage);
 
         return hasChanges ? storageRepository.save(storage) : storage;
     }
@@ -215,5 +209,17 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public double calculateFullness(UUID storageId) {
         return objectRepository.sumSizesByStorageId(storageId).orElse(0.0);
+    }
+
+    private void sendData(Storage storage) {
+        StorageData event = StorageData.builder()
+                .storageId(storage.getId())
+                .storageName(storage.getName())
+                .capacity(storage.getCapacity())
+                .fullness(storage.getFullness())
+                .build();
+
+            kafkaTemplate.send("storage-notification" ,event);
+
     }
 }

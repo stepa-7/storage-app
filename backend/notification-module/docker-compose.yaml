@@ -14,7 +14,7 @@ services:
 
   db:
     image: postgres:16
-    container_name: storage_db
+    container_name: notification_db
     env_file: .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -32,7 +32,7 @@ services:
 
   app:
     build: .
-    container_name: storage_app
+    container_name: notification_app
     env_file: .env
     depends_on:
       db:
@@ -45,21 +45,8 @@ services:
       SPRING_SQL_INIT_MODE: ${SPRING_SQL_INIT_MODE}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
-      - "${SERVER_PORT}:8082"
+      - "${SERVER_PORT}:8088"
     restart: unless-stopped
 
-  minio:
-    image: minio/minio:latest
-    container_name: minio
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
-      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
-    command: server /data --console-address ":9090"
-    ports:
-      - '9090:9090'
-      - '9000:9000'
-    volumes:
-      - minio-data:/minio
 volumes:
   db_data:
-  minio-data:

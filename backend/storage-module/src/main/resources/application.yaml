@@ -1,16 +1,13 @@
-
 spring:
-#  cloud:
-#    gateway:
-#      routes:
-#        - id: storage-service
-#          uri: http://localhost:8081 # адрес твоего Storage-сервиса
-#          predicates:
-#            - Path=/api/storage/**  # все такие запросы отправляем туда
-#          filters:
-#            - RewritePath=/api/storage/(?<segment>.*), /${segment}
   kafka:
     bootstrap-servers: ${KAFKA_PORT}
+    admin:
+      auto-create: true
+    properties:
+      auto.create.topics.enable: true
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   config:
     import: optional:file:.env
   datasource:

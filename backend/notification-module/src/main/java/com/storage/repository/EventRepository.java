@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface EventRepository extends JpaRepository<StorageEvent, UUID> {
     Optional<StorageEvent> getByStorageId(UUID storageId);
+    Boolean existsByStorageId(UUID storageId);
 }
