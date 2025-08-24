@@ -1,21 +1,26 @@
 package com.storage.service;
 
-import com.storage.model.StorageIsFullEvent;
+import com.storage.model.notification.StorageData;
+import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+
+@Service
+@RequiredArgsConstructor
 public class NotificationConsumer {
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final NotificationService notificationService;
 
     @KafkaListener(topics = "storage-notification", groupId = "notification-module")
-    public void onMessage(StorageIsFullEvent event) {
-        if (event.getUsed().equals(event.getSize())) {
-            String msg = "Storage " + event.getStorageUuid() + " " + event.getStorageName() + " is full";
+    public void onMessage(StorageData event) {
+        //System.out.println(event);
 
-            kafkaTemplate.send("user-notification", msg);
-        }
+        Optional<String> msg = notificationService.checkRule(event);
+        msg.ifPresent(s -> kafkaTemplate.send("user-notification", s));
     }
 }

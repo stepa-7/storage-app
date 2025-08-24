@@ -1,5 +1,57 @@
 server:
   port: 8088
 spring:
+  application:
+    name: notification-service
+
   kafka:
-    bootstrap-servers: "localhost:9092"
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    admin:
+      auto-create: false
+    properties:
+      auto.create.topics.enable: false
+    consumer:
+      group-id: notification-module
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.value.default.type: com.storage.model.notification.StorageData
+        spring.json.trusted.packages: com.storage.model.notification
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  config:
+    import: optional:file:.env
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+  sql:
+    init:
+      mode: ${SPRING_SQL_INIT_MODE:always}
+
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info
+    endpoint:
+      health:
+        show-details: always
+
+  logging:
+    level:
+      com.storage: DEBUG
+      org.springframework.kafka: INFO

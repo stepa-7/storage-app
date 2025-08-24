@@ -1,11 +1,24 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { storageApi } from '@shared/api';
-import { type Storage, type CreateStorageRequest, type ApiError } from '@shared/types';
+import {
+  type Storage,
+  type StorageWithDetails,
+  type CreateStorageRequest,
+  type UpdateStorageRequest,
+  type ApiError,
+} from '@shared/types';
+
+interface StorageTreeItem {
+  id: string;
+  name: string;
+  itemCount?: number;
+  children: StorageTreeItem[];
+}
 
 export class StorageStore {
   storages: Storage[] = [];
-  storageTree: Storage[] = [];
+  storageTree: StorageTreeItem[] = [];
   currentStorage: Storage | null = null;
   isLoading = false;
   error: string | null = null;
@@ -15,19 +28,19 @@ export class StorageStore {
   }
 
   // Загрузка списка хранилищ
-  loadStorages = async (): Promise<void> => {
+  loadStorages = async (parentId?: string): Promise<void> => {
     this.setLoading(true);
     this.clearError();
 
     try {
-      const storages = await storageApi.getStorages();
+      const storages = await storageApi.getStorages(parentId);
       runInAction(() => {
         this.storages = storages;
       });
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка загрузки хранилищ';
+        this.error = apiError.error || 'Ошибка загрузки хранилищ';
       });
     } finally {
       runInAction(() => {
@@ -36,20 +49,21 @@ export class StorageStore {
     }
   };
 
-  // Загрузка дерева хранилищ
-  loadStorageTree = async (): Promise<void> => {
+  // Загрузка всех хранилищ для построения дерева
+  loadAllStorages = async (): Promise<void> => {
     this.setLoading(true);
     this.clearError();
 
     try {
-      const tree = await storageApi.getStorageTree();
+      // Загружаем все хранилища без фильтра по parentId
+      const allStorages = await storageApi.getStorages();
       runInAction(() => {
-        this.storageTree = tree;
+        this.storages = allStorages;
       });
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка загрузки дерева хранилищ';
+        this.error = apiError.error || 'Ошибка загрузки всех хранилищ';
       });
     } finally {
       runInAction(() => {
@@ -71,7 +85,7 @@ export class StorageStore {
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка загрузки хранилища';
+        this.error = apiError.error || 'Ошибка загрузки хранилища';
       });
     } finally {
       runInAction(() => {
@@ -90,15 +104,13 @@ export class StorageStore {
 
       runInAction(() => {
         this.storages.push(newStorage);
-        // Обновляем дерево хранилищ
-        this.loadStorageTree();
       });
 
       return newStorage;
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка создания хранилища';
+        this.error = apiError.error || 'Ошибка создания хранилища';
       });
       return null;
     } finally {
@@ -109,10 +121,7 @@ export class StorageStore {
   };
 
   // Обновление хранилища
-  updateStorage = async (
-    id: string,
-    data: Partial<CreateStorageRequest>,
-  ): Promise<Storage | null> => {
+  updateStorage = async (id: string, data: UpdateStorageRequest): Promise<Storage | null> => {
     this.setLoading(true);
     this.clearError();
 
@@ -128,16 +137,13 @@ export class StorageStore {
         if (this.currentStorage?.id === id) {
           this.currentStorage = updatedStorage;
         }
-
-        // Обновляем дерево хранилищ
-        this.loadStorageTree();
       });
 
       return updatedStorage;
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка обновления хранилища';
+        this.error = apiError.error || 'Ошибка обновления хранилища';
       });
       return null;
     } finally {
@@ -161,48 +167,13 @@ export class StorageStore {
         if (this.currentStorage?.id === id) {
           this.currentStorage = null;
         }
-
-        // Обновляем дерево хранилищ
-        this.loadStorageTree();
       });
 
       return true;
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка удаления хранилища';
-      });
-      return false;
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
-    }
-  };
-
-  // Перемещение хранилища
-  moveStorage = async (id: string, newParentId: string): Promise<boolean> => {
-    this.setLoading(true);
-    this.clearError();
-
-    try {
-      const movedStorage = await storageApi.moveStorage(id, newParentId);
-
-      runInAction(() => {
-        const index = this.storages.findIndex((s) => s.id === id);
-        if (index !== -1) {
-          this.storages[index] = movedStorage;
-        }
-
-        // Обновляем дерево хранилищ
-        this.loadStorageTree();
-      });
-
-      return true;
-    } catch (error) {
-      const apiError = error as ApiError;
-      runInAction(() => {
-        this.error = apiError.message || 'Ошибка перемещения хранилища';
+        this.error = apiError.error || 'Ошибка удаления хранилища';
       });
       return false;
     } finally {
@@ -224,27 +195,184 @@ export class StorageStore {
 
   // Получение хранилища по ID
   getStorageById = (id: string): Storage | undefined => {
-    return this.storages.find((s) => s.id === id);
+    const storage = this.storages.find((s) => s.id === id);
+    if (!storage) return undefined;
+
+    // TODO: Получить количество объектов из objectStore
+    const objectCount = 0; // Временно заглушка
+    return {
+      ...storage,
+      currentCapacity: objectCount,
+    };
   };
 
   // Получение дочерних хранилищ
   getChildStorages = (parentId: string): Storage[] => {
-    return this.storages.filter((s) => s.parentId === parentId);
+    const childStorages = this.storages.filter((s) => s.parentId === parentId);
+
+    // TODO: Получить количество объектов из objectStore
+    return childStorages.map((storage) => {
+      const objectCount = 0; // Временно заглушка
+      return {
+        ...storage,
+        currentCapacity: objectCount,
+      };
+    });
   };
 
   // Получение корневых хранилищ (без родителя)
   getRootStorages = (): Storage[] => {
-    return this.storages.filter((s) => !s.parentId);
+    const rootStorages = this.storages.filter((s) => !s.parentId);
+
+    // TODO: Получить количество объектов из objectStore
+    return rootStorages.map((storage) => {
+      const objectCount = 0; // Временно заглушка
+      return {
+        ...storage,
+        currentCapacity: objectCount,
+      };
+    });
   };
 
-  // Проверка, можно ли удалить хранилище
-  canDeleteStorage = (storage: Storage): boolean => {
-    return storage.currentCapacity === 0 && storage.children.length === 0;
+  // Получение дерева хранилищ с деталями
+  getStorageTree = (): StorageWithDetails[] => {
+    // TODO: добавить injecthook для unitStore
+    const buildTree = (parentId?: string): StorageWithDetails[] => {
+      const children = this.storages.filter((s) => s.parentId === parentId);
+
+      return children.map((storage) => {
+        // TODO: Получить количество объектов из objectStore
+        return {
+          ...storage,
+          // Добавляем алиасы для совместимости
+          maxCapacity: storage.capacity,
+          currentCapacity: storage.fullness,
+          children: buildTree(storage.id),
+          objects: [], // TODO: добавить объекты из objectStore
+        };
+      });
+    };
+
+    return buildTree();
   };
 
   // Вычисление процента заполненности хранилища
   getStorageFillPercentage = (storage: Storage): number => {
-    if (storage.maxCapacity === 0) return 0;
-    return Math.round((storage.currentCapacity / storage.maxCapacity) * 100);
+    if (storage.capacity === 0) return 0;
+    return Math.round((storage.fullness / storage.capacity) * 100);
+  };
+
+  // Проверка, можно ли удалить хранилище (должно быть пустым)
+  // canDeleteStorage = (_storage: Storage): boolean => {
+  //   // TODO: Получить количество объектов из objectStore
+  //   const objectCount = 0; // Временно заглушка
+  //   return objectCount === 0;
+  // };
+
+  // Обновление заполненности хранилища (вызывается при добавлении/удалении объектов)
+  updateStorageFullness = (storageId: string): void => {
+    runInAction(() => {
+      // TODO: Получить количество объектов из objectStore
+      const objectCount = 0; // Временно заглушка
+
+      const storage = this.storages.find((s) => s.id === storageId);
+      if (storage) {
+        storage.currentCapacity = objectCount;
+      }
+
+      if (this.currentStorage?.id === storageId) {
+        this.currentStorage.currentCapacity = objectCount;
+      }
+    });
+  };
+
+  // Получение пути к хранилищу для breadcrumbs
+  getStoragePath = (storageId: string): Storage[] => {
+    const path: Storage[] = [];
+    let currentStorageItem = this.storages.find((s) => s.id === storageId);
+
+    while (currentStorageItem) {
+      // TODO: Получить количество объектов из objectStore
+      const objectCount = 0; // Временно заглушка
+      const updatedStorage = {
+        ...currentStorageItem,
+        currentCapacity: objectCount,
+      };
+      path.unshift(updatedStorage);
+      const parentId = currentStorageItem.parentId;
+      currentStorageItem = parentId ? this.storages.find((s) => s.id === parentId) : undefined;
+    }
+
+    return path;
+  };
+
+  // Пересчет заполненности всех хранилищ (может потребоваться при инициализации)
+  recalculateAllFullness = (storageFullness?: Record<string, number>): void => {
+    runInAction(() => {
+      if (storageFullness) {
+        // Используем переданные данные о заполненности
+        this.storages.forEach((storage) => {
+          storage.currentCapacity = storageFullness[storage.id] || 0;
+        });
+
+        if (this.currentStorage) {
+          this.currentStorage.currentCapacity = storageFullness[this.currentStorage.id] || 0;
+        }
+      } else {
+        // Временно заглушка
+        this.storages.forEach((storage) => {
+          storage.currentCapacity = 0;
+        });
+
+        if (this.currentStorage) {
+          this.currentStorage.currentCapacity = 0;
+        }
+      }
+    });
+  };
+
+  // Загрузка дерева хранилищ для Sidebar
+  fetchStorageTree = async (): Promise<void> => {
+    this.setLoading(true);
+    this.clearError();
+
+    try {
+      // Строим дерево из реальных данных с подсчётом заполненности
+      const buildTree = (parentId?: string): StorageTreeItem[] => {
+        const children = this.storages.filter((s) => s.parentId === parentId);
+
+        return children.map((storage) => {
+          // TODO: Получить количество объектов из objectStore
+          const objectCount = 0; // Временно заглушка
+
+          return {
+            id: storage.id,
+            name: storage.name,
+            itemCount: objectCount,
+            children: buildTree(storage.id),
+          };
+        });
+      };
+
+      // Если storages ещё не загружены, загружаем их
+      if (this.storages.length === 0) {
+        await this.loadStorages();
+      }
+
+      const tree = buildTree();
+
+      runInAction(() => {
+        this.storageTree = tree;
+      });
+    } catch (error) {
+      const apiError = error as ApiError;
+      runInAction(() => {
+        this.error = apiError.error || 'Ошибка загрузки дерева хранилищ';
+      });
+    } finally {
+      runInAction(() => {
+        this.isLoading = false;
+      });
+    }
   };
 }

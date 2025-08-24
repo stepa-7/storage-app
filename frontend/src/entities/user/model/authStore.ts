@@ -1,8 +1,13 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
-// import { authApi } from '@shared/api'; // ЗАКОММЕНТИРОВАНО: используется только в заглушках
+import { authApi } from '@shared/api';
 import { setAccessToken, clearAccessToken } from '@shared/api/client';
-import type { User, SigninRequest, ApiError } from '@shared/types';
+import type { User, SigninRequest, SignupRequest, ApiError, AuthErrorType } from '@shared/types';
+import { getAuthErrorMessage } from '@shared/types';
+
+// Ключи для localStorage
+const AUTH_STORAGE_KEY = 'auth_user';
+const TOKEN_STORAGE_KEY = 'auth_token';
 
 export class AuthStore {
   user: User | null = null;
@@ -17,64 +22,106 @@ export class AuthStore {
 
   // Инициализация аутентификации при загрузке приложения
   private initializeAuth = () => {
-    // Проверяем, есть ли пользователь в памяти
-    // Refresh token автоматически передается в HTTP-only cookie
-    // Access token будет получен при первом запросе через interceptor
-    if (this.user) {
-      this.isAuthenticated = true;
+    try {
+      // Пытаемся восстановить состояние из localStorage
+      const savedUser = localStorage.getItem(AUTH_STORAGE_KEY);
+      const savedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+
+      if (savedUser && savedToken) {
+        const user = JSON.parse(savedUser);
+        runInAction(() => {
+          this.user = user;
+          this.isAuthenticated = true;
+        });
+
+        // Восстанавливаем токен в API клиенте
+        setAccessToken(savedToken);
+      }
+    } catch (error) {
+      console.error('Error in initializeAuth:', error);
+      this.clearAuth();
+    }
+  };
+
+  // Сохранение состояния в localStorage
+  private saveAuthToStorage = (user: User) => {
+    try {
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+      // localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    } catch {
+      // Игнорируем ошибки localStorage
+    }
+  };
+
+  // Очистка состояния из localStorage
+  private clearAuthFromStorage = () => {
+    try {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+    } catch {
+      // Игнорируем ошибки localStorage
     }
   };
 
   // Вход в систему
-  signin = async (credentials: SigninRequest): Promise<boolean> => {
+  signin = async (
+    credentials: SigninRequest,
+  ): Promise<{ success: boolean; error?: string; code?: AuthErrorType }> => {
     this.setLoading(true);
-    this.clearError();
+    // НЕ очищаем ошибку здесь, чтобы она отображалась в UI
+    // this.clearError();
 
     try {
-      // ВРЕМЕННАЯ ЗАГЛУШКА: принимаем любые данные для тестирования
-      // TODO: Убрать после подключения бэкенда
-      const mockUser: User = {
-        id: '1',
-        email: credentials.email,
-        roles: ['USER'],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+      const response = await authApi.signin(credentials);
+
+      // Создаем пользователя на основе логина (API не возвращает user)
+      const user: User = {
+        id: 1,
+        login: credentials.login,
+        mail: credentials.login, // Временно используем логин как email
+        role: ['GUEST'],
       };
 
-      const mockToken = 'mock-token-' + Date.now();
-
       runInAction(() => {
-        this.user = mockUser;
+        this.user = user;
         this.isAuthenticated = true;
-        this.error = null;
+        this.error = null; // Очищаем ошибку только при успехе
       });
 
       // Сохраняем access token в памяти (refresh token автоматически в HTTP-only cookie)
-      setAccessToken(mockToken);
-
-      return true;
-
-      // ЗАКОММЕНТИРОВАНО: оригинальный код для бэкенда
-      /*
-      const response = await authApi.signin(credentials);
-      
-      runInAction(() => {
-        this.user = response.user;
-        this.isAuthenticated = true;
-        this.error = null;
-      });
-
-      // Сохраняем access token в памяти (refresh token автоматически в HTTP-only cookie)
+      console.log('AuthStore - signin - response.accessToken:', response.accessToken);
       setAccessToken(response.accessToken);
 
-      return true;
-      */
+      // Сохраняем состояние в localStorage
+      this.saveAuthToStorage(user);
+
+      // Проверяем, что токен сохранился
+      const savedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+      console.log(
+        'AuthStore - signin - savedToken in localStorage:',
+        savedToken ? 'Present' : 'Missing',
+      );
+
+      return { success: true };
     } catch (error) {
       const apiError = error as ApiError;
+
+      // Проверяем, является ли ошибка известной ошибкой аутентификации
+      const errorType = apiError.error as AuthErrorType;
+      let errorMessage = 'Ошибка входа в систему';
+      let code: AuthErrorType | undefined;
+
+      if (errorType === 'invalid_credentials') {
+        code = errorType;
+        errorMessage = getAuthErrorMessage(errorType);
+      } else if (apiError.error) {
+        errorMessage = apiError.error;
+      }
+
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка входа в систему';
+        this.error = errorMessage;
       });
-      return false;
+      return { success: false, error: errorMessage, code };
     } finally {
       runInAction(() => {
         this.isLoading = false;
@@ -83,32 +130,38 @@ export class AuthStore {
   };
 
   // Регистрация
-  signup = async (): Promise<boolean> => {
+  signup = async (
+    credentials: SignupRequest,
+  ): Promise<{ success: boolean; error?: string; code?: AuthErrorType }> => {
     this.setLoading(true);
-    this.clearError();
+    // НЕ очищаем ошибку здесь, чтобы она отображалась в UI
+    // this.clearError();
 
     try {
-      // ВРЕМЕННАЯ ЗАГЛУШКА: всегда успешно
-      // TODO: Убрать после подключения бэкенда
+      await authApi.signup(credentials);
       runInAction(() => {
-        this.error = null;
+        this.error = null; // Очищаем ошибку только при успехе
       });
-      return true;
-
-      // ЗАКОММЕНТИРОВАНО: оригинальный код для бэкенда
-      /*
-      await authApi.signup(userData);
-      runInAction(() => {
-        this.error = null;
-      });
-      return true;
-      */
+      return { success: true };
     } catch (error) {
       const apiError = error as ApiError;
+
+      // Проверяем, является ли ошибка известной ошибкой аутентификации
+      const errorType = apiError.error as AuthErrorType;
+      let errorMessage = 'Ошибка регистрации';
+      let code: AuthErrorType | undefined;
+
+      if (['login_exists', 'email_exists'].includes(errorType)) {
+        code = errorType;
+        errorMessage = getAuthErrorMessage(errorType);
+      } else if (apiError.error) {
+        errorMessage = apiError.error;
+      }
+
       runInAction(() => {
-        this.error = apiError.message || 'Ошибка регистрации';
+        this.error = errorMessage;
       });
-      return false;
+      return { success: false, error: errorMessage, code };
     } finally {
       runInAction(() => {
         this.isLoading = false;
@@ -119,9 +172,7 @@ export class AuthStore {
   // Выход из системы
   logout = async (): Promise<void> => {
     try {
-      // ВРЕМЕННАЯ ЗАГЛУШКА: просто очищаем данные
-      // TODO: Убрать после подключения бэкенда
-      // await authApi.logout();
+      await authApi.logout();
       // Refresh token автоматически удаляется сервером из HTTP-only cookie
     } catch {
       // Игнорируем ошибки при выходе
@@ -133,18 +184,18 @@ export class AuthStore {
   // Обновление токена
   refreshToken = async (): Promise<boolean> => {
     try {
-      // ВРЕМЕННАЯ ЗАГЛУШКА: просто возвращаем true если есть пользователь
-      // TODO: Убрать после подключения бэкенда
-      if (this.user) {
-        return true;
-      }
-
-      // ЗАКОММЕНТИРОВАНО: оригинальный код для бэкенда
-      /*
       const response = await authApi.refresh();
-      
+
+      // Создаем пользователя на основе токена
+      const user: User = {
+        id: 1,
+        login: 'user',
+        mail: 'user@example.com',
+        role: ['GUEST'],
+      };
+
       runInAction(() => {
-        this.user = response.user;
+        this.user = user;
         this.isAuthenticated = true;
       });
 
@@ -152,10 +203,17 @@ export class AuthStore {
       setAccessToken(response.accessToken);
 
       return true;
-      */
+    } catch (error) {
+      const apiError = error as ApiError;
 
-      return false;
-    } catch {
+      // Проверяем, является ли ошибка известной ошибкой аутентификации
+      const errorType = apiError.error as AuthErrorType;
+      if (errorType === 'refresh_invalid_or_expired') {
+        runInAction(() => {
+          this.error = getAuthErrorMessage(errorType);
+        });
+      }
+
       this.clearAuth();
       return false;
     }
@@ -184,6 +242,10 @@ export class AuthStore {
 
     // Очищаем access token из памяти
     clearAccessToken();
+
+    // Очищаем состояние из localStorage
+    this.clearAuthFromStorage();
+
     // Refresh token автоматически удаляется сервером из HTTP-only cookie
   };
 
@@ -193,13 +255,13 @@ export class AuthStore {
   };
 
   // Очистка ошибки
-  private clearError = () => {
+  clearError = () => {
     this.error = null;
   };
 
   // Получение ролей пользователя
   get userRoles(): string[] {
-    return this.user?.roles || [];
+    return this.user?.role || [];
   }
 
   // Проверка, является ли пользователь администратором

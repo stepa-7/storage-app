@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.team29</groupId>
+    <groupId>com.storage</groupId>
     <artifactId>storage-app</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -16,10 +16,11 @@
     </parent>
 
     <modules>
+        <module>backend/shared-module</module>
         <module>backend/storage-module</module>
+        <module>backend/notification-module</module>
         <module>backend/api-gateway-module</module>
         <module>backend/qr-module</module>
-        <module>frontend</module>
         <module>backend/auth-service</module>
     </modules>
 

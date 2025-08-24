@@ -1,23 +1,27 @@
 package com.storage.service.impl;
 
+import com.storage.config.UserContext;
 import com.storage.exception.NotFoundException;
 import com.storage.exception.NotValidException;
+import com.storage.exception.StorageCapacityException;
 import com.storage.exception.StorageNotEmptyException;
 import com.storage.model.dto.storage.StorageCreate;
 import com.storage.model.dto.storage.StorageUpdate;
 import com.storage.model.entity.Storage;
-import com.storage.model.notification.StorageIsFullEvent;
+import com.storage.model.notification.StorageData;
 import com.storage.repository.StorageObjectRepository;
 import com.storage.repository.StorageRepository;
 import com.storage.repository.UnitRepository;
 import com.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +30,8 @@ public class StorageServiceImpl implements StorageService {
     private final StorageRepository storageRepository;
     private final StorageObjectRepository objectRepository;
     private final UnitRepository unitRepository;
-    private final KafkaTemplate<String, StorageIsFullEvent> kafkaTemplate;
+    private final KafkaTemplate<String, StorageData> kafkaTemplate;
+    private final UserContext userContext;
 
     @Transactional(readOnly = true)
     @Override
@@ -59,11 +64,14 @@ public class StorageServiceImpl implements StorageService {
             }
         }
 
+        UUID currentUserId = userContext.getCurrentUserId();
+
         Storage storage = Storage.builder()
                 .name(dto.getName())
                 .capacity(dto.getCapacity())
                 .unitId(dto.getUnitId())
                 .parentId(dto.getParentId())
+                .createdBy(currentUserId)
                 .build();
 
         return storageRepository.save(storage);
@@ -81,49 +89,31 @@ public class StorageServiceImpl implements StorageService {
         }
 
         if (!dto.getCapacity().equals(storage.getCapacity())) {
-//            validateCapacityChange(storage, dto.getCapacity());
+            validateCapacityChange(storage, dto.getCapacity());
             storage.setCapacity(dto.getCapacity());
             hasChanges = true;
         }
 
-        if (!dto.getParentId().equals(storage.getParentId())) {
+        if (dto.getParentId()!=null && !dto.getParentId().equals(storage.getParentId())) {
             updateParentStorage(storage, dto.getParentId());
             hasChanges = true;
         }
-        StorageIsFullEvent event = new StorageIsFullEvent(
-                storage.getId(),
-                storage.getName(),
-                storage.getCapacity(),
-                storage.getFullness()
-        );
-        kafkaTemplate.send("storage-notification", event);
+        sendData(storage);
 
         return hasChanges ? storageRepository.save(storage) : storage;
     }
 
-//    private void validateCapacityChange(Storage storage, Double newCapacity) {
-//        if (newCapacity.equals(storage.getCapacity())) {
-//            return;
-//        }
-//
-//        if (newCapacity < storage.getFullness()) {
-//            throw new StorageCapacityException(String.format(
-//                    "New capacity (%.2f) cannot be less than current fullness (%.2f)",
-//                    newCapacity, storage.getFullness()));
-//        }
-//
-//        if (storage.getParentId() != null) {
-//            Storage parent = storageRepository.findById(storage.getParentId())
-//                    .orElseThrow(() -> new NotFoundException("Parent storage not found"));
-//
-//            double requiredSpace = newCapacity - storage.getCapacity();
-//            if (parent.getCapacity() - parent.getFullness() < requiredSpace) {
-//                throw new StorageCapacityException(String.format(
-//                        "Parent storage has insufficient space. Required: %.2f, Available: %.2f",
-//                        requiredSpace, parent.getCapacity() - parent.getFullness()));
-//            }
-//        }
-//    }
+    private void validateCapacityChange(Storage storage, Double newCapacity) {
+        if (newCapacity.equals(storage.getCapacity())) {
+            return;
+        }
+
+        if (newCapacity < storage.getFullness()) {
+            throw new StorageCapacityException(String.format(
+                    "New capacity (%.2f) cannot be less than current fullness (%.2f)",
+                    newCapacity, storage.getFullness()));
+        }
+    }
 
     @Override
     public void updateParentStorage(Storage storage, UUID newParentId) {
@@ -137,23 +127,9 @@ public class StorageServiceImpl implements StorageService {
         if (isCircularReference(storage, newParent)) {
             throw new NotValidException("Circular reference detected in storage hierarchy");
         }
-
-//        if (newParent.getCapacity() - newParent.getFullness() < storage.getCapacity()) {
-//            throw new StorageCapacityException(String.format(
-//                    "New parent storage has insufficient space. Required: %.2f, Available: %.2f",
-//                    storage.getCapacity(), newParent.getCapacity() - newParent.getFullness()));
-//        }
-
-//        if (storage.getParentId() != null) {
-//            Storage oldParent = storageRepository.findById(storage.getParentId())
-//                    .orElseThrow(() -> new NotFoundException("Old parent storage not found"));
-//            oldParent.setFullness(oldParent.getFullness() - storage.getCapacity());
-//            storageRepository.save(oldParent);
-//        }
-
-//        newParent.setFullness(newParent.getFullness() + storage.getCapacity());
         storage.setParentId(newParentId);
-//        storageRepository.save(newParent);
+        storageRepository.save(newParent);
+        storageRepository.save(storage);
     }
 
     @Override
@@ -184,16 +160,18 @@ public class StorageServiceImpl implements StorageService {
         boolean hasObjects = objectRepository.existsByStorageIdAndDecommissionedFalse(id);
 
         if (hasChildren || hasObjects) {
+//        if (hasChildren) {
             throw new StorageNotEmptyException("Cannot delete storage with child storages or objects");
         }
 
-        objectRepository.markAsDecommissionedByStorageId(id);
+//        objectRepository.markAsDecommissionedByStorageId(id);
 
-        if (storage.getParentId() != null) {
-            storageRepository.findById(storage.getParentId()).ifPresent(parent -> {
-                parent.setFullness(parent.getFullness() - storage.getFullness());
-            });
-        }
+//        if (storage.getParentId() != null) {
+//            Storage parent = storageRepository.findById(storage.getParentId())
+//                    .orElseThrow(() -> new NotFoundException("Parent storage not found"));
+//            parent.setFullness(parent.getFullness() - storage.getFullness());
+//            storageRepository.save(parent);
+//        }
 
 //        objectRepository.deleteByStorageId(storage.getId());
 //        storageRepository.delete(storage);
@@ -207,13 +185,41 @@ public class StorageServiceImpl implements StorageService {
         Storage storage = storageRepository.findByIdAndIsDeletedFalse(storageId)
                 .orElseThrow(() -> new NotFoundException("Storage not found: " + storageId));
 
-//        double fullness = calculateFullness(storageId);
-//        return fullness + deltaSize <= storage.getCapacity();
-        return storage.getFullness() + deltaSize <= storage.getCapacity();
+        double fullness = calculateFullness(storageId);
+        return fullness + deltaSize <= storage.getCapacity();
+//        return storage.getFullness() + deltaSize <= storage.getCapacity();
     }
 
     @Override
     public double calculateFullness(UUID storageId) {
         return objectRepository.sumSizesByStorageId(storageId).orElse(0.0);
+    }
+
+    private void sendData(Storage storage) {
+        StorageData event = StorageData.builder()
+                .storageId(storage.getId())
+                .storageName(storage.getName())
+                .fullness(storage.getFullness())
+                .capacity(storage.getCapacity())
+                .build();
+
+//        kafkaTemplate.send("storage-notification" ,event);
+        try {
+            CompletableFuture<SendResult<String, StorageData>> future =
+                    kafkaTemplate.send("storage-notification", storage.getId().toString(), event);
+
+            future.whenComplete((result, ex) -> {
+                if (ex != null) {
+                    System.err.println("Failed to send message to Kafka: " + ex.getMessage());
+                    // Можно добавить логику повторной отправки или логирования ошибки
+                } else {
+                    System.out.println("Message sent successfully to partition: " +
+                            result.getRecordMetadata().partition());
+                }
+            });
+        } catch (RuntimeException e) {
+            System.err.println("Kafka send error: " + e.getMessage());
+            // Не бросаем исключение, чтобы не прерывать основную бизнес-логику
+        }
     }
 }

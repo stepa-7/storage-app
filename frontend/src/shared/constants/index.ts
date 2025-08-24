@@ -1,6 +1,6 @@
 // Константы приложения
 
-export const API_BASE_URL = 'https://api.storage-system.com/v1';
+export const API_BASE_URL = 'http://localhost:8080/api';
 
 export const API_ENDPOINTS = {
   // Аутентификация
@@ -12,11 +12,11 @@ export const API_ENDPOINTS = {
   },
   // Хранилища
   STORAGE: {
-    LIST: '/storage',
-    CREATE: '/storage',
-    GET: (id: string) => `/storage/${id}`,
-    UPDATE: (id: string) => `/storage/${id}`,
-    DELETE: (id: string) => `/storage/${id}`,
+    LIST: '/storages',
+    CREATE: '/storages',
+    GET: (id: string) => `/storages/${id}`,
+    UPDATE: (id: string) => `/storages/${id}`,
+    DELETE: (id: string) => `/storages/${id}`,
   },
   // Объекты
   OBJECTS: {
@@ -25,7 +25,7 @@ export const API_ENDPOINTS = {
     GET: (id: string) => `/objects/${id}`,
     UPDATE: (id: string) => `/objects/${id}`,
     DELETE: (id: string) => `/objects/${id}`,
-    MOVE: (id: string) => `/objects/${id}/move`,
+    QRCODE: (id: string) => `/objects/${id}/qrcode`,
   },
   // Шаблоны
   TEMPLATES: {
@@ -35,10 +35,9 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string) => `/templates/${id}`,
     DELETE: (id: string) => `/templates/${id}`,
   },
-  // QR коды
-  QR: {
-    GENERATE: (id: string) => `/qr/generate/${id}`,
-    DOWNLOAD: (id: string) => `/qr/download/${id}`,
+  // Единицы измерения
+  UNITS: {
+    LIST: '/units',
   },
 } as const;
 
@@ -81,7 +80,8 @@ export const ATTRIBUTE_TYPES = {
 
 export const ROUTES = {
   LOGIN: '/login',
-  STORAGE: '/storage',
+  REGISTER: '/register',
+  STORAGE: '/storages',
   STORAGE_VIEW: '/storage/:id',
   OBJECT_NEW: '/object/new',
   OBJECT_VIEW: '/object/:id',
@@ -95,3 +95,6 @@ export const PAGINATION = {
   DEFAULT_LIMIT: 20,
   MAX_LIMIT: 100,
 } as const;
+
+export const TOKEN_STORAGE_KEY = 'auth_token';
+// Функции для работы с access token в localStorage

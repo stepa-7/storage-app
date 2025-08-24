@@ -1,22 +1,78 @@
+@use '../../shared/styles/colors.scss' as c;
+
 .page {
   min-height: 100vh;
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 24px;
-  background: var(--bg-primary);
+  padding: 2rem 0;
 }
 
 .container {
-  width: 100%;
-  max-width: 1200px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.titleSection {
+  flex: 1;
 }
 
 .title {
   color: var(--text-primary);
+  margin-bottom: 0.5rem;
 }
 
-.text {
-  color: var(--text-secondary);
+.mainCard {
+  margin-bottom: 1.5rem;
+}
+
+.photoSection {
+  flex: 0 0 200px;
+}
+
+.objectPhoto {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+}
+
+.noPhoto {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--mantine-color-gray-1);
+  border-radius: var(--mantine-radius-md);
+  border: 2px dashed var(--mantine-color-gray-3);
+}
+
+.infoSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.attributesCard {
+  margin-top: 1.5rem;
+}
+
+.attributeItem {
+  padding: 0.75rem;
+  background: var(--mantine-color-gray-0);
+  border-radius: var(--mantine-radius-sm);
+  border: 1px solid var(--mantine-color-gray-2);
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
 }

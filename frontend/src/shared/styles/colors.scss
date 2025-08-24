@@ -1,21 +1,16 @@
 /* Brand & base */
 $color-white: #ffffff;
-$color-primary: #00aae6;
+$color-primary: #141414;
 
 /* Grays (light -> dark) */
 $color-very-light-gray: #e8e8e8;
 $color-light-gray: #c4c4c4;
 $color-gray: #676767;
-$color-dark-gray: #151515;
+$color-dark-gray: #191919;
+$color-very-dark-gray: #141414;
+$color-black: #111111;
 
-/* Blues & cyans (light -> dark) */
-$color-light-blue: #ecf2f9;
-$color-light-cyan: #c7f1ff;
-$color-cyan: #56ccf2;
-$color-blue: #2f80ed;
-$color-dark-blue: #02162c;
-
-/* Errors (light -> dark) */
-$color-error-hover: #ff7875;
-$color-error: #ff4d4f;
-$color-error-active: #d9363e;
+/* Errors - красные цвета для лучшей видимости */
+$color-error-hover: #d32f2f;
+$color-error: #f44336;
+$color-error-active: #b71c1c;

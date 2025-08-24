@@ -1,6 +1,6 @@
 stages:
   - build
-#  - test
+  #  - test
   - deploy
 
 variables:
@@ -30,7 +30,7 @@ deploy:
   stage: deploy
   image: alpine
   before_script:
-    - apk add --no-cache openssh-client ansible  
+    - apk add --no-cache openssh-client ansible
   script:
     - mkdir -p ~/.ssh
     - echo "$DEPLOY_KEY" > ~/.ssh/id_rsa

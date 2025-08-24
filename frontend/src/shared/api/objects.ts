@@ -2,17 +2,19 @@ import { API_ENDPOINTS } from '@shared/constants';
 import {
   type StorageObject,
   type CreateObjectRequest,
-  type PaginatedResponse,
+  type UpdateObjectRequest,
 } from '@shared/types';
 
 import { api } from './client';
 
 export const objectsApi = {
   // Получение списка объектов
-  getObjects: async (page = 1, limit = 20): Promise<PaginatedResponse<StorageObject>> => {
-    return api.get<PaginatedResponse<StorageObject>>(
-      `${API_ENDPOINTS.OBJECTS.LIST}?page=${page}&limit=${limit}`,
-    );
+  getObjects: async (params?: {
+    storage_id?: string;
+    template_id?: string;
+    decommissioned?: boolean;
+  }): Promise<StorageObject[]> => {
+    return api.get<StorageObject[]>(API_ENDPOINTS.OBJECTS.LIST, { params });
   },
 
   // Получение объекта по ID
@@ -25,18 +27,14 @@ export const objectsApi = {
     const formData = new FormData();
 
     // Добавляем основные данные
-    formData.append('templateId', data.templateId);
-    formData.append('storageId', data.storageId);
+    formData.append('name', data.name);
+    formData.append('template_id', data.template_id);
+    formData.append('storage_id', data.storage_id);
+    formData.append('size', String(data.size));
+    formData.append('unit_id', data.unit_id);
 
-    // Добавляем атрибуты
-    data.attributes.forEach((attr, index) => {
-      formData.append(`attributes[${index}][templateAttributeId]`, attr.templateAttributeId);
-      if (attr.value instanceof File) {
-        formData.append(`attributes[${index}][value]`, attr.value);
-      } else {
-        formData.append(`attributes[${index}][value]`, String(attr.value));
-      }
-    });
+    // Добавляем атрибуты как JSON строку
+    formData.append('attributes', JSON.stringify(data.attributes));
 
     // Добавляем фото, если есть
     if (data.photo) {
@@ -51,8 +49,28 @@ export const objectsApi = {
   },
 
   // Обновление объекта
-  updateObject: async (id: string, data: Partial<CreateObjectRequest>): Promise<StorageObject> => {
-    return api.put<StorageObject>(API_ENDPOINTS.OBJECTS.UPDATE(id), data);
+  updateObject: async (id: string, data: UpdateObjectRequest): Promise<StorageObject> => {
+    if (data.photo) {
+      // Если есть файл, используем multipart/form-data
+      const formData = new FormData();
+
+      if (data.name) formData.append('name', data.name);
+      if (data.storage_id) formData.append('storage_id', data.storage_id);
+      if (data.size) formData.append('size', String(data.size));
+      if (data.attributes) formData.append('attributes', JSON.stringify(data.attributes));
+      if (data.is_decommissioned !== undefined)
+        formData.append('is_decommissioned', String(data.is_decommissioned));
+      if (data.photo) formData.append('photo', data.photo);
+
+      return api.patch<StorageObject>(API_ENDPOINTS.OBJECTS.UPDATE(id), formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } else {
+      // Если файла нет, используем JSON
+      return api.patch<StorageObject>(API_ENDPOINTS.OBJECTS.UPDATE(id), data);
+    }
   },
 
   // Удаление объекта
@@ -60,21 +78,11 @@ export const objectsApi = {
     return api.delete(API_ENDPOINTS.OBJECTS.DELETE(id));
   },
 
-  // Перемещение объекта в другое хранилище
-  moveObject: async (id: string, newStorageId: string): Promise<StorageObject> => {
-    return api.post<StorageObject>(API_ENDPOINTS.OBJECTS.MOVE(id), {
-      storageId: newStorageId,
+  // Получение QR-кода для объекта
+  getObjectQRCode: async (id: string): Promise<Blob> => {
+    const response = await api.get<Blob>(API_ENDPOINTS.OBJECTS.QRCODE(id), {
+      responseType: 'blob',
     });
-  },
-
-  // Получение объектов по хранилищу
-  getObjectsByStorage: async (
-    storageId: string,
-    page = 1,
-    limit = 20,
-  ): Promise<PaginatedResponse<StorageObject>> => {
-    return api.get<PaginatedResponse<StorageObject>>(
-      `${API_ENDPOINTS.OBJECTS.LIST}?storageId=${storageId}&page=${page}&limit=${limit}`,
-    );
+    return response;
   },
 };

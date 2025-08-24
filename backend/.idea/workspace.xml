@@ -6,8 +6,25 @@
   <component name="ChangeListManager">
     <list default="true" id="412f3633-def1-4718-8d23-2def721c5344" name="Changes" comment="прописал логику">
     <list default="true" id="412f3633-def1-4718-8d23-2def721c5344" name="Changes" comment="сделал макет для разработки сервиса уведомлений">
+      <change beforePath="$PROJECT_DIR$/../.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-module/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-module/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/controller/NotificationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/controller/NotificationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/model/StorageEventCreate.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/model/StorageEventCreate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/model/StorageIsFullEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/model/StorageData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/repository/EventRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/repository/EventRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/service/NotificationConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/service/NotificationConsumer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/service/NotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/service/NotificationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-module/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-module/target/classes/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/target/classes/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-module/target/classes/com/storage/model/StorageIsFullEvent.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-module/target/classes/com/storage/service/NotificationConsumer.class" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/target/classes/com/storage/service/NotificationConsumer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/notification/StorageIsFullEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/notification/StorageData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/service/impl/StorageObjectServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/service/impl/StorageObjectServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/service/impl/StorageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/service/impl/StorageServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/resources/application.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +58,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.APIGatewayApplication.executor": "Debug",
+    "Application.AuthServiceApplication.executor": "Debug",
+    "Application.NotificationApplication.executor": "Debug",
+    "Application.QRApplication.executor": "Debug",
+    "Application.StorageApplication.executor": "Debug",
+    "Maven.api-gateway-module [clean].executor": "Run",
+    "Maven.api-gateway-module [package].executor": "Run",
+    "Maven.qr-module [clean].executor": "Run",
+    "Maven.qr-module [package].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "dev-task-notification",
+    "last_opened_file_path": "D:/T1 Lessons/проект2/t1-team-29/backend/notification-module",
+    "onboarding.tips.debug.path": "D:/T1 Lessons/проект2/t1-team-29/backend/notification-module/src/main/java/com/storage/Main.java",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;Application.APIGatewayApplication.executor&quot;: &quot;Debug&quot;,
@@ -93,6 +131,12 @@
     </key>
   </component>
 }</component>
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\T1 Lessons\проект2\t1-team-29\backend\notification-module" />
+    </key>
+  </component>
   <component name="RunManager" selected="Application.StorageApplication">
     <configuration name="APIGatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.storage.APIGatewayApplication" />
@@ -180,9 +224,9 @@
         <item itemvalue="Application.StorageApplication" />
         <item itemvalue="Application.AuthServiceApplication" />
         <item itemvalue="Application.NotificationApplication" />
-        <item itemvalue="Application.QRApplication" />
         <item itemvalue="Application.APIGatewayApplication" />
         <item itemvalue="Application.QRApplication" />
+        <item itemvalue="Application.AuthServiceApplication" />
       </list>
     </recent_temporary>
   </component>
@@ -218,15 +262,7 @@
       <option name="project" value="LOCAL" />
       <updated>1755676397915</updated>
     </task>
-    <task id="LOCAL-00004" summary="прописал логику">
-      <option name="closed" value="true" />
-      <created>1756024257440</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1756024257440</updated>
-    </task>
-    <option name="localTasksCounter" value="5" />
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -271,7 +307,6 @@
     <MESSAGE value="1 commit в api-gateway" />
     <MESSAGE value="добавил api-gateway отдельным модулем" />
     <MESSAGE value="сделал макет для разработки сервиса уведомлений" />
-    <MESSAGE value="прописал логику" />
     <option name="LAST_COMMIT_MESSAGE" value="прописал логику" />
   </component>
 </project>

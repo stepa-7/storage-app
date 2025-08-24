@@ -2,29 +2,88 @@
 
 /* Глобальные CSS-переменные, зависят от темы Mantine через data-атрибут */
 :root[data-mantine-color-scheme='light'] {
-  --bg-primary: #{c.$color-very-light-gray};
+  /* App header height used to offset main content */
+  --app-header-height: 60px;
+  /* Navigation active color (bright for light theme) */
+  --nav-active-color: #{c.$color-gray};
   --gridmotion-tile-bg: #{c.$color-light-gray};
   --text-primary: #{c.$color-dark-gray};
   --text-secondary: #{c.$color-gray};
   --border: #{c.$color-light-gray};
-  --accent: #{c.$color-blue};
+  --accent: #{c.$color-dark-gray};
   --error: #{c.$color-error};
-  // --bg-surface: #{c.$color-white};
+
+  /* Button states for light theme - темный фон + светлый текст */
+  --button-bg: #{c.$color-dark-gray};
+  --button-bg-hover: #{c.$color-very-dark-gray};
+  --button-bg-active: #{c.$color-black};
+  --button-bg-disabled: #{c.$color-light-gray};
+  --button-text: #{c.$color-white};
+  --button-text-disabled: rgba(#{c.$color-white}, 0.7);
+  --button-outline-border: #{c.$color-light-gray};
+  --button-outline-text: #{c.$color-gray};
+  --button-outline-bg-hover: #{c.$color-light-gray};
+  --button-light-bg: #{c.$color-white};
+  --button-light-bg-hover: #{c.$color-very-light-gray};
+  --button-subtle-text: #{c.$color-gray};
+  --button-subtle-bg-hover: #{c.$color-light-gray};
+
+  /* UI enhancement variables */
+  --form-shadow: rgba(0, 0, 0, 0.08);
+  --form-shadow-hover: rgba(0, 0, 0, 0.12);
+  --glass-overlay: rgba(255, 255, 255, 0.35);
+  --glass-border: rgba(255, 255, 255, 0.3);
+
   --mantine-font-family: 'ALS Hauss', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   --mantine-font-family-headings:
     'ALS Hauss', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
 :root[data-mantine-color-scheme='dark'] {
-  --bg-primary: #{c.$color-gray};
+  /* App header height used to offset main content */
+  --app-header-height: 60px;
+  /* Navigation active color (bright for dark theme) */
+  --nav-active-color: #{c.$color-gray};
   --gridmotion-tile-bg: #{c.$color-dark-gray};
   --text-primary: #{c.$color-white};
   --text-secondary: #{c.$color-light-gray};
   --border: #{c.$color-light-gray};
-  --accent: #{c.$color-blue};
+  --accent: #{c.$color-very-light-gray};
   --error: #{c.$color-error};
-  // --bg-surface: #{c.$color-gray};
+
+  /* Button states for dark theme - светлый фон + темный текст */
+  --button-bg: #{c.$color-white};
+  --button-bg-hover: #{c.$color-very-light-gray};
+  --button-bg-active: #{c.$color-light-gray};
+  --button-bg-disabled: #{c.$color-gray};
+  --button-text: #{c.$color-dark-gray};
+  --button-text-disabled: rgba(#{c.$color-dark-gray}, 0.7);
+  --button-outline-border: #{c.$color-gray};
+  --button-outline-text: #{c.$color-light-gray};
+  --button-outline-bg-hover: #{c.$color-dark-gray};
+  --button-light-bg: #{c.$color-gray};
+  --button-light-bg-hover: #{c.$color-dark-gray};
+  --button-subtle-text: #{c.$color-light-gray};
+  --button-subtle-bg-hover: #{c.$color-dark-gray};
+
+  /* UI enhancement variables for dark theme */
+  --form-shadow: rgba(0, 0, 0, 0.2);
+  --form-shadow-hover: rgba(0, 0, 0, 0.3);
+  --glass-overlay: rgba(25, 25, 25, 0.35);
+  --glass-border: rgba(255, 255, 255, 0.1);
+
   --mantine-font-family: 'ALS Hauss', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   --mantine-font-family-headings:
     'ALS Hauss', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.mantine-AppShell-root {
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.mantine-AppShell-main {
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+  overflow-y: auto !important;
 }

@@ -1,0 +1,236 @@
+@use '../../shared/styles/variables.scss' as v;
+@use '../../shared/styles/theme.scss' as t;
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: var(--app-header-height);
+  height: calc(100vh - var(--app-header-height));
+  background: var(--);
+  border-right: 1px solid var(--border);
+  transition: all 0.3s ease;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+
+  &.open {
+    width: 320px;
+    transform: translateX(0);
+  }
+
+  &.closed {
+    width: v.$spacing-3xl * 2.5; /* 60px */
+    transform: translateX(0);
+  }
+}
+
+.header {
+  padding: v.$spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  border-bottom: 1px solid var(--border);
+
+  .sidebar.closed & {
+    padding: v.$spacing-sm;
+    justify-content: center;
+  }
+}
+
+.searchContainer {
+  flex: 1;
+
+  .sidebar.closed & {
+    display: none;
+  }
+}
+
+.searchInput {
+  input {
+    background: var(--);
+    border: 1px solid var(--border);
+    border-radius: v.$border-radius-md;
+    font-size: v.$font-size-sm;
+    color: var(--text-secondary);
+
+    &::placeholder {
+      color: var(--text-secondary);
+    }
+
+    &:focus {
+      border-color: var(--text-primary);
+    }
+  }
+}
+
+.toggleButton {
+  background: transparent;
+  border: none;
+  padding: v.$spacing-xs;
+  border-radius: v.$border-radius-sm;
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+  }
+
+  .sidebar.closed & {
+    padding: v.$spacing-sm;
+    border-radius: 50%;
+    width: v.$spacing-3xl * 2.5; /* 40px */
+    height: v.$spacing-3xl * 2.5; /* 40px */
+  }
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+
+  &.rotated {
+    transform: rotate(180deg);
+  }
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 v.$spacing-lg;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .sidebar.closed & {
+    display: none;
+  }
+}
+
+.allItemsSection {
+  padding: v.$spacing-lg;
+  border-bottom: 1px solid var(--border);
+}
+
+.allItemsHeader {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: v.$spacing-sm 0;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+.treeContainer {
+  flex: 1;
+  padding: v.$spacing-sm 0;
+}
+
+.tree {
+  padding: 0 v.$spacing-sm;
+}
+
+.treeItem {
+  margin-bottom: 2px;
+}
+
+.itemContent {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-md;
+  padding: v.$spacing-md v.$spacing-sm;
+  border-radius: v.$border-radius-md;
+  cursor: pointer;
+  font-size: v.$font-size-sm;
+  color: var(--text-secondary);
+  position: relative;
+  transition: all v.$transition-normal;
+
+  &:hover {
+    background: var(--button-subtle-bg-hover);
+    color: var(--text-primary);
+  }
+
+  &:active {
+    background: var(--button-outline-bg-hover);
+  }
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: v.$spacing-lg;
+  height: v.$spacing-lg;
+  border-radius: 2px;
+
+  &:hover {
+    background: var(--button-outline-bg-hover);
+  }
+}
+
+.folderIcon {
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.itemName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 100%;
+    background: linear-gradient(to right, transparent, var(--));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .itemContent:hover &::after {
+    opacity: 1;
+  }
+}
+
+.itemCount {
+  color: var(--text-secondary);
+  font-size: v.$font-size-xs;
+  flex-shrink: 0;
+  margin-left: v.$spacing-xs;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-md;
+  padding: v.$spacing-2xl v.$spacing-lg;
+  color: var(--text-secondary);
+  text-align: center;
+  font-size: v.$font-size-sm;
+
+  svg {
+    opacity: 0.6;
+  }
+}

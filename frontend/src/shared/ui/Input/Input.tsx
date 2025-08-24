@@ -13,20 +13,22 @@ export function Input({
   ...props
 }: InputProps): JSX.Element {
   const effectivePlaceholder = placeholder ?? ' ';
+  const hasError = Boolean(error);
 
   return (
-    <div className={`${styles.inputContainer} ${className || ''}`}>
+    <div
+      className={`${styles.inputContainer} ${hasError ? styles.hasError : ''} ${className || ''}`}
+    >
       <input
         className={styles.inputField}
         placeholder={effectivePlaceholder}
         aria-label={label}
-        aria-invalid={Boolean(error) || undefined}
+        aria-invalid={hasError || undefined}
         value={value}
         onChange={(e) => onChange?.(e.currentTarget.value)}
         {...props}
       />
       {label && <label className={styles.inputLabel}>{label}</label>}
-      <span className={styles.inputHighlight} />
       {error && <div className={styles.error}>{error}</div>}
     </div>
   );
