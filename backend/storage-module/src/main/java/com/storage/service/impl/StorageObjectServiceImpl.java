@@ -24,7 +24,9 @@ import com.storage.service.FileImageService;
 import com.storage.service.StorageObjectService;
 import com.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,7 +34,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class StorageObjectServiceImpl implements StorageObjectService {
@@ -270,10 +274,28 @@ public class StorageObjectServiceImpl implements StorageObjectService {
                 .userEmail(userEmail)
                 .userId(userId)
                 .build();
+
         try {
             kafkaTemplate.send("storage-notification", event);
         } catch (RuntimeException e) {
-            throw new RuntimeException("Can't send notification data");
+            //throw new RuntimeException("Can't send notification data");
         }
+
+//        try {
+//            CompletableFuture<SendResult<String, StorageData>> future =
+//                    kafkaTemplate.send("storage-notification", storage.getId().toString(), event);
+//
+//            future.whenComplete((result, ex) -> {
+//                if (ex != null) {
+//                    log.warn("Failed to send message to Kafka: {}", ex.getMessage());
+//                    // Можно добавить логику повторной отправки или логирования ошибки
+//                } else {
+//                    log.debug("Message sent successfully to partition: {}", result.getRecordMetadata().partition());
+//                }
+//            });
+//        } catch (RuntimeException e) {
+//            log.warn("Kafka send error: {}", e.getMessage());
+//            // Не бросаем исключение, чтобы не прерывать основную бизнес-логику
+//        }
     }
 }

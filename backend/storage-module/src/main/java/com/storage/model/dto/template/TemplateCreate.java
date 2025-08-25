@@ -2,11 +2,13 @@ package com.storage.model.dto.template;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
+@AllArgsConstructor
 public class TemplateCreate {
 
     @NotBlank

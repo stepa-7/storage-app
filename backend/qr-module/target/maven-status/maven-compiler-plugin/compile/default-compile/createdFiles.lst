@@ -1,7 +1,7 @@
-com\storage\exception\QRCodeException.class
-com\storage\service\QRServiceImpl.class
-com\storage\controller\ExceptionHandlers.class
-com\storage\controller\QRController.class
-com\storage\QRApplication.class
-com\storage\service\QRService.class
-com\storage\model\error\ErrorResponse.class
+com\qr\controller\ExceptionHandlers.class
+com\qr\exception\QRCodeException.class
+com\qr\model\error\ErrorResponse.class
+com\qr\service\QRService.class
+com\qr\controller\QRController.class
+com\qr\service\QRServiceImpl.class
+com\qr\QRApplication.class

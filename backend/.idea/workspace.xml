@@ -4,27 +4,98 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="412f3633-def1-4718-8d23-2def721c5344" name="Changes" comment="прописал логику">
-    <list default="true" id="412f3633-def1-4718-8d23-2def721c5344" name="Changes" comment="сделал макет для разработки сервиса уведомлений">
-      <change beforePath="$PROJECT_DIR$/../.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/encodings.xml" afterDir="false" />
+    <list default="true" id="e59f0673-c47d-4707-a99d-217fb3b64624" name="Changes" comment="fix-commmit">
+      <change afterPath="$PROJECT_DIR$/../.idea/shelf/Uncommitted_changes_before_Checkout_at_24_08_2025_21_13_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/shelf/Uncommitted_changes_before_Checkout_at_24_08_2025_21_13__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api-gateway-module/target/classes/com/storage/security/JwtAuthenticationFilter$Config.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api-gateway-module/target/classes/com/storage/security/JwtAuthenticationFilter.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api-gateway-module/target/classes/com/storage/security/JwtUtil.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/application.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/NotificationApplication.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/controller/ExceptionHandlers.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/controller/NotificationController.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/model/NotificationCondition.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/model/dto/NotificationRuleCreateDto.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/model/entity/NotificationRule$NotificationRuleBuilder.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/model/entity/NotificationRule.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/repository/NotificationRepository.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/service/EmailService.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/service/NotificationConsumer.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/service/NotificationService.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/service/impl/EmailServiceImpl.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/classes/com/notification/service/impl/NotificationServiceImpl.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/maven-archiver/pom.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/notification-module-1.0-SNAPSHOT.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification-module/target/notification-module-1.0-SNAPSHOT.jar.original" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/qr-module/target/classes/com/qr/QRApplication.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/qr-module/target/classes/com/qr/controller/ExceptionHandlers.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/qr-module/target/classes/com/qr/controller/QRController.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/qr-module/target/classes/com/qr/exception/QRCodeException.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/qr-module/target/classes/com/qr/model/error/ErrorResponse.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/qr-module/target/classes/com/qr/service/QRService.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/qr-module/target/classes/com/qr/service/QRServiceImpl.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-module/target/classes/com/storage/config/UserContext.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-module/target/classes/com/storage/model/error/ErrorResponse.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-module/target/classes/com/storage/model/notification/StorageData$StorageDataBuilder.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-module/target/classes/com/storage/model/notification/StorageData.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-module/target/maven-archiver/pom.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-module/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-module/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-module/target/shared-module-1.0-SNAPSHOT.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/storage-module/src/test/java/service/FileImageServiceImplTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/storage-module/src/test/java/service/StorageObjectServiceImplTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/storage-module/src/test/java/service/StorageServiceImplTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/storage-module/src/test/java/service/TemplateServiceImplTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/storage-module/src/test/java/service/UnitServiceImplTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-module/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/docker-compose.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/controller/NotificationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/controller/NotificationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/model/StorageEventCreate.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/model/StorageEventCreate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/model/StorageIsFullEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/model/StorageData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/repository/EventRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/repository/EventRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/service/NotificationConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/service/NotificationConsumer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/service/NotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/java/com/storage/service/NotificationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway-module/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway-module/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway-module/target/api-gateway-module-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway-module/target/api-gateway-module-1.0-SNAPSHOT.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway-module/target/api-gateway-module-1.0-SNAPSHOT.jar.original" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway-module/target/api-gateway-module-1.0-SNAPSHOT.jar.original" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway-module/target/classes/application-docker.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway-module/target/classes/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway-module/target/classes/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway-module/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway-module/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway-module/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway-module/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway-module/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway-module/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/.env" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notification-module/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-module/target/classes/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/target/classes/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-module/target/classes/com/storage/model/StorageIsFullEvent.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-module/target/classes/com/storage/service/NotificationConsumer.class" beforeDir="false" afterPath="$PROJECT_DIR$/notification-module/target/classes/com/storage/service/NotificationConsumer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storage-module/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/docker-compose.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/notification/StorageIsFullEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/notification/StorageData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/src/main/java/com/storage/QRApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/src/main/java/com/qr/QRApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/src/main/java/com/storage/controller/ExceptionHandlers.java" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/src/main/java/com/qr/controller/ExceptionHandlers.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/src/main/java/com/storage/controller/QRController.java" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/src/main/java/com/qr/controller/QRController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/src/main/java/com/storage/exception/QRCodeException.java" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/src/main/java/com/qr/exception/QRCodeException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/src/main/java/com/storage/model/error/ErrorResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/src/main/java/com/qr/model/error/ErrorResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/src/main/java/com/storage/service/QRService.java" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/src/main/java/com/qr/service/QRService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/src/main/java/com/storage/service/QRServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/src/main/java/com/qr/service/QRServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/classes/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/target/classes/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/classes/com/storage/QRApplication.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/classes/com/storage/controller/ExceptionHandlers.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/classes/com/storage/controller/QRController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/classes/com/storage/exception/QRCodeException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/classes/com/storage/model/error/ErrorResponse.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/classes/com/storage/service/QRService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/classes/com/storage/service/QRServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/qr-module-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/target/qr-module-1.0-SNAPSHOT.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qr-module/target/qr-module-1.0-SNAPSHOT.jar.original" beforeDir="false" afterPath="$PROJECT_DIR$/qr-module/target/qr-module-1.0-SNAPSHOT.jar.original" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/controller/UnitController.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/controller/UnitController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/dto/storage/StorageCreate.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/dto/storage/StorageCreate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/dto/storage/StorageUpdate.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/dto/storage/StorageUpdate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/dto/template/TemplateCreate.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/dto/template/TemplateCreate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/dto/template/TemplateUpdate.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/dto/template/TemplateUpdate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/dto/unit/UnitCreate.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/model/dto/unit/UnitCreate.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/service/impl/StorageObjectServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/service/impl/StorageObjectServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/service/impl/StorageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/service/impl/StorageServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storage-module/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/service/impl/UnitServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/storage-module/src/main/java/com/storage/service/impl/UnitServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,118 +132,48 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.APIGatewayApplication.executor": "Debug",
-    "Application.AuthServiceApplication.executor": "Debug",
-    "Application.NotificationApplication.executor": "Debug",
     "Application.QRApplication.executor": "Debug",
-    "Application.StorageApplication.executor": "Debug",
+    "JUnit.FileImageServiceImplTest.executor": "Debug",
+    "JUnit.FileImageServiceImplTest.exists_true.executor": "Debug",
+    "JUnit.FileImageServiceImplTest.getObject_success.executor": "Debug",
+    "JUnit.StorageObjectServiceImplTest.executor": "Debug",
+    "JUnit.StorageServiceImplTest.executor": "Debug",
+    "JUnit.StorageServiceImplTest.getAll_noParentId_returnsAllStorages.executor": "Debug",
+    "JUnit.TemplateServiceImplTest.executor": "Debug",
+    "JUnit.UnitServiceImplTest.delete_WhenBothReferencesExist_ShouldThrowNotValidException.executor": "Debug",
+    "JUnit.UnitServiceImplTest.delete_WhenNoReferences_ShouldDeleteUnit.executor": "Debug",
+    "JUnit.UnitServiceImplTest.delete_WhenObjectReferencesExist_ShouldThrowNotValidException.executor": "Debug",
+    "JUnit.UnitServiceImplTest.delete_WhenStorageReferencesExist_ShouldThrowNotValidException.executor": "Debug",
+    "JUnit.UnitServiceImplTest.delete_WithNullUuid_ShouldThrowException.executor": "Debug",
+    "JUnit.UnitServiceImplTest.executor": "Debug",
     "Maven.api-gateway-module [clean].executor": "Run",
     "Maven.api-gateway-module [package].executor": "Run",
+    "Maven.auth-service [clean].executor": "Run",
+    "Maven.auth-service [package].executor": "Run",
+    "Maven.notification-module [clean].executor": "Run",
+    "Maven.notification-module [package].executor": "Run",
     "Maven.qr-module [clean].executor": "Run",
     "Maven.qr-module [package].executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "dev-task-notification",
-    "last_opened_file_path": "D:/T1 Lessons/проект2/t1-team-29/backend/notification-module",
-    "onboarding.tips.debug.path": "D:/T1 Lessons/проект2/t1-team-29/backend/notification-module/src/main/java/com/storage/Main.java",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
+    "Maven.shared-module [install].executor": "Run",
+    "Maven.shared-module [package].executor": "Run",
+    "Maven.storage-module [clean].executor": "Run",
+    "Maven.storage-module [package].executor": "Run",
+    "git-widget-placeholder": "dev-task-api",
     "settings.editor.selected.configurable": "preferences.pluginManager"
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.APIGatewayApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;Application.AuthServiceApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;Application.NotificationApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;Application.QRApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;Application.StorageApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;Maven.api-gateway-module [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.api-gateway-module [package].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.qr-module [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.qr-module [package].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev-task-notification&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/T1 Lessons/проект2/t1-team-29/backend&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;D:/T1 Lessons/проект2/t1-team-29/backend/notification-module/src/main/java/com/storage/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.APIGatewayApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;Application.AuthServiceApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;Application.NotificationApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;Application.QRApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;Application.StorageApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;Maven.api-gateway-module [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.api-gateway-module [package].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.notification-module [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.qr-module [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.qr-module [package].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.storage-module [clean].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev-task-notification&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/T1 Lessons/проект2/t1-team-29/backend/notification-module&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;D:/T1 Lessons/проект2/t1-team-29/backend/notification-module/src/main/java/com/storage/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
-}</component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\T1 Lessons\проект2\t1-team-29\backend\notification-module" />
-    </key>
-  </component>
-}</component>
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\T1 Lessons\проект2\t1-team-29\backend\notification-module" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.StorageApplication">
+  <component name="RunManager" selected="Application.APIGatewayApplication">
     <configuration name="APIGatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="envFilePaths">
+        <option value="$PROJECT_DIR$/api-gateway-module/.env" />
+      </option>
       <option name="MAIN_CLASS_NAME" value="com.storage.APIGatewayApplication" />
       <module name="api-gateway-module" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.storage.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="AuthServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="envFilePaths">
-        <option value="$PROJECT_DIR$/auth-service/.env" />
-      </option>
-      <option name="MAIN_CLASS_NAME" value="com.stepa7.authservice.AuthServiceApplication" />
-      <module name="auth-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.stepa7.authservice.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="NotificationApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="envFilePaths">
-        <option value="$PROJECT_DIR$/notification-module/.env" />
-      </option>
-      <option name="MAIN_CLASS_NAME" value="com.storage.NotificationApplication" />
-      <module name="notification-module" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.storage.*" />
@@ -196,37 +197,60 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="StorageApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="envFilePaths">
-        <option value="$PROJECT_DIR$/storage-module/.env" />
-      </option>
-      <option name="MAIN_CLASS_NAME" value="com.storage.StorageApplication" />
+    <configuration name="StorageObjectServiceImplTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="storage-module" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.storage.*" />
+          <option name="PATTERN" value="service.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
+      <option name="PACKAGE_NAME" value="service" />
+      <option name="MAIN_CLASS_NAME" value="service.StorageObjectServiceImplTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UnitServiceImplTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="storage-module" />
+      <option name="PACKAGE_NAME" value="service" />
+      <option name="MAIN_CLASS_NAME" value="service.UnitServiceImplTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UnitServiceImplTest.delete_WhenStorageReferencesExist_ShouldThrowNotValidException" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="storage-module" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="service" />
+      <option name="MAIN_CLASS_NAME" value="service.UnitServiceImplTest" />
+      <option name="METHOD_NAME" value="delete_WhenStorageReferencesExist_ShouldThrowNotValidException" />
+      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.AuthServiceApplication" />
-      <item itemvalue="Application.NotificationApplication" />
-      <item itemvalue="Application.APIGatewayApplication" />
       <item itemvalue="Application.QRApplication" />
-      <item itemvalue="Application.StorageApplication" />
+      <item itemvalue="Application.APIGatewayApplication" />
+      <item itemvalue="JUnit.UnitServiceImplTest" />
+      <item itemvalue="JUnit.UnitServiceImplTest.delete_WhenStorageReferencesExist_ShouldThrowNotValidException" />
+      <item itemvalue="JUnit.StorageObjectServiceImplTest" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.StorageApplication" />
-        <item itemvalue="Application.AuthServiceApplication" />
-        <item itemvalue="Application.NotificationApplication" />
         <item itemvalue="Application.APIGatewayApplication" />
         <item itemvalue="Application.QRApplication" />
-        <item itemvalue="Application.AuthServiceApplication" />
+        <item itemvalue="JUnit.UnitServiceImplTest" />
+        <item itemvalue="JUnit.UnitServiceImplTest.delete_WhenStorageReferencesExist_ShouldThrowNotValidException" />
+        <item itemvalue="JUnit.StorageObjectServiceImplTest" />
       </list>
     </recent_temporary>
   </component>
@@ -307,6 +331,7 @@
     <MESSAGE value="1 commit в api-gateway" />
     <MESSAGE value="добавил api-gateway отдельным модулем" />
     <MESSAGE value="сделал макет для разработки сервиса уведомлений" />
-    <option name="LAST_COMMIT_MESSAGE" value="прописал логику" />
+    <MESSAGE value="fix-commmit" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix-commmit" />
   </component>
 </project>

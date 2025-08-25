@@ -1,0 +1,12 @@
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\service\impl\NotificationServiceImpl.java
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\model\entity\NotificationRule.java
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\repository\NotificationRepository.java
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\service\EmailService.java
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\service\NotificationConsumer.java
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\controller\NotificationController.java
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\controller\ExceptionHandlers.java
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\service\impl\EmailServiceImpl.java
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\model\dto\NotificationRuleCreateDto.java
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\model\NotificationCondition.java
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\service\NotificationService.java
+D:\T1 Lessons\проект2\t1-team-29\backend\notification-module\src\main\java\com\notification\NotificationApplication.java

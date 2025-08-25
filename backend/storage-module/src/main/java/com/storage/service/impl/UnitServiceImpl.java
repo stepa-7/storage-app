@@ -39,8 +39,8 @@ public class UnitServiceImpl implements com.storage.service.UnitService {
 
     @Override
     public void delete(UUID uuid) {
-        if (objectRepo.findByUnitId(uuid) != null || storageRepo.findByUnitId(uuid) != null) {
-            throw new NotValidException("exists objects or storages what using this unit");
+        if (!objectRepo.findByUnitId(uuid).isEmpty() || !storageRepo.findByUnitId(uuid).isEmpty()) {
+            throw new NotValidException("Exists objects or storages what using this unit");
         }
         unitRepo.deleteById(uuid);
     }

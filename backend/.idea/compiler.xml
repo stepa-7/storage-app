@@ -8,9 +8,18 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="api-gateway-module" />
-        <module name="notification-module" />
       </profile>
-      <profile name="Annotation profile for storage-module" enabled="true">
+      <profile name="Annotation profile for qr-module" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
+        </processorPath>
+        <module name="qr-module" />
+      </profile>
+      <profile name="Annotation profile for notification-module" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -18,8 +27,9 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
         <module name="storage-module" />
+        <module name="shared-module" />
+        <module name="notification-module" />
         <module name="auth-service" />
-        <module name="qr-module" />
       </profile>
     </annotationProcessing>
   </component>
@@ -29,6 +39,7 @@
       <module name="auth-service" options="-parameters" />
       <module name="notification-module" options="-parameters" />
       <module name="qr-module" options="-parameters" />
+      <module name="shared-module" options="-parameters" />
       <module name="storage-module" options="-parameters" />
     </option>
   </component>
