@@ -18,7 +18,72 @@ http {
   access_log /var/log/nginx/access.log main;
 
   sendfile on;
+  tcp_nopush on;
+  tcp_nodelay on;
   keepalive_timeout 65;
+  types_hash_max_size 2048;
+
+  # Gzip сжатие
+  gzip on;
+  gzip_vary on;
+  gzip_min_length 1024;
+  gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+
+  # Основной сервер для маршрутизации
+  server {
+    listen 80;
+    server_name _;
+
+    # API запросы - проксируем на backend
+    location /api/ {
+      proxy_pass http://127.0.0.1:{{ api_gateway_host_port | default(18080) }}/;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      
+      # CORS заголовки
+      add_header 'Access-Control-Allow-Origin' '*' always;
+      add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+      add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+      
+      # Обработка preflight
+      if ($request_method = 'OPTIONS') {
+        add_header 'Access-Control-Allow-Origin' '*';
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS';
+        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization';
+        add_header 'Access-Control-Max-Age' 1728000;
+        add_header 'Content-Type' 'text/plain; charset=utf-8';
+        add_header 'Content-Length' 0;
+        return 204;
+      }
+    }
+
+    # Health check для API
+    location /health {
+      proxy_pass http://127.0.0.1:{{ api_gateway_host_port | default(18080) }}/health;
+      proxy_set_header Host $host;
+      access_log off;
+    }
+
+    # Все остальные запросы - проксируем на frontend
+    location / {
+      proxy_pass http://127.0.0.1:3000/;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      
+      # WebSocket поддержка
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      
+      # Таймауты для SPA
+      proxy_read_timeout 300s;
+      proxy_connect_timeout 75s;
+    }
+  }
 
   include /etc/nginx/conf.d/*.conf;
 }

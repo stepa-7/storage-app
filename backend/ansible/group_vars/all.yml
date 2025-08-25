@@ -19,12 +19,6 @@ ci_registry_user: "{{ lookup('env','CI_REGISTRY_USER') | default('', true) }}"
 ci_registry_password: "{{ lookup('env','CI_REGISTRY_PASSWORD') | default('', true) }}"
 image_tag: "{{ lookup('env','CI_COMMIT_SHORT_SHA') | default('latest', true) }}"
 
-# Регистр и тег (из CI)
-ci_registry: "{{ lookup('env','CI_REGISTRY') | default('', true) }}"
-ci_registry_user: "{{ lookup('env','CI_REGISTRY_USER') | default('', true) }}"
-ci_registry_password: "{{ lookup('env','CI_REGISTRY_PASSWORD') | default('', true) }}"
-image_tag: "{{ lookup('env','CI_COMMIT_SHORT_SHA') | default('latest', true) }}"
-
 # --- Auth DB ---
 auth_postgres_db: "{{ lookup('env','AUTH_POSTGRES_DB') | default('authdb', true) }}"
 auth_postgres_user: "{{ lookup('env','AUTH_POSTGRES_USER') | default('authuser', true) }}"
