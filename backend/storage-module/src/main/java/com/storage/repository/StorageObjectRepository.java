@@ -14,8 +14,11 @@ import java.util.UUID;
 @Repository
 public interface StorageObjectRepository extends JpaRepository<StorageObject, UUID> {
     List<StorageObject> findByStorageId(UUID storageId);
+
     List<StorageObject> findByTemplateId(UUID templateId);
+
     List<StorageObject> findByUnitId(UUID unitId);
+
     List<StorageObject> findByDecommissioned(boolean decommissioned);
 
     void deleteByStorageId(UUID storageId);

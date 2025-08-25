@@ -15,6 +15,7 @@ public class NotificationConsumer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @KafkaListener(topics = "storage-notification", groupId = "notification-module")
     public void onMessage(StorageData event) {
@@ -22,6 +23,8 @@ public class NotificationConsumer {
 
         for (String msg : messages) {
             kafkaTemplate.send("user-notification", msg);
+            String email = event.getUserEmail();
+            emailService.sendEmail(email, "Storage Alert", msg);
         }
     }
 }

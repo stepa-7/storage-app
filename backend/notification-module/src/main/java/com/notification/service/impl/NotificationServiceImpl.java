@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -22,7 +21,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserContext userContext;
 
     @Override
-    public List<NotificationRule> getAll(){
+    public List<NotificationRule> getAll() {
         return notificationRepository.findAll();
     }
 

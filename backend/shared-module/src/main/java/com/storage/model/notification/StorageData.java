@@ -16,4 +16,6 @@ public class StorageData {
     private String storageName;
     private Double fullness;
     private Double capacity;
+    private String userEmail;
+    private UUID userId;
 }

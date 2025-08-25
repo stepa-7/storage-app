@@ -2,7 +2,6 @@ package com.stepa7.authservice.security;
 
 import com.stepa7.authservice.user.UserDetailsImpl;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -35,6 +34,7 @@ public class JwtCore {
                 .subject(userDetails.getLogin())
                 .claim("userId", userDetails.getId().toString())
                 .claim("roles", userDetails.getRoles())
+                .claim("mail", userDetails.getMail())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + Long.parseLong(expireTimeMs)))
                 .signWith(key)

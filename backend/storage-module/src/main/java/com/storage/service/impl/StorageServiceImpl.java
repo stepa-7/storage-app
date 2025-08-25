@@ -59,7 +59,7 @@ public class StorageServiceImpl implements StorageService {
         if (dto.getParentId() != null) {
             Storage parent = storageRepository.findById(dto.getParentId())
                     .orElseThrow(() -> new NotFoundException("Parent storage not found"));
-            if(parent.getParentId() != null && parent.getParentId().equals(dto.getParentId())){
+            if (parent.getParentId() != null && parent.getParentId().equals(dto.getParentId())) {
                 throw new NotValidException("Can't make a nested storage");
             }
         }
@@ -94,7 +94,7 @@ public class StorageServiceImpl implements StorageService {
             hasChanges = true;
         }
 
-        if (dto.getParentId()!=null && !dto.getParentId().equals(storage.getParentId())) {
+        if (dto.getParentId() != null && !dto.getParentId().equals(storage.getParentId())) {
             updateParentStorage(storage, dto.getParentId());
             hasChanges = true;
         }
@@ -196,11 +196,16 @@ public class StorageServiceImpl implements StorageService {
     }
 
     private void sendData(Storage storage) {
+        String userEmail = userContext.getMail();
+        UUID userId = userContext.getCurrentUserId();
+
         StorageData event = StorageData.builder()
                 .storageId(storage.getId())
                 .storageName(storage.getName())
                 .fullness(storage.getFullness())
                 .capacity(storage.getCapacity())
+                .userEmail(userEmail)
+                .userId(userId)
                 .build();
 
 //        kafkaTemplate.send("storage-notification" ,event);

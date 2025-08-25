@@ -259,15 +259,20 @@ public class StorageObjectServiceImpl implements StorageObjectService {
     }
 
     private void sendData(Storage storage) {
+        String userEmail = userContext.getMail();
+        UUID userId = userContext.getCurrentUserId();
+
         StorageData event = StorageData.builder()
                 .storageId(storage.getId())
                 .storageName(storage.getName())
                 .fullness(storage.getFullness())
                 .capacity(storage.getCapacity())
+                .userEmail(userEmail)
+                .userId(userId)
                 .build();
         try {
             kafkaTemplate.send("storage-notification", event);
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new RuntimeException("Can't send notification data");
         }
     }

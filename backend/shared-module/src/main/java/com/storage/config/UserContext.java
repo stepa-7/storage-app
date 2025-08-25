@@ -35,4 +35,27 @@ public class UserContext {
             throw new IllegalStateException("Failed to get current user ID: " + e.getMessage());
         }
     }
+
+    public String getMail() {
+        try {
+            ServletRequestAttributes attributes =
+                    (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes != null) {
+                HttpServletRequest request = attributes.getRequest();
+
+//                System.out.println("All headers received:");
+                request.getHeaderNames().asIterator()
+                        .forEachRemaining(headerName ->
+                                System.out.println(headerName + ": " + request.getHeader(headerName)));
+
+                String mailHeader = request.getHeader("X-User-Mail");
+//                System.out.println("X-User-Mail header: " + mailHeader);
+                return mailHeader;
+            }
+            throw new IllegalStateException("User ID not found in request headers");
+        } catch (Exception e) {
+            System.err.println("Error getting user ID: " + e.getMessage());
+            throw new IllegalStateException("Failed to get current user ID: " + e.getMessage());
+        }
+    }
 }

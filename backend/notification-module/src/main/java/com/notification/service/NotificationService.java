@@ -5,7 +5,6 @@ import com.notification.model.entity.NotificationRule;
 import com.storage.model.notification.StorageData;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface NotificationService {
