@@ -115,11 +115,16 @@ public class StorageObjectServiceImpl implements StorageObjectService {
         double delta = createWithFileDto.getSize();
         checkAccommodation(storage, createWithFileDto.getSize(), delta);
 
+        Template template = templateRepo.findById(createWithFileDto.getTemplateId())
+                .orElseThrow(() -> new NotFoundException("Template not found with id: " + createWithFileDto.getTemplateId()));
+
         MultipartFile fileName = createWithFileDto.getPhoto();
         if (fileName == null || fileName.isEmpty() || fileName.getOriginalFilename() == null) {
             throw new ImageUploadException("Image must have name and exist");
         }
         String url = fileImageService.upload(fileName);
+
+        UUID currentUserId = userContext.getCurrentUserId();
 
         Map<String, Object> parsedAttributes = parseAttributes(createWithFileDto.getAttributes());
 
@@ -128,12 +133,17 @@ public class StorageObjectServiceImpl implements StorageObjectService {
                 .size(createWithFileDto.getSize())
                 .storageId(createWithFileDto.getStorageId())
                 .unitId(createWithFileDto.getUnitId())
-                .templateId(createWithFileDto.getTemplateId())
+                .templateId(template.getId())
                 .photoUrl(url)
                 .attributes(parsedAttributes)
                 .decommissioned(false)
-                .createdBy(userContext.getCurrentUserId())
+                .createdBy(currentUserId)
                 .build();
+
+        storage.setFullness(storage.getFullness() + object.getSize());
+        storageRepo.save(storage);
+
+        sendData(storage);
 
         return objectRepo.save(object);
     }
