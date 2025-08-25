@@ -18,21 +18,15 @@ export class ObjectStore {
   isLoading = false;
   error: string | null = null;
 
-  // Инъекция зависимости для StorageStore
   private storageStore?: StorageStoreInterface;
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  // Метод для инъекции StorageStore
   setStorageStore = (storageStore: StorageStoreInterface): void => {
     this.storageStore = storageStore;
   };
-
-  // Загрузка списка объектов
-
-  // Загрузка списка объектов
 
   loadObjects = async (params?: {
     storage_id?: string;
@@ -45,7 +39,13 @@ export class ObjectStore {
     try {
       const objects = await objectsApi.getObjects(params);
       runInAction(() => {
-        this.objects = objects;
+        if (params?.storage_id) {
+          this.objects = this.objects.filter((obj) => obj.storage_id !== params.storage_id);
+          this.objects.push(...objects);
+          this.updateStorageFullness(params.storage_id);
+        } else {
+          this.objects = objects;
+        }
       });
     } catch (error) {
       const apiError = error as ApiError;
@@ -59,18 +59,19 @@ export class ObjectStore {
     }
   };
 
-  // Загрузка конкретного объекта
   loadObject = async (id: string): Promise<void> => {
     this.setLoading(true);
     this.clearError();
 
     try {
       const object = await objectsApi.getObject(id);
+
       runInAction(() => {
         this.currentObject = object;
       });
     } catch (error) {
       const apiError = error as ApiError;
+      console.error('ObjectStore.loadObject error:', apiError);
       runInAction(() => {
         this.error = apiError.error || 'Ошибка загрузки объекта';
       });
@@ -81,55 +82,31 @@ export class ObjectStore {
     }
   };
 
-  // Создание нового объекта
   createObject = async (data: CreateObjectRequest): Promise<StorageObject | null> => {
     this.setLoading(true);
     this.clearError();
 
     try {
-      // ВРЕМЕННЫЙ МОК: создаем объект локально
-      // TODO: Убрать после подключения бэкенда
-      const newObject: StorageObject = {
-        id: Date.now().toString(),
-        name: data.name,
-        template_id: data.template_id,
-        storage_id: data.storage_id,
-        size: data.size,
-        unit_id: data.unit_id,
-        attributes: data.attributes,
-        photo_url: undefined, // TODO: обработать загрузку фото
-        is_decommissioned: false,
-        created_by: '1',
-        created_at: new Date().toISOString(),
-      };
-
-      runInAction(() => {
-        this.objects.unshift(newObject);
-      });
-
-      // Обновляем заполненность хранилища
-      if (this.storageStore) {
-        this.storageStore.updateStorageFullness(newObject.storage_id, newObject.size);
-      }
-
-      return newObject;
-
-      // ЗАКОММЕНТИРОВАНО: оригинальный код для бэкенда
-      /*
       const newObject = await objectsApi.createObject(data);
 
       runInAction(() => {
         this.objects.unshift(newObject);
       });
 
+      if (this.storageStore) {
+        this.storageStore.updateStorageFullness(newObject.storage_id, newObject.size);
+      }
+
       return newObject;
-      */
     } catch (error) {
       const apiError = error as ApiError;
+      const errorMessage = apiError.error || 'Ошибка создания объекта';
+
       runInAction(() => {
-        this.error = apiError.error || 'Ошибка создания объекта';
+        this.error = errorMessage;
       });
-      return null;
+
+      throw new Error(errorMessage);
     } finally {
       runInAction(() => {
         this.isLoading = false;
@@ -137,39 +114,13 @@ export class ObjectStore {
     }
   };
 
-  // Обновление объекта
   updateObject = async (id: string, data: UpdateObjectRequest): Promise<StorageObject | null> => {
     this.setLoading(true);
     this.clearError();
 
     try {
-      // ВРЕМЕННЫЙ МОК: обновляем объект локально
-      // TODO: Убрать после подключения бэкенда
-      const existingObject = this.objects.find((o) => o.id === id);
-      if (!existingObject) {
-        throw new Error('Объект не найден');
-      }
+      const oldObject = this.objects.find((obj) => obj.id === id);
 
-      const updatedObject: StorageObject = {
-        ...existingObject,
-        ...data,
-      };
-
-      runInAction(() => {
-        const index = this.objects.findIndex((o) => o.id === id);
-        if (index !== -1) {
-          this.objects[index] = updatedObject;
-        }
-
-        if (this.currentObject?.id === id) {
-          this.currentObject = updatedObject;
-        }
-      });
-
-      return updatedObject;
-
-      // ЗАКОММЕНТИРОВАНО: оригинальный код для бэкенда
-      /*
       const updatedObject = await objectsApi.updateObject(id, data);
 
       runInAction(() => {
@@ -181,16 +132,27 @@ export class ObjectStore {
         if (this.currentObject?.id === id) {
           this.currentObject = updatedObject;
         }
+
+        if (this.storageStore && oldObject) {
+          if (data.storage_id && data.storage_id !== oldObject.storage_id) {
+            this.updateStorageFullness(oldObject.storage_id);
+            this.updateStorageFullness(data.storage_id);
+          } else if (data.size !== undefined && data.size !== oldObject.size) {
+            this.updateStorageFullness(oldObject.storage_id);
+          }
+        }
       });
 
       return updatedObject;
-      */
     } catch (error) {
       const apiError = error as ApiError;
+      const errorMessage = apiError.error || 'Ошибка обновления объекта';
+
       runInAction(() => {
-        this.error = apiError.error || 'Ошибка обновления объекта';
+        this.error = errorMessage;
       });
-      return null;
+
+      throw new Error(errorMessage);
     } finally {
       runInAction(() => {
         this.isLoading = false;
@@ -198,33 +160,13 @@ export class ObjectStore {
     }
   };
 
-  // Удаление объекта
   deleteObject = async (id: string): Promise<boolean> => {
     this.setLoading(true);
     this.clearError();
 
     try {
-      // ВРЕМЕННЫЙ МОК: удаляем объект локально
-      // TODO: Убрать после подключения бэкенда
-      const objectToDelete = this.objects.find((o) => o.id === id);
+      const objectToDelete = this.objects.find((obj) => obj.id === id);
 
-      runInAction(() => {
-        this.objects = this.objects.filter((o) => o.id !== id);
-
-        if (this.currentObject?.id === id) {
-          this.currentObject = null;
-        }
-      });
-
-      // Обновляем заполненность хранилища
-      if (objectToDelete && this.storageStore) {
-        this.storageStore.updateStorageFullness(objectToDelete.storage_id, -objectToDelete.size);
-      }
-
-      return true;
-
-      // ЗАКОММЕНТИРОВАНО: оригинальный код для бэкенда
-      /*
       await objectsApi.deleteObject(id);
 
       runInAction(() => {
@@ -233,16 +175,22 @@ export class ObjectStore {
         if (this.currentObject?.id === id) {
           this.currentObject = null;
         }
+
+        if (objectToDelete && this.storageStore) {
+          this.updateStorageFullness(objectToDelete.storage_id);
+        }
       });
 
       return true;
-      */
     } catch (error) {
       const apiError = error as ApiError;
+      const errorMessage = apiError.error || 'Ошибка удаления объекта';
+
       runInAction(() => {
-        this.error = apiError.error || 'Ошибка удаления объекта';
+        this.error = errorMessage;
       });
-      return false;
+
+      throw new Error(errorMessage);
     } finally {
       runInAction(() => {
         this.isLoading = false;
@@ -250,18 +198,20 @@ export class ObjectStore {
     }
   };
 
-  // Получение QR-кода для объекта
-  getObjectQRCode = async (): Promise<Blob | null> => {
-    try {
-      // ВРЕМЕННЫЙ МОК: возвращаем пустой blob
-      // TODO: Убрать после подключения бэкенда
-      return new Blob(['Mock QR Code'], { type: 'image/png' });
+  updateStorageFullness = (storageId: string): void => {
+    if (this.storageStore) {
+      const totalSize = this.objects
+        .filter((obj) => obj.storage_id === storageId && !obj.is_decommissioned)
+        .reduce((sum, obj) => sum + obj.size, 0);
 
-      // ЗАКОММЕНТИРОВАНО: оригинальный код для бэкенда
-      /*
+      this.storageStore.updateStorageFullness(storageId, totalSize);
+    }
+  };
+
+  getObjectQRCode = async (id: string): Promise<Blob | null> => {
+    try {
       const qrCode = await objectsApi.getObjectQRCode(id);
       return qrCode;
-      */
     } catch (error) {
       const apiError = error as ApiError;
       runInAction(() => {
@@ -271,52 +221,31 @@ export class ObjectStore {
     }
   };
 
-  // Установка состояния загрузки
   private setLoading = (loading: boolean) => {
     this.isLoading = loading;
   };
 
-  // Очистка ошибки
   private clearError = () => {
     this.error = null;
   };
 
-  // Получение объекта по ID
   getObjectById = (id: string): StorageObject | undefined => {
     return this.objects.find((o) => o.id === id);
   };
 
-  // Получение объектов по хранилищу
   getObjectsByStorage = (storageId: string): StorageObject[] => {
     return this.objects.filter((o) => o.storage_id === storageId);
   };
 
-  // Проверка, есть ли объекты
   get hasObjects(): boolean {
     return this.objects.length > 0;
   }
 
-  // Получение количества объектов
   get objectsCount(): number {
     return this.objects.length;
   }
 
-  // Получение объектов для конкретного хранилища
   getObjectsForStorage = (storageId: string): StorageObject[] => {
-    const plainObjects = this.objects.map((obj) => ({
-      id: obj.id,
-      name: obj.name,
-      template_id: obj.template_id,
-      storage_id: obj.storage_id,
-      size: obj.size,
-      unit_id: obj.unit_id,
-      attributes: obj.attributes,
-      photo_url: obj.photo_url,
-      is_decommissioned: obj.is_decommissioned,
-      created_by: obj.created_by,
-      created_at: obj.created_at,
-    }));
-
-    return plainObjects.filter((o) => o.storage_id === storageId && !o.is_decommissioned);
+    return this.objects.filter((o) => o.storage_id === storageId && !o.is_decommissioned);
   };
 }

@@ -27,7 +27,6 @@ export class StorageStore {
     makeAutoObservable(this);
   }
 
-  // Загрузка списка хранилищ
   loadStorages = async (parentId?: string): Promise<void> => {
     this.setLoading(true);
     this.clearError();
@@ -49,13 +48,11 @@ export class StorageStore {
     }
   };
 
-  // Загрузка всех хранилищ для построения дерева
   loadAllStorages = async (): Promise<void> => {
     this.setLoading(true);
     this.clearError();
 
     try {
-      // Загружаем все хранилища без фильтра по parentId
       const allStorages = await storageApi.getStorages();
       runInAction(() => {
         this.storages = allStorages;
@@ -72,7 +69,6 @@ export class StorageStore {
     }
   };
 
-  // Загрузка конкретного хранилища
   loadStorage = async (id: string): Promise<void> => {
     this.setLoading(true);
     this.clearError();
@@ -94,7 +90,6 @@ export class StorageStore {
     }
   };
 
-  // Создание нового хранилища
   createStorage = async (data: CreateStorageRequest): Promise<Storage | null> => {
     this.setLoading(true);
     this.clearError();
@@ -120,7 +115,6 @@ export class StorageStore {
     }
   };
 
-  // Обновление хранилища
   updateStorage = async (id: string, data: UpdateStorageRequest): Promise<Storage | null> => {
     this.setLoading(true);
     this.clearError();
@@ -153,7 +147,6 @@ export class StorageStore {
     }
   };
 
-  // Удаление хранилища
   deleteStorage = async (id: string): Promise<boolean> => {
     this.setLoading(true);
     this.clearError();
@@ -183,36 +176,30 @@ export class StorageStore {
     }
   };
 
-  // Установка состояния загрузки
   private setLoading = (loading: boolean) => {
     this.isLoading = loading;
   };
 
-  // Очистка ошибки
   private clearError = () => {
     this.error = null;
   };
 
-  // Получение хранилища по ID
   getStorageById = (id: string): Storage | undefined => {
     const storage = this.storages.find((s) => s.id === id);
     if (!storage) return undefined;
 
-    // TODO: Получить количество объектов из objectStore
-    const objectCount = 0; // Временно заглушка
+    const objectCount = 0;
     return {
       ...storage,
       currentCapacity: objectCount,
     };
   };
 
-  // Получение дочерних хранилищ
   getChildStorages = (parentId: string): Storage[] => {
     const childStorages = this.storages.filter((s) => s.parentId === parentId);
 
-    // TODO: Получить количество объектов из objectStore
     return childStorages.map((storage) => {
-      const objectCount = 0; // Временно заглушка
+      const objectCount = 0;
       return {
         ...storage,
         currentCapacity: objectCount,
@@ -220,13 +207,11 @@ export class StorageStore {
     });
   };
 
-  // Получение корневых хранилищ (без родителя)
   getRootStorages = (): Storage[] => {
     const rootStorages = this.storages.filter((s) => !s.parentId);
 
-    // TODO: Получить количество объектов из objectStore
     return rootStorages.map((storage) => {
-      const objectCount = 0; // Временно заглушка
+      const objectCount = 0;
       return {
         ...storage,
         currentCapacity: objectCount,
@@ -234,21 +219,17 @@ export class StorageStore {
     });
   };
 
-  // Получение дерева хранилищ с деталями
   getStorageTree = (): StorageWithDetails[] => {
-    // TODO: добавить injecthook для unitStore
     const buildTree = (parentId?: string): StorageWithDetails[] => {
       const children = this.storages.filter((s) => s.parentId === parentId);
 
       return children.map((storage) => {
-        // TODO: Получить количество объектов из objectStore
         return {
           ...storage,
-          // Добавляем алиасы для совместимости
           maxCapacity: storage.capacity,
           currentCapacity: storage.fullness,
           children: buildTree(storage.id),
-          objects: [], // TODO: добавить объекты из objectStore
+          objects: [],
         };
       });
     };
@@ -256,44 +237,30 @@ export class StorageStore {
     return buildTree();
   };
 
-  // Вычисление процента заполненности хранилища
   getStorageFillPercentage = (storage: Storage): number => {
     if (storage.capacity === 0) return 0;
     return Math.round((storage.fullness / storage.capacity) * 100);
   };
 
-  // Проверка, можно ли удалить хранилище (должно быть пустым)
-  // canDeleteStorage = (_storage: Storage): boolean => {
-  //   // TODO: Получить количество объектов из objectStore
-  //   const objectCount = 0; // Временно заглушка
-  //   return objectCount === 0;
-  // };
-
-  // Обновление заполненности хранилища (вызывается при добавлении/удалении объектов)
-  updateStorageFullness = (storageId: string): void => {
+  updateStorageFullness = (storageId: string, delta: number): void => {
     runInAction(() => {
-      // TODO: Получить количество объектов из objectStore
-      const objectCount = 0; // Временно заглушка
-
       const storage = this.storages.find((s) => s.id === storageId);
       if (storage) {
-        storage.currentCapacity = objectCount;
+        storage.fullness = delta;
       }
 
       if (this.currentStorage?.id === storageId) {
-        this.currentStorage.currentCapacity = objectCount;
+        this.currentStorage.fullness = delta;
       }
     });
   };
 
-  // Получение пути к хранилищу для breadcrumbs
   getStoragePath = (storageId: string): Storage[] => {
     const path: Storage[] = [];
     let currentStorageItem = this.storages.find((s) => s.id === storageId);
 
     while (currentStorageItem) {
-      // TODO: Получить количество объектов из objectStore
-      const objectCount = 0; // Временно заглушка
+      const objectCount = 0;
       const updatedStorage = {
         ...currentStorageItem,
         currentCapacity: objectCount,
@@ -306,11 +273,9 @@ export class StorageStore {
     return path;
   };
 
-  // Пересчет заполненности всех хранилищ (может потребоваться при инициализации)
   recalculateAllFullness = (storageFullness?: Record<string, number>): void => {
     runInAction(() => {
       if (storageFullness) {
-        // Используем переданные данные о заполненности
         this.storages.forEach((storage) => {
           storage.currentCapacity = storageFullness[storage.id] || 0;
         });
@@ -319,7 +284,6 @@ export class StorageStore {
           this.currentStorage.currentCapacity = storageFullness[this.currentStorage.id] || 0;
         }
       } else {
-        // Временно заглушка
         this.storages.forEach((storage) => {
           storage.currentCapacity = 0;
         });
@@ -331,19 +295,16 @@ export class StorageStore {
     });
   };
 
-  // Загрузка дерева хранилищ для Sidebar
   fetchStorageTree = async (): Promise<void> => {
     this.setLoading(true);
     this.clearError();
 
     try {
-      // Строим дерево из реальных данных с подсчётом заполненности
       const buildTree = (parentId?: string): StorageTreeItem[] => {
         const children = this.storages.filter((s) => s.parentId === parentId);
 
         return children.map((storage) => {
-          // TODO: Получить количество объектов из objectStore
-          const objectCount = 0; // Временно заглушка
+          const objectCount = 0;
 
           return {
             id: storage.id,
@@ -354,7 +315,6 @@ export class StorageStore {
         });
       };
 
-      // Если storages ещё не загружены, загружаем их
       if (this.storages.length === 0) {
         await this.loadStorages();
       }

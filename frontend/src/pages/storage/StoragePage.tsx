@@ -6,13 +6,15 @@ import { useParams } from 'react-router-dom';
 
 import { useStorageStore } from '@app/store/StoreContext';
 import { type StorageWithDetails } from '@shared/types';
-import { Breadcrumbs, PageLayout } from '@shared/ui';
+import { Breadcrumbs, PageLayout, DeleteConfirmationModal } from '@shared/ui';
 import { StorageTree, CreateStorageModal } from '@widgets/storage-tree';
 
 export const StoragePage: React.FC = observer(() => {
   const { deleteStorage, getStorageById } = useStorageStore();
   const [addModalOpened, setAddModalOpened] = useState(false);
   const [selectedParentId, setSelectedParentId] = useState<string | undefined>();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [storageToDelete, setStorageToDelete] = useState<StorageWithDetails | null>(null);
   const { storageId } = useParams<{ storageId: string }>();
 
   const handleAddStorage = (parentId?: string) => {
@@ -20,15 +22,24 @@ export const StoragePage: React.FC = observer(() => {
     setAddModalOpened(true);
   };
 
-  const handleDeleteStorage = async (storage: StorageWithDetails) => {
+  const handleDeleteStorage = (storage: StorageWithDetails) => {
+    setStorageToDelete(storage);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteStorage = async () => {
+    if (!storageToDelete) return;
+
     try {
-      const success = await deleteStorage(storage.id);
+      const success = await deleteStorage(storageToDelete.id);
       if (success) {
         notifications.show({
           title: 'Успех',
           message: 'Хранилище успешно удалено',
           color: 'green',
         });
+        setShowDeleteModal(false);
+        setStorageToDelete(null);
       }
     } catch {
       notifications.show({
@@ -68,6 +79,15 @@ export const StoragePage: React.FC = observer(() => {
             color: 'green',
           });
         }}
+      />
+
+      <DeleteConfirmationModal
+        opened={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDeleteStorage}
+        title="Удаление хранилища"
+        itemName={storageToDelete?.name || ''}
+        description="Это действие нельзя отменить. Хранилище будет полностью удалено."
       />
     </PageLayout>
   );

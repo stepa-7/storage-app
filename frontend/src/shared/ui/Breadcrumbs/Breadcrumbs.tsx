@@ -72,7 +72,8 @@ export const Breadcrumbs = observer(({ storageId }: BreadcrumbsProps) => {
           </Text>
           {(storage.currentCapacity ?? storage.fullness ?? 0) > 0 && (
             <Text component="span" size="xs" className={s.itemCount}>
-              ({storage.currentCapacity ?? storage.fullness}/{storage.maxCapacity ?? storage.capacity})
+              ({storage.currentCapacity ?? storage.fullness}/
+              {storage.maxCapacity ?? storage.capacity})
             </Text>
           )}
         </ItemComponent>

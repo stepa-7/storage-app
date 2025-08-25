@@ -60,7 +60,7 @@ export interface ObjectTemplate {
   name: string;
   description: string;
   schema: Record<string, TemplateAttribute>;
-  is_deleted: boolean;
+  deleted: boolean;
 }
 
 export interface TemplateAttribute {
@@ -132,7 +132,7 @@ export interface CreateTemplateRequest {
 export interface UpdateTemplateRequest {
   name?: string;
   description?: string;
-  is_deleted?: boolean;
+  deleted?: boolean;
 }
 
 export interface ApiError {

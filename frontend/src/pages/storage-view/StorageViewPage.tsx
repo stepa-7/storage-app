@@ -1,10 +1,18 @@
 import { Container, Title, Card, Text, Group, Button, Progress, Stack, Grid } from '@mantine/core';
-import { IconPlus, IconPackage, IconTrash, IconEdit, IconArrowBarDown } from '@tabler/icons-react';
+import {
+  IconPlus,
+  IconPackage,
+  IconTrash,
+  IconEdit,
+  IconArrowBarDown,
+  IconPhoto,
+} from '@tabler/icons-react';
 import { observer } from 'mobx-react-lite';
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { useStorageStore, useObjectStore, useUnitStore } from '@app/store/StoreContext';
+import { objectsApi } from '@shared/api/objects';
 import { ROUTES } from '@shared/constants';
 import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
 
@@ -13,6 +21,7 @@ import styles from './StorageViewPage.module.scss';
 export const StorageViewPage: React.FC = observer(() => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
   const { loadStorage, currentStorage, isLoading, getChildStorages } = useStorageStore();
   const {
     loadObjects,
@@ -22,42 +31,76 @@ export const StorageViewPage: React.FC = observer(() => {
   } = useObjectStore();
   const { units } = useUnitStore();
 
-  // Функция для перезагрузки всех данных страницы
-  const refreshData = useCallback(() => {
+  const [objectImages, setObjectImages] = useState<Record<string, string | null>>({});
+  const [hasLoadedObjects, setHasLoadedObjects] = useState(false);
+
+  const storageObjects = getObjectsForStorage(id || '');
+  const childStorages = getChildStorages(currentStorage?.id || '');
+
+  useEffect(() => {
     if (id) {
       loadStorage(id);
       loadObjects({ storage_id: id });
+      setHasLoadedObjects(true);
     }
   }, [id, loadStorage, loadObjects]);
 
   useEffect(() => {
-    refreshData();
-  }, [refreshData, id]); // Добавляем id в зависимости
+    if (storageObjects.length > 0) {
+      storageObjects.forEach((object) => {
+        if (!objectImages[object.id] && object.photo_url) {
+          loadObjectImage(object.id);
+        }
+      });
+    }
+  }, [storageObjects, objectImages]);
 
-  // Перезагружаем данные при каждом возвращении на страницу
+  const loadObjectImage = useCallback(async (objectId: string) => {
+    try {
+      const imageUrl = await objectsApi.getObjectImage(objectId);
+      setObjectImages((prev) => ({
+        ...prev,
+        [objectId]: imageUrl,
+      }));
+    } catch {
+      setObjectImages((prev) => ({
+        ...prev,
+        [objectId]: null,
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      Object.values(objectImages).forEach((url) => {
+        if (url && url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, [objectImages]);
+
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        refreshData();
+      if (!document.hidden && id && hasLoadedObjects) {
+        loadStorage(id);
+        loadObjects({ storage_id: id });
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [refreshData]);
+  }, [id, hasLoadedObjects, loadStorage, loadObjects]);
 
   if (isLoading || !currentStorage) {
     return (
       <div className={styles.loading}>
-        <Text>Загрузка хранилищ...</Text>
+        <Text>Загрузка хранилища...</Text>
       </div>
     );
   }
 
   const fillPercentage = Math.round((currentStorage.fullness / currentStorage.capacity) * 100);
-
-  // Получаем объекты для текущего хранилища
-  const storageObjects = id ? getObjectsForStorage(id) : [];
 
   const handleAddObject = () => {
     if (id) {
@@ -70,12 +113,10 @@ export const StorageViewPage: React.FC = observer(() => {
   };
 
   const handleEditObject = (objectId: string) => {
-    // TODO: Реализовать страницу редактирования объекта
     console.warn('Edit object functionality not implemented:', objectId);
   };
 
   const handleMoveObject = (objectId: string) => {
-    // TODO: Реализовать модальное окно перемещения объекта
     console.warn('Move object functionality not implemented:', objectId);
   };
 
@@ -83,24 +124,26 @@ export const StorageViewPage: React.FC = observer(() => {
     try {
       const success = await deleteObject(objectId);
       if (success) {
-        // Обновляем данные страницы
-        refreshData();
+        if (objectImages[objectId]) {
+          URL.revokeObjectURL(objectImages[objectId]!);
+          setObjectImages((prev) => {
+            const updated = { ...prev };
+            delete updated[objectId];
+            return updated;
+          });
+        }
+        loadObjects({ storage_id: id! });
       }
     } catch (error) {
       console.error('Failed to delete object:', error);
     }
   };
 
-  // Получаем дочерние хранилища
-  const childStorages = getChildStorages(currentStorage.id);
-
-  // Функция для получения единицы измерения объекта
   const getObjectUnit = (unitId: string) => {
     const unit = units.find((u) => u.id === unitId);
     return unit?.symbol || 'кг';
   };
 
-  // Функция для получения единицы измерения хранилища
   const getStorageUnit = (unitId: string) => {
     const unit = units.find((u) => u.id === unitId);
     return unit?.symbol || 'кг';
@@ -124,7 +167,6 @@ export const StorageViewPage: React.FC = observer(() => {
           </div>
         </div>
 
-        {/* Прогресс заполненности */}
         <Card padding="lg" radius="md" className={styles.progressCard}>
           <Stack gap="sm">
             <Group justify="space-between" align="center">
@@ -164,7 +206,6 @@ export const StorageViewPage: React.FC = observer(() => {
           </Stack>
         </Card>
 
-        {/* Вложенные хранилища */}
         {childStorages.length > 0 && (
           <div className={styles.section}>
             <Title order={2} mb="md">
@@ -200,19 +241,18 @@ export const StorageViewPage: React.FC = observer(() => {
           </div>
         )}
 
-        {/* Объекты хранения */}
         <div className={styles.section}>
           <Title order={2} mb="md">
             Объекты хранения
           </Title>
 
-          {objectsLoading ? (
+          {objectsLoading && !hasLoadedObjects ? (
             <div className={styles.loading}>
               <Text>Загрузка объектов...</Text>
             </div>
           ) : storageObjects.length === 0 ? (
             <div className={styles.empty}>
-              <IconPackage size={48} color="var(--mantine-color-gray-4)" />
+              <IconPackage size={48} color="var(--mantine-color-dimmed)" />
               <Text size="lg" c="dimmed" ta="center">
                 Объекты не найдены
               </Text>
@@ -228,20 +268,32 @@ export const StorageViewPage: React.FC = observer(() => {
             <Grid gutter="md">
               {storageObjects.map((object) => (
                 <Grid.Col key={object.id} span={{ base: 12, sm: 6, md: 4 }}>
-                  <Card shadow="sm" padding="md" radius="md" className={styles.objectCard}>
+                  <Card
+                    shadow="sm"
+                    padding="md"
+                    radius="md"
+                    className={styles.objectCard}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleViewObject(object.id)}
+                  >
                     <Stack gap="md">
-                      {/* Фото объекта */}
-                      {object.photo_url ? (
+                      {objectImages[object.id] ? (
                         <div className={styles.objectPhoto}>
-                          <img src={object.photo_url} alt={object.name} className={styles.photo} />
+                          <img
+                            src={objectImages[object.id]!}
+                            alt={object.name}
+                            className={styles.photo}
+                            onError={() =>
+                              setObjectImages((prev) => ({ ...prev, [object.id]: null }))
+                            }
+                          />
                         </div>
                       ) : (
                         <div className={styles.noPhoto}>
-                          <IconPackage size={32} color="var(--mantine-color-gray-4)" />
+                          <IconPhoto size={32} color="var(--mantine-color-dimmed)" />
                         </div>
                       )}
 
-                      {/* Информация об объекте */}
                       <div className={styles.objectInfo}>
                         <Text fw={500} size="sm" className={styles.objectName}>
                           {object.name}
@@ -254,16 +306,7 @@ export const StorageViewPage: React.FC = observer(() => {
                         </Text>
                       </div>
 
-                      {/* Действия */}
-                      <Group gap="xs" justify="space-between">
-                        <Button
-                          variant="light"
-                          size="xs"
-                          onClick={() => handleViewObject(object.id)}
-                        >
-                          Просмотр
-                        </Button>
-
+                      <Group gap="xs" justify="space-between" onClick={(e) => e.stopPropagation()}>
                         <Group gap="xs">
                           <Button
                             variant="subtle"

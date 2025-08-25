@@ -10,15 +10,16 @@ import { api } from './client';
 export const templatesApi = {
   // Получение списка шаблонов
   getTemplates: async (params?: {
-    is_deleted?: boolean;
+    deleted?: boolean;
     name?: string;
   }): Promise<ObjectTemplate[]> => {
-    return api.get<ObjectTemplate[]>(API_ENDPOINTS.TEMPLATES.LIST, { params });
+    const templates = await api.get<ObjectTemplate[]>(API_ENDPOINTS.TEMPLATES.LIST, { params });
+    return templates;
   },
 
   // Получение активных шаблонов
   getActiveTemplates: async (): Promise<ObjectTemplate[]> => {
-    return api.get<ObjectTemplate[]>(`${API_ENDPOINTS.TEMPLATES.LIST}?is_deleted=false`);
+    return api.get<ObjectTemplate[]>(`${API_ENDPOINTS.TEMPLATES.LIST}?deleted=false`);
   },
 
   // Получение шаблона по ID
@@ -41,17 +42,22 @@ export const templatesApi = {
     const backendData: Partial<{
       name: string;
       description: string;
-      is_deleted: boolean;
+      deleted: boolean;
     }> = {};
     if (data.name) backendData.name = data.name;
     if (data.description) backendData.description = data.description;
-    if (data.is_deleted !== undefined) backendData.is_deleted = data.is_deleted;
+    if (data.deleted !== undefined) backendData.deleted = data.deleted;
 
     return api.patch<ObjectTemplate>(API_ENDPOINTS.TEMPLATES.UPDATE(id), backendData);
   },
 
-  // Удаление шаблона
+  // Удаление шаблона (деактивация через DELETE)
   deleteTemplate: async (id: string): Promise<void> => {
-    return api.delete(API_ENDPOINTS.TEMPLATES.DELETE(id));
+    try {
+      await api.delete(API_ENDPOINTS.TEMPLATES.DELETE(id));
+    } catch (error) {
+      console.error('API: Ошибка в DELETE запросе:', error);
+      throw error;
+    }
   },
 };

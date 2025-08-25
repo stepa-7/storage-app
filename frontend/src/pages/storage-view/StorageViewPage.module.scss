@@ -55,13 +55,18 @@
 }
 
 .objectCard {
-  background: var(--mantine-color-gray-0);
-  border: 1px solid var(--mantine-color-gray-3);
+  cursor: pointer;
   transition: all 0.2s ease;
+  border: 1px solid transparent;
 
   &:hover {
     box-shadow: var(--mantine-shadow-md);
-    border-color: var(--mantine-color-blue-5);
+    border-color: var(--mantine-color-dimmed);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
 
@@ -70,7 +75,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--mantine-color-gray-1);
+  background: transparent;
   border-radius: var(--mantine-radius-md);
   overflow: hidden;
 
@@ -87,9 +92,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--mantine-color-gray-1);
+  background: transparent;
   border-radius: var(--mantine-radius-md);
-  border: 2px dashed var(--mantine-color-gray-3);
+  border: 2px dashed var(--mantine-color-dimmed);
 }
 
 .objectInfo {
@@ -98,7 +103,6 @@
 
 .objectName {
   font-weight: 600;
-  color: var(--mantine-color-dark-9);
   margin-bottom: 0.25rem;
 }
 

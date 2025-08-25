@@ -18,23 +18,18 @@ export class RootStore {
     this.objectStore = new ObjectStore();
     this.unitStore = new UnitStore();
 
-    // Инъекция зависимостей
     this.objectStore.setStorageStore(this.storageStore);
   }
 
-  // Инициализация приложения
   initialize = async (): Promise<void> => {
-    // Если пользователь аутентифицирован, загружаем базовые данные
     if (this.authStore.isAuthenticated) {
       try {
         await Promise.all([
           this.storageStore.loadStorages(),
           this.templateStore.loadActiveTemplates(),
           this.unitStore.loadUnits(),
-          this.objectStore.loadObjects(), // Загружаем все объекты при инициализации
         ]);
 
-        // Пересчитываем заполненность хранилищ на основе загруженных объектов
         this.recalculateStorageFullness();
       } catch (error) {
         console.error('Error during store initialization:', error);
@@ -43,12 +38,14 @@ export class RootStore {
     }
   };
 
-  // Пересчет заполненности всех хранилищ
   private recalculateStorageFullness(): void {
+    if (this.objectStore.objects.length === 0) {
+      this.storageStore.recalculateAllFullness({});
+      return;
+    }
+
     const storageFullness: Record<string, number> = {};
 
-    // Подсчитываем объемы объектов по хранилищам
-    // Преобразуем MobX Proxy в обычные объекты для безопасного доступа к свойствам
     this.objectStore.objects.forEach((obj) => {
       const plainObj = {
         storage_id: obj.storage_id,
@@ -62,11 +59,9 @@ export class RootStore {
       }
     });
 
-    // Обновляем заполненность в StorageStore
     this.storageStore.recalculateAllFullness(storageFullness);
   }
 
-  // Очистка всех stores при выходе
   clearAllStores(): void {
     this.storageStore.storages = [];
     this.storageStore.currentStorage = null;
@@ -80,8 +75,6 @@ export class RootStore {
   }
 }
 
-// Создаем экземпляр корневого store
 export const rootStore = new RootStore();
 
-// Экспортируем типы для использования в компонентах
 export type RootStoreType = typeof rootStore;

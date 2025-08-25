@@ -5,7 +5,7 @@ import styles from './PageLayout.module.scss';
 
 interface PageLayoutProps {
   title: string;
-  subtitle?: string;
+  subtitle?: string | React.ReactNode;
   action?: {
     label: string;
     icon?: React.ReactNode;
@@ -32,9 +32,15 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
               {title}
             </Text>
             {subtitle && (
-              <Text size="md" c="dimmed" className={styles.subtitle}>
-                {subtitle}
-              </Text>
+              <div className={styles.subtitle}>
+                {typeof subtitle === 'string' ? (
+                  <Text size="md" c="dimmed">
+                    {subtitle}
+                  </Text>
+                ) : (
+                  subtitle
+                )}
+              </div>
             )}
           </div>
 

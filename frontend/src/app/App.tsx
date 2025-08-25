@@ -16,7 +16,6 @@ import { ROUTES } from '@shared/constants';
 import { HeaderSimple } from '@widgets/header-simple';
 import { TreeNavbar } from '@widgets/tree-navbar';
 import { NavbarProvider, useNavbar } from '@widgets/tree-navbar/NavbarContext';
-// import { Sidebar } from '@widgets/sidebar';
 
 import { rootStore } from './store';
 import { StoreProvider, useAuthStore, useStore } from './store/StoreContext';
@@ -29,23 +28,16 @@ const AppContentInner: React.FC = observer(() => {
   const { isAuthenticated } = useAuthStore();
   const { initialize } = useStore();
   const { navbarWidth } = useNavbar();
-  // const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     if (isAuthenticated) {
       initialize()
-        .then(() => {
-          // App: Initialize completed
-        })
+        .then(() => {})
         .catch((error) => {
           console.error('App: Initialize failed:', error);
         });
     }
   }, [isAuthenticated, initialize]);
-
-  // const handleSidebarToggle = () => {
-  //   setSidebarOpen(!sidebarOpen);
-  // };
 
   if (!isAuthenticated) {
     return (
@@ -65,7 +57,6 @@ const AppContentInner: React.FC = observer(() => {
       className="app-shell"
       layout="alt"
     >
-      {/* Skip link для доступности */}
       <a
         href="#main-content"
         style={{
@@ -89,15 +80,12 @@ const AppContentInner: React.FC = observer(() => {
       </a>
 
       <AppShell.Header>
-        {/* <Header onSidebarToggle={handleSidebarToggle} sidebarOpen={sidebarOpen} />*/}
         <HeaderSimple />
       </AppShell.Header>
 
       <AppShell.Navbar>
         <TreeNavbar />
       </AppShell.Navbar>
-
-      {/* <Sidebar isOpen={sidebarOpen} onToggle={handleSidebarToggle} /> */}
 
       <AppShell.Main id="main-content" role="main">
         <Routes>
@@ -124,7 +112,6 @@ const AppContent: React.FC = observer(() => {
 const App: React.FC = () => {
   return (
     <AppThemeProvider>
-      {/* Глобальный SVG фильтр для liquid glass эффекта */}
       <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden>
         <defs>
           <filter id="card-glass-distortion">

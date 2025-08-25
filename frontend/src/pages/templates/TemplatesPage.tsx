@@ -18,15 +18,7 @@ import {
   Alert,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-  IconPlus,
-  IconEdit,
-  IconTrash,
-  IconFileSad,
-  IconAlertCircle,
-  IconEye,
-  IconEyeOff,
-} from '@tabler/icons-react';
+import { IconPlus, IconEdit, IconTrash, IconFileSad, IconAlertCircle } from '@tabler/icons-react';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect, useState, useRef } from 'react';
 
@@ -39,18 +31,26 @@ import {
   type UpdateTemplateRequest,
   type TemplateAttribute,
 } from '@shared/types';
-import { PageLayout, EmptyState } from '@shared/ui';
+import { PageLayout, EmptyState, DeleteConfirmationModal } from '@shared/ui';
 
 import styles from './TemplatesPage.module.scss';
 
 export const TemplatesPage: React.FC = observer(() => {
-  const { loadTemplates, templates, createTemplate, updateTemplate, isLoading } =
-    useTemplateStore();
+  const {
+    loadTemplates,
+    templates,
+    createTemplate,
+    updateTemplate,
+    isLoading,
+    deactivateTemplate,
+  } = useTemplateStore();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<ObjectTemplate | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'deactivated'>('all');
+  const [templateToDelete, setTemplateToDelete] = useState<ObjectTemplate | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'deleted'>('all');
 
   // Используем useRef для стабильной ссылки на form
   const formRef = useRef<ReturnType<typeof useZodForm<CreateTemplateSchema>> | null>(null);
@@ -83,27 +83,32 @@ export const TemplatesPage: React.FC = observer(() => {
     setShowEditModal(true);
   };
 
-  const handleToggleTemplateStatus = async (template: ObjectTemplate) => {
+  const handleDeleteTemplate = async (template: ObjectTemplate) => {
+    setTemplateToDelete(template);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteTemplate = async () => {
+    if (!templateToDelete) return;
+
     try {
-      if (template.is_deleted) {
-        await updateTemplate(template.id, { is_deleted: false });
+      const success = await deactivateTemplate(templateToDelete.id);
+      if (success) {
         notifications.show({
           title: 'Успех',
-          message: 'Шаблон активирован',
-          color: 'green',
+          message: 'Шаблон удален',
+          color: 'red',
         });
+        setShowDeleteModal(false);
+        setTemplateToDelete(null);
       } else {
-        await updateTemplate(template.id, { is_deleted: true });
-        notifications.show({
-          title: 'Успех',
-          message: 'Шаблон деактивирован',
-          color: 'orange',
-        });
+        throw new Error('Не удалось деактивировать шаблон');
       }
-    } catch {
+    } catch (error) {
+      console.error('🔄 Ошибка при деактивации:', error);
       notifications.show({
         title: 'Ошибка',
-        message: 'Не удалось изменить статус шаблона',
+        message: 'Не удалось деактивировать шаблон',
         color: 'red',
       });
     }
@@ -212,8 +217,8 @@ export const TemplatesPage: React.FC = observer(() => {
 
   const filteredTemplates = templates.filter((template) => {
     if (statusFilter === 'all') return true;
-    if (statusFilter === 'active') return !template.is_deleted;
-    if (statusFilter === 'deactivated') return template.is_deleted;
+    if (statusFilter === 'active') return !template.deleted;
+    if (statusFilter === 'deleted') return template.deleted;
     return true;
   });
 
@@ -259,14 +264,14 @@ export const TemplatesPage: React.FC = observer(() => {
                 size="xs"
                 onClick={() => setStatusFilter('active')}
               >
-                Активные ({templates.filter((t) => !t.is_deleted).length})
+                Доступные ({templates.filter((t) => !t.deleted).length})
               </Button>
               <Button
-                variant={statusFilter === 'deactivated' ? 'filled' : 'light'}
+                variant={statusFilter === 'deleted' ? 'filled' : 'light'}
                 size="xs"
-                onClick={() => setStatusFilter('deactivated')}
+                onClick={() => setStatusFilter('deleted')}
               >
-                Деактивированные ({templates.filter((t) => t.is_deleted).length})
+                Удалённые ({templates.filter((t) => t.deleted).length})
               </Button>
             </Group>
           </Group>
@@ -291,54 +296,54 @@ export const TemplatesPage: React.FC = observer(() => {
               <Table className={styles.table}>
                 <Table.Thead>
                   <Table.Tr>
-                    <Table.Th>Название</Table.Th>
-                    <Table.Th>Описание</Table.Th>
-                    <Table.Th>Количество атрибутов</Table.Th>
-                    <Table.Th>Статус</Table.Th>
-                    <Table.Th>Действия</Table.Th>
+                    <Table.Th style={{ textAlign: 'left' }}>Название</Table.Th>
+                    <Table.Th style={{ textAlign: 'left' }}>Описание</Table.Th>
+                    <Table.Th style={{ textAlign: 'center' }}>Количество атрибутов</Table.Th>
+                    <Table.Th style={{ textAlign: 'center' }}>Статус</Table.Th>
+                    <Table.Th style={{ textAlign: 'center' }}>Действия</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
                   {filteredTemplates.map((template) => (
                     <Table.Tr key={template.id}>
-                      <Table.Td>
+                      <Table.Td style={{ verticalAlign: 'middle' }}>
                         <Text fw={500}>{template.name}</Text>
                       </Table.Td>
-                      <Table.Td>
+                      <Table.Td style={{ verticalAlign: 'middle' }}>
                         <Text size="sm" c="dimmed" lineClamp={2}>
                           {template.description}
                         </Text>
                       </Table.Td>
-                      <Table.Td>
-                        <Badge variant="subtle" color="blue">
-                          {Object.keys(template.schema).length}
+                      <Table.Td style={{ verticalAlign: 'middle', textAlign: 'center' }}>
+                        <Badge variant="subtle">{Object.keys(template.schema).length}</Badge>
+                      </Table.Td>
+                      <Table.Td style={{ verticalAlign: 'middle', textAlign: 'center' }}>
+                        <Badge variant="subtle" color={template.deleted ? 'red' : 'green'}>
+                          {template.deleted ? 'Удалён' : 'Доступен'}
                         </Badge>
                       </Table.Td>
-                      <Table.Td>
-                        <Badge variant="subtle" color={template.is_deleted ? 'orange' : 'green'}>
-                          {template.is_deleted ? 'Деактивирован' : 'Активирован'}
-                        </Badge>
-                      </Table.Td>
-                      <Table.Td>
-                        <Group gap="xs">
-                          <ActionIcon
-                            variant="subtle"
-                            color="blue"
-                            onClick={() => handleEditTemplate(template)}
-                          >
-                            <IconEdit size={16} />
-                          </ActionIcon>
-
-                          <ActionIcon
-                            variant="subtle"
-                            color={template.is_deleted ? 'green' : 'orange'}
-                            onClick={() => handleToggleTemplateStatus(template)}
-                            title={
-                              template.is_deleted ? 'Активировать шаблон' : 'Деактивировать шаблон'
-                            }
-                          >
-                            {template.is_deleted ? <IconEye size={16} /> : <IconEyeOff size={16} />}
-                          </ActionIcon>
+                      <Table.Td style={{ verticalAlign: 'middle', textAlign: 'center' }}>
+                        <Group gap="xs" justify="center">
+                          {!template.deleted && (
+                            <>
+                              <ActionIcon
+                                variant="subtle"
+                                color="blue"
+                                onClick={() => handleEditTemplate(template)}
+                                title="Редактировать шаблон"
+                              >
+                                <IconEdit size={16} />
+                              </ActionIcon>
+                              <ActionIcon
+                                variant="subtle"
+                                color="red"
+                                onClick={() => handleDeleteTemplate(template)}
+                                title="Удалить шаблон"
+                              >
+                                <IconTrash size={16} />
+                              </ActionIcon>
+                            </>
+                          )}
                         </Group>
                       </Table.Td>
                     </Table.Tr>
@@ -635,6 +640,17 @@ export const TemplatesPage: React.FC = observer(() => {
               </Stack>
             </form>
           </Modal>
+
+          {/* Модальное окно подтверждения удаления */}
+          <DeleteConfirmationModal
+            opened={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={confirmDeleteTemplate}
+            title="Удаление шаблона"
+            itemName={templateToDelete?.name || ''}
+            description="Это действие нельзя отменить. Шаблон будет помечен как удаленный."
+            loading={isLoading}
+          />
         </div>
       </div>
     </PageLayout>

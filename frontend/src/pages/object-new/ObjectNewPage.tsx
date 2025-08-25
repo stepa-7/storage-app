@@ -18,21 +18,25 @@ import { IconUpload, IconArrowLeft, IconArrowRight, IconCheck } from '@tabler/ic
 import { observer } from 'mobx-react-lite';
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { z } from 'zod';
 
-import { useObjectStore, useTemplateStore } from '@app/store/StoreContext';
+import { useObjectStore, useTemplateStore, useUnitStore } from '@app/store/StoreContext';
 import { ROUTES } from '@shared/constants';
-import { baseObjectSchema, buildAttributesSchemaFromTemplate } from '@shared/schemas';
 import {
   type CreateObjectRequest,
   type ObjectTemplate,
   type TemplateAttribute,
+  type Unit,
 } from '@shared/types';
 
 import styles from './ObjectNewPage.module.scss';
 
-type FormData = z.infer<typeof baseObjectSchema> & {
+type FormData = {
+  template_id: string;
+  name: string;
+  size: number;
+  unit_id: string;
   attributes: Record<string, string | number | boolean>;
+  photo: File | undefined;
 };
 
 export const ObjectNewPage: React.FC = observer(() => {
@@ -40,30 +44,15 @@ export const ObjectNewPage: React.FC = observer(() => {
   const location = useLocation();
   const { createObject, isLoading } = useObjectStore();
   const { loadActiveTemplates, activeTemplates } = useTemplateStore();
+  const { loadUnits, units } = useUnitStore();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<ObjectTemplate | null>(null);
-  const [units] = useState([
-    { id: '1', name: 'Количество', symbol: 'шт' },
-    { id: '2', name: 'Килограммы', symbol: 'кг' },
-  ]);
+  const prevTemplateRef = useRef<ObjectTemplate | null>(null);
+  const prevUnitsRef = useRef<Unit[]>([]);
 
   // Получаем storageId из state навигации
   const storageId = location.state?.storageId;
-
-  // Создаем динамическую схему на основе выбранного шаблона
-  const createValidationSchema = (template: ObjectTemplate | null) => {
-    if (!template) {
-      return baseObjectSchema.extend({
-        attributes: z.record(z.string(), z.unknown()).optional().default({}),
-      });
-    }
-
-    const attributesSchema = buildAttributesSchemaFromTemplate(template.schema);
-    return baseObjectSchema.extend({
-      attributes: attributesSchema,
-    });
-  };
 
   const form = useForm<FormData>({
     initialValues: {
@@ -75,41 +64,55 @@ export const ObjectNewPage: React.FC = observer(() => {
       photo: undefined,
     },
     validate: (values) => {
-      const schema = createValidationSchema(selectedTemplate);
-      const result = schema.safeParse(values);
+      const errors: Record<string, string> = {};
 
-      if (result.success) {
-        return {};
+      // Базовая валидация
+      if (!values.template_id) {
+        errors.template_id = 'Выберите шаблон';
+      }
+      if (!values.name.trim()) {
+        errors.name = 'Название обязательно';
+      }
+      if (!values.size || values.size <= 0) {
+        errors.size = 'Размер должен быть больше 0';
+      }
+      if (!values.unit_id) {
+        errors.unit_id = 'Выберите единицу измерения';
       }
 
-      const errors: Record<string, string> = {};
-      result.error.issues.forEach((issue) => {
-        const path = issue.path.join('.');
-        if (!errors[path]) {
-          errors[path] = issue.message;
+      // Валидация атрибутов
+      if (selectedTemplate) {
+        for (const [key, attribute] of Object.entries(selectedTemplate.schema)) {
+          if (attribute.required) {
+            const value = values.attributes[key];
+            if (value === undefined || value === null || value === '' || value === false) {
+              errors[`attributes.${key}`] = 'Обязательное поле';
+            }
+          }
         }
-      });
+      }
 
       return errors;
     },
+    validateInputOnChange: true,
   });
-
-  // Используем useRef для стабильной ссылки на form
-  const formRef = useRef(form);
-  formRef.current = form;
 
   useEffect(() => {
     loadActiveTemplates();
-  }, [loadActiveTemplates]);
+    loadUnits();
+  }, []); // Убираю функции из зависимостей, так как они стабильны
 
-  // Отладочная информация при изменении activeTemplates
+  // Устанавливаем первую единицу измерения при загрузке
   useEffect(() => {
-    // Активные шаблоны загружены
-  }, [activeTemplates]);
+    if (units.length > 0 && units !== prevUnitsRef.current) {
+      form.setFieldValue('unit_id', units[0].id);
+      prevUnitsRef.current = units;
+    }
+  }, [units]); // Убираю form.values из зависимостей
 
   // Обновляем атрибуты при выборе шаблона
   useEffect(() => {
-    if (selectedTemplate) {
+    if (selectedTemplate && selectedTemplate !== prevTemplateRef.current) {
       const initialAttributes: Record<string, string | number | boolean> = {};
       Object.entries(selectedTemplate.schema).forEach(([key, attr]) => {
         if (attr.type === 'NUMBER') {
@@ -120,7 +123,9 @@ export const ObjectNewPage: React.FC = observer(() => {
           initialAttributes[key] = '';
         }
       });
-      formRef.current.setFieldValue('attributes', initialAttributes);
+
+      form.setFieldValue('attributes', initialAttributes);
+      prevTemplateRef.current = selectedTemplate;
     }
   }, [selectedTemplate]); // Убираю form из зависимостей
 
@@ -189,29 +194,64 @@ export const ObjectNewPage: React.FC = observer(() => {
       return;
     }
 
-    // Дополнительная валидация с Zod
-    const schema = createValidationSchema(selectedTemplate);
-    const validationResult = schema.safeParse(values);
-
-    if (!validationResult.success) {
-      const errors: Record<string, string> = {};
-      validationResult.error.issues.forEach((issue) => {
-        const path = issue.path.join('.');
-        if (!errors[path]) {
-          errors[path] = issue.message;
-        }
-      });
-
-      Object.entries(errors).forEach(([field, message]) => {
-        form.setFieldError(field, message);
-      });
-
+    // Дополнительная проверка данных
+    if (!values.name || !values.template_id || !values.unit_id) {
       notifications.show({
-        title: 'Ошибка валидации',
-        message: 'Проверьте правильность заполнения полей',
+        title: 'Ошибка',
+        message: 'Не все обязательные поля заполнены',
         color: 'red',
       });
       return;
+    }
+
+    if (values.size <= 0) {
+      notifications.show({
+        title: 'Ошибка',
+        message: 'Размер должен быть больше 0',
+        color: 'red',
+      });
+      return;
+    }
+
+    // Проверка обязательных атрибутов
+    if (selectedTemplate) {
+      for (const [key, attribute] of Object.entries(selectedTemplate.schema)) {
+        if (attribute.required) {
+          const value = values.attributes[key];
+          if (value === undefined || value === null || value === '' || value === false) {
+            notifications.show({
+              title: 'Ошибка',
+              message: `Не заполнен обязательный атрибут: ${attribute.name}`,
+              color: 'red',
+            });
+            return;
+          }
+        }
+      }
+    }
+
+    // Проверка файла
+    if (values.photo) {
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf', 'text/plain'];
+
+      if (values.photo.size > maxSize) {
+        notifications.show({
+          title: 'Ошибка',
+          message: 'Файл слишком большой (максимум 5MB)',
+          color: 'red',
+        });
+        return;
+      }
+
+      if (!allowedTypes.includes(values.photo.type)) {
+        notifications.show({
+          title: 'Ошибка',
+          message: 'Недопустимый тип файла',
+          color: 'red',
+        });
+        return;
+      }
     }
 
     try {
@@ -235,10 +275,12 @@ export const ObjectNewPage: React.FC = observer(() => {
         });
         navigate(ROUTES.STORAGE_VIEW.replace(':id', storageId));
       }
-    } catch {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Не удалось создать объект';
+      console.error('Error creating object:', error);
       notifications.show({
         title: 'Ошибка',
-        message: 'Не удалось создать объект',
+        message: errorMessage,
         color: 'red',
       });
     }
@@ -261,7 +303,7 @@ export const ObjectNewPage: React.FC = observer(() => {
     for (const [key, attribute] of Object.entries(selectedTemplate.schema)) {
       if (attribute.required) {
         const value = form.values.attributes[key];
-        if (value === undefined || value === null || value === '') {
+        if (value === undefined || value === null || value === '' || value === false) {
           return false;
         }
       }
@@ -321,7 +363,7 @@ export const ObjectNewPage: React.FC = observer(() => {
               { value: 'false', label: 'Нет' },
             ]}
             required={attribute.required}
-            onChange={(value) => form.setFieldValue(fieldName, value === 'true')}
+            onChange={(value: string | null) => form.setFieldValue(fieldName, value === 'true')}
             labelProps={{ mb: 6 }}
           />
         );
@@ -435,7 +477,7 @@ export const ObjectNewPage: React.FC = observer(() => {
                   <Grid.Col span={{ base: 12, sm: 3 }}>
                     <Select
                       label="Единица измерения"
-                      data={units.map((u) => ({ value: u.id, label: u.symbol }))}
+                      data={units.map((u: any) => ({ value: u.id, label: u.symbol }))}
                       required
                       {...form.getInputProps('unit_id')}
                       labelProps={{ mb: 6 }}
@@ -452,11 +494,41 @@ export const ObjectNewPage: React.FC = observer(() => {
                     placeholder="Выберите файл"
                     accept="image/*,.pdf,.txt"
                     leftSection={<IconUpload size={16} />}
-                    {...form.getInputProps('photo')}
+                    value={form.values.photo}
+                    onChange={(file) => {
+                      if (file) {
+                        // Дополнительная валидация файла
+                        const maxSize = 5 * 1024 * 1024; // 5MB
+                        const allowedTypes = [
+                          'image/png',
+                          'image/jpeg',
+                          'application/pdf',
+                          'text/plain',
+                        ];
+
+                        if (file.size > maxSize) {
+                          form.setFieldError('photo', 'Файл слишком большой (максимум 5MB)');
+                          return;
+                        }
+
+                        if (!allowedTypes.includes(file.type)) {
+                          form.setFieldError('photo', 'Недопустимый тип файла');
+                          return;
+                        }
+
+                        form.setFieldError('photo', null);
+                      }
+                      form.setFieldValue('photo', file || undefined);
+                    }}
                   />
                   <Text size="xs" c="dimmed" mt="xs">
                     Поддерживаемые форматы: PNG, PDF, TXT. Максимальный размер: 5MB
                   </Text>
+                  {form.errors.photo && (
+                    <Text size="xs" c="red" mt="xs">
+                      {form.errors.photo}
+                    </Text>
+                  )}
                 </div>
 
                 {/* Атрибуты шаблона */}

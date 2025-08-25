@@ -1,13 +1,12 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { authApi } from '@shared/api';
-import { setAccessToken, clearAccessToken } from '@shared/api/client';
+import { setAccessToken, clearAccessToken, TOKEN_STORAGE_KEY } from '@shared/api/client';
 import type { User, SigninRequest, SignupRequest, ApiError, AuthErrorType } from '@shared/types';
 import { getAuthErrorMessage } from '@shared/types';
 
 // Ключи для localStorage
 const AUTH_STORAGE_KEY = 'auth_user';
-const TOKEN_STORAGE_KEY = 'auth_token';
 
 export class AuthStore {
   user: User | null = null;
@@ -89,18 +88,10 @@ export class AuthStore {
       });
 
       // Сохраняем access token в памяти (refresh token автоматически в HTTP-only cookie)
-      console.log('AuthStore - signin - response.accessToken:', response.accessToken);
       setAccessToken(response.accessToken);
 
       // Сохраняем состояние в localStorage
       this.saveAuthToStorage(user);
-
-      // Проверяем, что токен сохранился
-      const savedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-      console.log(
-        'AuthStore - signin - savedToken in localStorage:',
-        savedToken ? 'Present' : 'Missing',
-      );
 
       return { success: true };
     } catch (error) {
@@ -233,7 +224,7 @@ export class AuthStore {
   };
 
   // Очистка данных аутентификации
-  private clearAuth = () => {
+  clearAuth = () => {
     runInAction(() => {
       this.user = null;
       this.isAuthenticated = false;

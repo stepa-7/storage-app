@@ -26,6 +26,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string) => `/objects/${id}`,
     DELETE: (id: string) => `/objects/${id}`,
     QRCODE: (id: string) => `/objects/${id}/qrcode`,
+    IMAGE: (id: string) => `/objects/${id}/image`,
   },
   // Шаблоны
   TEMPLATES: {

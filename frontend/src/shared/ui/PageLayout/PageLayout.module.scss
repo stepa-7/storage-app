@@ -117,10 +117,6 @@
   box-shadow: 0 4px 12px light-dark(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.2));
   transition: all 0.2s ease;
 
-  &:hover {
-    box-shadow: 0 8px 24px light-dark(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.3));
-  }
-
   @media (max-width: 768px) {
     align-self: flex-start;
   }

@@ -20,7 +20,7 @@ export class TemplateStore {
   }
 
   // Загрузка списка шаблонов
-  loadTemplates = async (params?: { is_deleted?: boolean; name?: string }): Promise<void> => {
+  loadTemplates = async (params?: { deleted?: boolean; name?: string }): Promise<void> => {
     this.setLoading(true);
     this.clearError();
 
@@ -153,16 +153,47 @@ export class TemplateStore {
     }
   };
 
-  // Деактивация шаблона (мягкое удаление)
+  // Деактивация шаблона (мягкое удаление через DELETE)
   deactivateTemplate = async (id: string): Promise<boolean> => {
-    const result = await this.updateTemplate(id, { is_deleted: true });
-    return result !== null;
-  };
+    this.setLoading(true);
+    this.clearError();
 
-  // Активация шаблона
-  activateTemplate = async (id: string): Promise<boolean> => {
-    const result = await this.updateTemplate(id, { is_deleted: false });
-    return result !== null;
+    try {
+      // DELETE запрос не возвращает данные, просто ждем завершения
+      await templatesApi.deleteTemplate(id);
+
+      // Сразу обновляем локальное состояние
+      runInAction(() => {
+        const template = this.templates.find((t) => t.id === id);
+        if (template) {
+          template.deleted = true;
+        }
+
+        // Если это текущий шаблон, очищаем его
+        if (this.currentTemplate?.id === id) {
+          this.currentTemplate = null;
+        }
+
+        // Обновляем активные шаблоны
+        this.updateActiveTemplatesList();
+      });
+
+      // Перезагружаем данные с сервера для полной синхронизации
+      await this.loadTemplates();
+
+      return true;
+    } catch (error) {
+      console.error('🔴 Ошибка в deactivateTemplate:', error);
+      const apiError = error as ApiError;
+      runInAction(() => {
+        this.error = apiError.error || 'Ошибка деактивации шаблона';
+      });
+      return false;
+    } finally {
+      runInAction(() => {
+        this.isLoading = false;
+      });
+    }
   };
 
   // Удаление шаблона
@@ -212,7 +243,7 @@ export class TemplateStore {
 
   // Обновление списка активных шаблонов
   private updateActiveTemplatesList = () => {
-    this.activeTemplates = this.templates.filter((t) => !t.is_deleted);
+    this.activeTemplates = this.templates.filter((t) => !t.deleted);
   };
 
   // Получение шаблона по ID

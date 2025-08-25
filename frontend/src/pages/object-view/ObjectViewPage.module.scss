@@ -30,49 +30,243 @@
 
 .mainCard {
   margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.locationIcon {
+  color: var(--mantine-color-gray-5);
+  flex-shrink: 0;
 }
 
 .photoSection {
-  flex: 0 0 200px;
+  flex: 0 0 240px;
+
+  @media (max-width: 768px) {
+    flex: 0 0 100%;
+    display: flex;
+    justify-content: center;
+  }
 }
 
 .objectPhoto {
-  width: 200px;
-  height: 200px;
+  width: 240px;
+  height: 240px;
   object-fit: cover;
+  border-radius: var(--mantine-radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  @media (max-width: 768px) {
+    width: 200px;
+    height: 200px;
+  }
 }
 
 .noPhoto {
-  width: 200px;
-  height: 200px;
+  width: 240px;
+  height: 240px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--mantine-color-gray-1);
+  background: var(--mantine-color-gray-0);
   border-radius: var(--mantine-radius-md);
   border: 2px dashed var(--mantine-color-gray-3);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--mantine-color-gray-4);
+    background: var(--mantine-color-gray-1);
+  }
+
+  @media (max-width: 768px) {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+.noPhotoIcon {
+  color: var(--mantine-color-gray-4);
+  margin-bottom: 0.5rem;
+  transition: color 0.2s ease;
 }
 
 .infoSection {
   flex: 1;
   min-width: 0;
+
+  @media (max-width: 768px) {
+    margin-top: 1rem;
+  }
+}
+
+.statusBadge {
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
 }
 
 .attributesCard {
   margin-top: 1.5rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.sectionIcon {
+  color: var(--mantine-color-gray-6);
+}
+
+.sectionTitle {
+  color: var(--text-primary);
+  margin: 0;
 }
 
 .attributeItem {
-  padding: 0.75rem;
+  padding: 1rem;
   background: var(--mantine-color-gray-0);
-  border-radius: var(--mantine-radius-sm);
+  border-radius: var(--mantine-radius-md);
   border: 1px solid var(--mantine-color-gray-2);
+  transition: all 0.2s ease;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: var(--mantine-color-gray-3);
+  }
 }
 
-.loading {
+.attributeIcon {
+  color: var(--mantine-color-gray-5);
+  flex-shrink: 0;
+}
+
+.modalHeader {
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+  padding-bottom: 1rem;
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.qrContainer {
+  max-width: 100%;
+  max-height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 50vh;
+  padding: 1rem;
+  background: var(--mantine-color-gray-0);
+  border-radius: var(--mantine-radius-md);
+  border: 1px solid var(--mantine-color-gray-2);
+}
+
+.qrImage {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--mantine-radius-sm);
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 640px) {
+  .mainCard {
+    margin-bottom: 1rem;
+  }
+
+  .photoSection {
+    margin-bottom: 1rem;
+  }
+
+  .objectPhoto,
+  .noPhoto {
+    width: 180px;
+    height: 180px;
+  }
+
+  .infoSection {
+    margin-top: 0;
+  }
+
+  .attributeItem {
+    padding: 0.75rem;
+  }
+}
+
+/* Анимации для улучшения UX */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mainCard,
+.attributesCard {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.attributeItem {
+  animation: fadeInUp 0.3s ease-out;
+  animation-delay: calc(var(--animation-order, 0) * 0.1s);
+}
+
+/* Улучшенные состояния фокуса для доступности */
+.objectPhoto:focus,
+.attributeItem:focus-within {
+  outline: 2px solid var(--mantine-color-primary-6);
+  outline-offset: 2px;
+}
+
+/* Темная тема */
+[data-mantine-color-scheme='dark'] {
+  .noPhoto {
+    background: var(--mantine-color-dark-4);
+    border-color: var(--mantine-color-dark-3);
+
+    &:hover {
+      background: var(--mantine-color-dark-3);
+      border-color: var(--mantine-color-dark-2);
+    }
+  }
+
+  .attributeItem {
+    background: var(--mantine-color-dark-4);
+    border-color: var(--mantine-color-dark-3);
+
+    &:hover {
+      background: var(--mantine-color-dark-3);
+      border-color: var(--mantine-color-dark-2);
+    }
+  }
+
+  .qrContainer {
+    background: var(--mantine-color-dark-4);
+    border-color: var(--mantine-color-dark-3);
+  }
 }

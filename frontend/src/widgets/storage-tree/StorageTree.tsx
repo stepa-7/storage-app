@@ -2,10 +2,9 @@ import { Card, Text, Group, ActionIcon, Progress } from '@mantine/core';
 import {
   IconPlus,
   IconTrash,
-  IconFolder,
-  IconArrowBadgeDown,
-  IconArrowBadgeRight,
   IconBox,
+  IconChevronDown,
+  IconChevronRight,
 } from '@tabler/icons-react';
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
@@ -86,12 +85,12 @@ const StorageNode: React.FC<StorageNodeProps> = observer(
               >
                 {storage.children && storage.children.length > 0 ? (
                   isExpanded ? (
-                    <IconArrowBadgeDown size={16} />
+                    <IconChevronDown size={18} />
                   ) : (
-                    <IconArrowBadgeRight size={16} />
+                    <IconChevronRight size={18} />
                   )
                 ) : (
-                  <IconFolder size={16} />
+                  <></>
                 )}
               </ActionIcon>
 
