@@ -1,0 +1,64 @@
+# Docker / Compose
+project_name: "team29-backend"
+deploy_root: "/home/team_user/29/backend"   
+compose_dir: "{{ deploy_root }}"
+compose_file: "docker-compose.yml"
+
+# Контейнеры / порты
+container_port: 8080
+host_port: 8080
+
+# Nginx
+nginx_conf_path: "/etc/nginx/conf.d/backend.conf"
+nginx_listen_port: 80
+proxy_upstream: "http://127.0.0.1:8080"    # куда проксировать (host-port api-gateway)
+
+# Registry из окружения CI (fallback пустой)
+ci_registry: "{{ lookup('env','CI_REGISTRY') | default('', true) }}"
+ci_registry_user: "{{ lookup('env','CI_REGISTRY_USER') | default('', true) }}"
+ci_registry_password: "{{ lookup('env','CI_REGISTRY_PASSWORD') | default('', true) }}"
+image_tag: "{{ lookup('env','CI_COMMIT_SHORT_SHA') | default('latest', true) }}"
+
+# --- Auth DB ---
+auth_postgres_db: "{{ lookup('env','AUTH_POSTGRES_DB') | default('authdb', true) }}"
+auth_postgres_user: "{{ lookup('env','AUTH_POSTGRES_USER') | default('authuser', true) }}"
+auth_postgres_password: "{{ lookup('env','AUTH_POSTGRES_PASSWORD') | default('authpass123', true) }}"
+
+# --- Storage DB ---
+storage_postgres_db: "{{ lookup('env','STORAGE_POSTGRES_DB') | default('storagedb', true) }}"
+storage_postgres_user: "{{ lookup('env','STORAGE_POSTGRES_USER') | default('storageuser', true) }}"
+storage_postgres_password: "{{ lookup('env','STORAGE_POSTGRES_PASSWORD') | default('storagepass123', true) }}"
+
+# --- JDBC URL для сервисов ---
+auth_db_url: "jdbc:postgresql://auth-db:5432/{{ auth_postgres_db }}"
+storage_db_url: "jdbc:postgresql://storage_db:5432/{{ storage_postgres_db }}"
+
+# --- JWT ---
+jwt_secret: "{{ lookup('env','JWT_SECRET') | default('dev-secret-change-me', true) }}"
+jwt_expiration_ms: 3600000
+refresh_token_expiration_ms: 2592000000
+
+# --- MinIO ---
+minio_access_key: "{{ lookup('env','MINIO_ACCESS_KEY') | default('minioadmin', true) }}"
+minio_secret_key: "{{ lookup('env','MINIO_SECRET_KEY') | default('minioadminsecret', true) }}"
+
+
+backend_repo: "git@it-camp.innoca.local:t1-camp-29/backend.git"
+backend_branch: "main"
+
+# Системные пользователи
+app_user: "team_user"
+app_group: "team_user"
+
+
+api_gateway_host_port: 18080
+
+nginx_user_map:
+  Debian: www-data
+  Ubuntu: www-data
+  RedHat: nginx
+  Rocky: nginx
+  CentOS: nginx
+  Alpine: nginx
+
+nginx_user: "{{ nginx_user_map.get(ansible_facts.os_family, 'www-data') }}"

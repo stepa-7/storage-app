@@ -1,4 +1,13 @@
-FROM eclipse-temurin:21-jdk
+# ---- build ----
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY ./target/storage-module-1.0-SNAPSHOT.jar app.jar
+COPY pom.xml .
+COPY src ./src
+RUN mvn -q -DskipTests clean package
+
+# ---- runtime ----
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY --from=build /app/target/*.jar /app/app.jar
+EXPOSE 8082
 ENTRYPOINT ["java","-jar","/app/app.jar"]
