@@ -54,12 +54,12 @@ spring:
             - StripPrefix=1
             - JwtAuthenticationFilter
 
-        - id: test-service
-          uri: http://localhost:8080
-          predicates:
-            - Path=/api/test/**
-          filters:
-            - StripPrefix=1
+#        - id: test-service
+#          uri: http://localhost:8080
+#          predicates:
+#            - Path=/api/test/**
+#          filters:
+#            - StripPrefix=1
 
 management:
   endpoints:

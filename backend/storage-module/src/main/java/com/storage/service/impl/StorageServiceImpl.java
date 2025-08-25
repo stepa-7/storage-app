@@ -14,6 +14,8 @@ import com.storage.repository.StorageRepository;
 import com.storage.repository.UnitRepository;
 import com.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class StorageServiceImpl implements StorageService {
@@ -215,15 +218,14 @@ public class StorageServiceImpl implements StorageService {
 
             future.whenComplete((result, ex) -> {
                 if (ex != null) {
-                    System.err.println("Failed to send message to Kafka: " + ex.getMessage());
+                    log.warn("Failed to send message to Kafka: {}", ex.getMessage());
                     // Можно добавить логику повторной отправки или логирования ошибки
                 } else {
-                    System.out.println("Message sent successfully to partition: " +
-                            result.getRecordMetadata().partition());
+                    log.debug("Message sent successfully to partition: {}", result.getRecordMetadata().partition());
                 }
             });
         } catch (RuntimeException e) {
-            System.err.println("Kafka send error: " + e.getMessage());
+            log.warn("Kafka send error: {}", e.getMessage());
             // Не бросаем исключение, чтобы не прерывать основную бизнес-логику
         }
     }

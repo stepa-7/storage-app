@@ -6,6 +6,7 @@
     <file url="file://$PROJECT_DIR$/notification-module/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/notification-module/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/qr-module/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shared-module/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/storage-module/src/main/java" charset="UTF-8" />
   </component>
 </project>

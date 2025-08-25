@@ -1,7 +1,7 @@
-D:\T1 Lessons\проект\t1-team-29\backend\qr-module\src\main\java\com\storage\exception\QRCodeException.java
-D:\T1 Lessons\проект\t1-team-29\backend\qr-module\src\main\java\com\storage\controller\ExceptionHandlers.java
-D:\T1 Lessons\проект\t1-team-29\backend\qr-module\src\main\java\com\storage\service\QRService.java
-D:\T1 Lessons\проект\t1-team-29\backend\qr-module\src\main\java\com\storage\service\QRServiceImpl.java
-D:\T1 Lessons\проект\t1-team-29\backend\qr-module\src\main\java\com\storage\controller\QRController.java
-D:\T1 Lessons\проект\t1-team-29\backend\qr-module\src\main\java\com\storage\QRApplication.java
-D:\T1 Lessons\проект\t1-team-29\backend\qr-module\src\main\java\com\storage\model\error\ErrorResponse.java
+D:\T1 Lessons\проект2\t1-team-29\backend\qr-module\src\main\java\com\qr\model\error\ErrorResponse.java
+D:\T1 Lessons\проект2\t1-team-29\backend\qr-module\src\main\java\com\qr\service\QRServiceImpl.java
+D:\T1 Lessons\проект2\t1-team-29\backend\qr-module\src\main\java\com\qr\QRApplication.java
+D:\T1 Lessons\проект2\t1-team-29\backend\qr-module\src\main\java\com\qr\exception\QRCodeException.java
+D:\T1 Lessons\проект2\t1-team-29\backend\qr-module\src\main\java\com\qr\service\QRService.java
+D:\T1 Lessons\проект2\t1-team-29\backend\qr-module\src\main\java\com\qr\controller\ExceptionHandlers.java
+D:\T1 Lessons\проект2\t1-team-29\backend\qr-module\src\main\java\com\qr\controller\QRController.java

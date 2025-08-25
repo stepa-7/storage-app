@@ -9,6 +9,7 @@
         <option value="$PROJECT_DIR$/storage-module/pom.xml" />
         <option value="$PROJECT_DIR$/notification-module/pom.xml" />
         <option value="$PROJECT_DIR$/auth-service/pom.xml" />
+        <option value="$PROJECT_DIR$/shared-module/pom.xml" />
       </list>
     </option>
   </component>
