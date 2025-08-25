@@ -46,7 +46,9 @@ public class TemplateServiceImpl implements TemplateService {
     public Template patch(UUID id, TemplateUpdate dto) {
         Template t = get(id);
         if (dto.getName() != null) t.setName(dto.getName());
-        if (dto.getDescription() != null) {t.setDescription(dto.getDescription());}
+        if (dto.getDescription() != null) {
+            t.setDescription(dto.getDescription());
+        }
         if (dto.getIsDeleted() != null) t.setDeleted(dto.getIsDeleted());
         return repo.save(t);
     }
