@@ -23,7 +23,7 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
   mail:
-    host: smtp.gmail.com  #smtp.mail.ru
+    host: smtp.gmail.com #smtp.mail.ru
     port: 587
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
