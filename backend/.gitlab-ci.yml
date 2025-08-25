@@ -1,9 +1,59 @@
-stages:
-    - smoke_test 
-
-backent_smoke_test:
-  stage: smoke_test 
-  script:
-    - echo "Бэкенд-пайплайн запущен"
+workflow:
   rules:
-    - if: $CI_COMMIT_BRANCH 
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: always
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
+stages:
+  - docker
+  - deploy
+
+variables:
+  DOCKER_REGISTRY: $CI_REGISTRY
+  DOCKER_USER: $CI_REGISTRY_USER
+  DOCKER_PASSWORD: $CI_REGISTRY_PASSWORD
+
+docker:
+  stage: docker
+  image: docker:25.0
+  services:
+    - name: docker:25.0-dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+  script:
+    - docker build -t ${CI_REGISTRY_IMAGE}/api-gateway:${CI_COMMIT_SHORT_SHA} backend/api-gateway-module
+    - docker push ${CI_REGISTRY_IMAGE}/api-gateway:${CI_COMMIT_SHORT_SHA}
+
+    - docker build -t ${CI_REGISTRY_IMAGE}/auth-service:${CI_COMMIT_SHORT_SHA} backend/auth-service
+    - docker push ${CI_REGISTRY_IMAGE}/auth-service:${CI_COMMIT_SHORT_SHA}
+
+    - docker build -t ${CI_REGISTRY_IMAGE}/storage-module:${CI_COMMIT_SHORT_SHA} backend/storage-module
+    - docker push ${CI_REGISTRY_IMAGE}/storage-module:${CI_COMMIT_SHORT_SHA}
+
+    - docker build -t ${CI_REGISTRY_IMAGE}/qr-module:${CI_COMMIT_SHORT_SHA} backend/qr-module
+    - docker push ${CI_REGISTRY_IMAGE}/qr-module:${CI_COMMIT_SHORT_SHA}
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: always
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+deploy:
+  stage: deploy
+  image: alpine:3.20
+  before_script:
+  - apk add --no-cache ansible openssh bash python3 py3-pip ca-certificates
+  - ansible-galaxy collection install community.docker
+  - export ANSIBLE_HOST_KEY_CHECKING=False
+  - mkdir -p ~/.ssh
+  - echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - ssh-keyscan -H 10.10.146.218 >> ~/.ssh/known_hosts
+  script:
+  - ansible-playbook -i backend/ansible/inventory/hosts.yml --extra-vars "tag=${CI_COMMIT_SHORT_SHA} registry=${CI_REGISTRY_IMAGE}" backend/ansible/playbook.yml
+
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: always
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  needs: ["docker"]

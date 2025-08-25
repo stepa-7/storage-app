@@ -1,3 +1,10 @@
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: always
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "dev-frontend"'
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
 stages:
   - build
   #  - test
@@ -12,7 +19,7 @@ cache:
   paths:
     - frontend/node_modules/
 
-build:
+build-:
   stage: build
   image: docker:20.10.16
   services:
@@ -22,22 +29,29 @@ build:
     - docker build -t $DOCKER_IMAGE:$DOCKER_TAG frontend/
     - docker push $DOCKER_IMAGE:$DOCKER_TAG
   rules:
-    - if: $CI_COMMIT_BRANCH
-      changes:
-        - frontend/**/*
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: always
+      changes: [ "frontend/**/*" ]
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "dev-frontend"'
+      changes: [ "frontend/**/*" ]
+
 
 deploy:
   stage: deploy
-  image: alpine
+  image: alpine:latest
   before_script:
     - apk add --no-cache openssh-client ansible
   script:
     - mkdir -p ~/.ssh
     - echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
-    - chmod 700 ~/.ssh
-    - ansible-playbook -i frontend/ansible/inventory/hosts.yml frontend/ansible/playbook.yml
+    - ssh-keyscan -H 10.10.146.218 >> ~/.ssh/known_hosts
+  script:
+    - ansible-playbook -i frontend/ansible/inventory/hosts.yml --extra-vars "docker_image=$DOCKER_IMAGE tag=$DOCKER_TAG" frontend/ansible/playbook.yml
+
   rules:
-    - if: $CI_COMMIT_BRANCH
-      changes:
-        - frontend/**/*
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: always
+      changes: [ "frontend/**/*" ]
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "dev-frontend"'
+      changes: [ "frontend/**/*" ]
