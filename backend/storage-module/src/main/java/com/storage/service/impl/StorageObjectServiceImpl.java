@@ -26,7 +26,6 @@ import com.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Log4j2
 @Service
@@ -199,7 +197,7 @@ public class StorageObjectServiceImpl implements StorageObjectService {
             sendData(oldStorage);
         }
 
-        if (!dto.getName().equals(dto.getName())) {
+        if (dto.getName() != null && !dto.getName().equals(obj.getName())) {
             obj.setName(dto.getName());
         }
         if (dto.getSize() != obj.getSize()) {

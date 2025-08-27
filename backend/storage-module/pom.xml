@@ -25,6 +25,18 @@
 
     <dependencies>
         <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.15.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>1.15.0</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>com.storage</groupId>
             <artifactId>shared-module</artifactId>
             <version>1.0-SNAPSHOT</version>

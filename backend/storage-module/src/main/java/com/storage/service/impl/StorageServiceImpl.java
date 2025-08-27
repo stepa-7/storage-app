@@ -14,7 +14,6 @@ import com.storage.repository.StorageRepository;
 import com.storage.repository.UnitRepository;
 import com.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
