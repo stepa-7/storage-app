@@ -135,9 +135,11 @@ class StorageObjectServiceImplTest {
         Storage storage = Storage.builder().id(storageId).capacity(100).fullness(0).build();
         when(storageRepo.findByIdForUpdate(storageId)).thenReturn(Optional.of(storage));
         when(storageService.canAccommodate(storageId, 10.0)).thenReturn(true);
+        when(templateRepo.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(ImageUploadException.class, () -> service.createWithFile(dto));
+        assertThrows(NotFoundException.class, () -> service.createWithFile(dto));
     }
+
 
     @Test
     void checkAccommodation_NotEnoughCapacity_ShouldThrow() {
