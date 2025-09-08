@@ -4,15 +4,6 @@
   min-height: 100vh;
   background: var(--bg-surface);
   height: 100vh;
-  overflow: hidden;
-}
-
-.container {
-  margin: 0 auto;
-  padding: var(--mantine-spacing-lg);
-  overflow-y: auto;
-  max-height: calc(100vh - 200px);
-  height: 100%;
   padding-top: var(--mantine-spacing-md);
 }
 

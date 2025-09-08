@@ -1,0 +1,1 @@
+export { EditObjectModal } from './EditObjectModal';

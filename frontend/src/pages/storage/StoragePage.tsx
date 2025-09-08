@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 
 import { useStorageStore } from '@app/store/StoreContext';
 import { type StorageWithDetails } from '@shared/types';
-import { Breadcrumbs, PageLayout, DeleteConfirmationModal } from '@shared/ui';
+import { Breadcrumbs, PageLayout, DeleteConfirmationModal, EditStorageModal } from '@shared/ui';
 import { StorageTree, CreateStorageModal } from '@widgets/storage-tree';
 
 export const StoragePage: React.FC = observer(() => {
@@ -15,6 +15,8 @@ export const StoragePage: React.FC = observer(() => {
   const [selectedParentId, setSelectedParentId] = useState<string | undefined>();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [storageToDelete, setStorageToDelete] = useState<StorageWithDetails | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [storageToEdit, setStorageToEdit] = useState<StorageWithDetails | null>(null);
   const { storageId } = useParams<{ storageId: string }>();
 
   const handleAddStorage = (parentId?: string) => {
@@ -25,6 +27,11 @@ export const StoragePage: React.FC = observer(() => {
   const handleDeleteStorage = (storage: StorageWithDetails) => {
     setStorageToDelete(storage);
     setShowDeleteModal(true);
+  };
+
+  const handleEditStorage = (storage: StorageWithDetails) => {
+    setStorageToEdit(storage);
+    setShowEditModal(true);
   };
 
   const confirmDeleteStorage = async () => {
@@ -55,6 +62,11 @@ export const StoragePage: React.FC = observer(() => {
     setSelectedParentId(undefined);
   };
 
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setStorageToEdit(null);
+  };
+
   return (
     <PageLayout
       title="Управление хранилищами"
@@ -66,7 +78,11 @@ export const StoragePage: React.FC = observer(() => {
       }}
     >
       {storageId && <Breadcrumbs storageId={storageId} />}
-      <StorageTree onAddStorage={handleAddStorage} onDeleteStorage={handleDeleteStorage} />
+      <StorageTree
+        onAddStorage={handleAddStorage}
+        onDeleteStorage={handleDeleteStorage}
+        onEditStorage={handleEditStorage}
+      />
 
       <CreateStorageModal
         opened={addModalOpened}
@@ -88,6 +104,19 @@ export const StoragePage: React.FC = observer(() => {
         title="Удаление хранилища"
         itemName={storageToDelete?.name || ''}
         description="Это действие нельзя отменить. Хранилище будет полностью удалено."
+      />
+
+      <EditStorageModal
+        opened={showEditModal}
+        onClose={handleCloseEditModal}
+        storage={storageToEdit}
+        onSuccess={(updatedStorage) => {
+          notifications.show({
+            title: 'Успех',
+            message: `Хранилище "${updatedStorage.name}" успешно обновлено`,
+            color: 'green',
+          });
+        }}
       />
     </PageLayout>
   );

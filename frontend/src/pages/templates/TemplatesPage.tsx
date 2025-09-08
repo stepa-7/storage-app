@@ -7,7 +7,6 @@ import {
   Table,
   Badge,
   ActionIcon,
-  Modal,
   TextInput,
   Textarea,
   Switch,
@@ -31,7 +30,7 @@ import {
   type UpdateTemplateRequest,
   type TemplateAttribute,
 } from '@shared/types';
-import { PageLayout, EmptyState, DeleteConfirmationModal } from '@shared/ui';
+import { PageLayout, EmptyState, DeleteConfirmationModal, BaseModal } from '@shared/ui';
 
 import styles from './TemplatesPage.module.scss';
 
@@ -328,7 +327,6 @@ export const TemplatesPage: React.FC = observer(() => {
                             <>
                               <ActionIcon
                                 variant="subtle"
-                                color="blue"
                                 onClick={() => handleEditTemplate(template)}
                                 title="Редактировать шаблон"
                               >
@@ -354,7 +352,7 @@ export const TemplatesPage: React.FC = observer(() => {
           </div>
 
           {/* Модальное окно создания шаблона */}
-          <Modal
+          <BaseModal
             opened={showCreateModal}
             onClose={() => setShowCreateModal(false)}
             title={
@@ -363,11 +361,24 @@ export const TemplatesPage: React.FC = observer(() => {
               </Text>
             }
             size="lg"
-            centered
             closeOnClickOutside={false}
-            overlayProps={{ backgroundOpacity: 0.55, blur: 3 }}
-            radius="md"
-            shadow="xl"
+            closeOnEscape={false}
+            footer={
+              <Group justify="flex-end" gap="md">
+                <Button variant="subtle" onClick={() => setShowCreateModal(false)} size="md">
+                  Отмена
+                </Button>
+                <Button
+                  type="submit"
+                  variant="filled"
+                  size="md"
+                  disabled={!isCreateFormValid || isLoading}
+                  onClick={() => form.onSubmit(handleSubmitCreate)()}
+                >
+                  Создать шаблон
+                </Button>
+              </Group>
+            }
           >
             <form onSubmit={form.onSubmit(handleSubmitCreate)} onKeyDown={handleFormKeyDown}>
               <Stack gap="lg">
@@ -481,26 +492,12 @@ export const TemplatesPage: React.FC = observer(() => {
                     </ScrollArea.Autosize>
                   )}
                 </Stack>
-
-                <Group justify="flex-end" gap="md" pt="md">
-                  <Button variant="subtle" onClick={() => setShowCreateModal(false)} size="md">
-                    Отмена
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="filled"
-                    size="md"
-                    disabled={!isCreateFormValid || isLoading}
-                  >
-                    Создать шаблон
-                  </Button>
-                </Group>
               </Stack>
             </form>
-          </Modal>
+          </BaseModal>
 
           {/* Модальное окно редактирования шаблона */}
-          <Modal
+          <BaseModal
             opened={showEditModal}
             onClose={() => setShowEditModal(false)}
             title={
@@ -509,11 +506,24 @@ export const TemplatesPage: React.FC = observer(() => {
               </Text>
             }
             size="lg"
-            centered
             closeOnClickOutside={false}
-            overlayProps={{ backgroundOpacity: 0.55, blur: 3 }}
-            radius="md"
-            shadow="xl"
+            closeOnEscape={false}
+            footer={
+              <Group justify="flex-end" gap="md">
+                <Button variant="subtle" onClick={() => setShowEditModal(false)} size="md">
+                  Отмена
+                </Button>
+                <Button
+                  type="submit"
+                  variant="filled"
+                  size="md"
+                  disabled={!isEditFormValid || isLoading}
+                  onClick={() => form.onSubmit(handleSubmitEdit)()}
+                >
+                  Сохранить изменения
+                </Button>
+              </Group>
+            }
           >
             <form onSubmit={form.onSubmit(handleSubmitEdit)}>
               <Stack gap="lg">
@@ -623,23 +633,9 @@ export const TemplatesPage: React.FC = observer(() => {
                     </ScrollArea.Autosize>
                   )}
                 </Stack>
-
-                <Group justify="flex-end" gap="md" pt="md">
-                  <Button variant="subtle" onClick={() => setShowEditModal(false)} size="md">
-                    Отмена
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="filled"
-                    size="md"
-                    disabled={!isEditFormValid || isLoading}
-                  >
-                    Сохранить изменения
-                  </Button>
-                </Group>
               </Stack>
             </form>
-          </Modal>
+          </BaseModal>
 
           {/* Модальное окно подтверждения удаления */}
           <DeleteConfirmationModal

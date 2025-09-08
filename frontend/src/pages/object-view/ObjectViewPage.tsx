@@ -7,16 +7,12 @@ import {
   Stack,
   Grid,
   Badge,
-  Modal,
   Image,
   Divider,
   Skeleton,
   Box,
   Paper,
 } from '@mantine/core';
-import { DeleteConfirmationModal } from '@shared/ui/DeleteConfirmationModal';
-import { PageLayout } from '@shared/ui/PageLayout';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
 import { notifications } from '@mantine/notifications';
 import {
   IconArrowLeft,
@@ -34,22 +30,27 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { useObjectStore, useTemplateStore, useUnitStore } from '@app/store/StoreContext';
+import { objectsApi } from '@shared/api/objects';
 import { ROUTES } from '@shared/constants';
 import { generateQRCode, createObjectUrl } from '@shared/lib';
-import { objectsApi } from '@shared/api/objects';
+import { type StorageObject } from '@shared/types';
+import { DeleteConfirmationModal, BaseModal, EditObjectModal } from '@shared/ui';
+import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { PageLayout } from '@shared/ui/PageLayout';
 
 import styles from './ObjectViewPage.module.scss';
 
 export const ObjectViewPage: React.FC = observer(() => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { loadObject, currentObject, isLoading, deleteObject, error } = useObjectStore();
+  const { loadObject, currentObject, isLoading, deleteObject } = useObjectStore();
   const { getTemplateById } = useTemplateStore();
   const { getUnitById } = useUnitStore();
 
   const [showQRModal, setShowQRModal] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -71,7 +72,7 @@ export const ObjectViewPage: React.FC = observer(() => {
           } else {
             setImageUrl(null);
           }
-        } catch (error) {
+        } catch {
           setImageUrl(null);
         }
       };
@@ -122,12 +123,27 @@ export const ObjectViewPage: React.FC = observer(() => {
 
   const handleEdit = () => {
     if (!currentObject) return;
+    setShowEditModal(true);
+  };
 
-    notifications.show({
-      title: 'В разработке',
-      message: 'Функция редактирования находится в разработке',
-      color: 'blue',
-    });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleEditSuccess = async (_: StorageObject) => {
+    try {
+      // Обновляем объект в store
+      await loadObject(currentObject!.id);
+
+      notifications.show({
+        title: 'Успех',
+        message: 'Объект успешно обновлен',
+        color: 'green',
+      });
+    } catch {
+      notifications.show({
+        title: 'Ошибка',
+        message: 'Не удалось обновить объект',
+        color: 'red',
+      });
+    }
   };
 
   const handleDelete = async () => {
@@ -491,7 +507,7 @@ export const ObjectViewPage: React.FC = observer(() => {
       </Grid>
 
       {/* Модальное окно QR-кода */}
-      <Modal
+      <BaseModal
         opened={showQRModal}
         onClose={() => setShowQRModal(false)}
         title={
@@ -502,16 +518,9 @@ export const ObjectViewPage: React.FC = observer(() => {
             </Text>
           </Group>
         }
-        centered
         size="xl"
         closeOnClickOutside={false}
-        overlayProps={{ backgroundOpacity: 0.55, blur: 3 }}
-        radius="md"
-        shadow="xl"
-        classNames={{
-          header: styles.modalHeader,
-          body: styles.modalBody,
-        }}
+        closeOnEscape={false}
       >
         <Stack gap="xl" align="center">
           {qrCodeUrl ? (
@@ -541,7 +550,7 @@ export const ObjectViewPage: React.FC = observer(() => {
             </Stack>
           )}
         </Stack>
-      </Modal>
+      </BaseModal>
 
       {/* Модальное окно подтверждения удаления */}
       <DeleteConfirmationModal
@@ -553,6 +562,14 @@ export const ObjectViewPage: React.FC = observer(() => {
         description="Это действие нельзя отменить."
         size="md"
         loading={isDeleting}
+      />
+
+      {/* Модальное окно редактирования объекта */}
+      <EditObjectModal
+        opened={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSuccess={handleEditSuccess}
+        object={currentObject}
       />
     </PageLayout>
   );

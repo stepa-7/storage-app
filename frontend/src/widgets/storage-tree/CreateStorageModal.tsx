@@ -1,14 +1,4 @@
-import {
-  Modal,
-  Stack,
-  Group,
-  NumberInput,
-  Button,
-  TextInput,
-  Select,
-  Text,
-  Alert,
-} from '@mantine/core';
+import { Stack, Group, NumberInput, Button, TextInput, Select, Text, Alert } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect } from 'react';
@@ -18,6 +8,7 @@ import { unitsApi } from '@shared/api';
 import { useZodForm } from '@shared/lib';
 import { createStorageSchema, type CreateStorageSchema } from '@shared/schemas';
 import { type Storage, type Unit } from '@shared/types';
+import { BaseModal } from '@shared/ui';
 
 interface CreateStorageModalProps {
   opened: boolean;
@@ -121,112 +112,120 @@ export const CreateStorageModal: React.FC<CreateStorageModalProps> = observer(
     const isFormValid =
       form.values.name.trim().length > 0 && form.values.maxCapacity > 0 && form.values.unit;
 
-    return (
-      <Modal
-        opened={opened}
-        onClose={handleClose}
-        title={
-          <Text size="lg" fw={600}>
-            {`Создать хранилище${parentStorage ? ` в "${parentStorage.name}"` : ''}`}
-          </Text>
-        }
-        size="lg"
-        centered
-        closeOnClickOutside={false}
-        overlayProps={{ backgroundOpacity: 0.55, blur: 3 }}
-        radius="md"
-        shadow="xl"
-      >
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack gap="lg">
-            <Stack gap="md">
-              <TextInput
-                label="Название хранилища"
-                {...form.getInputProps('name')}
+    const modalTitle = (
+      <Text size="lg" fw={600}>
+        {`Создать хранилище${parentStorage ? ` в "${parentStorage.name}"` : ''}`}
+      </Text>
+    );
+
+    const modalContent = (
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        <Stack gap="lg">
+          <Stack gap="md">
+            <TextInput
+              label="Название хранилища"
+              {...form.getInputProps('name')}
+              withAsterisk
+              disabled={isLoading}
+              placeholder="Только буквы, цифры, пробелы и кириллица"
+              size="md"
+              autoFocus
+              labelProps={{ mb: 6 }}
+              error={form.errors.name}
+            />
+
+            <Group grow>
+              <NumberInput
+                label="Максимальная вместимость"
+                {...form.getInputProps('maxCapacity')}
                 withAsterisk
                 disabled={isLoading}
-                placeholder="Только буквы, цифры, пробелы и кириллица"
+                placeholder="Введите вместимость"
                 size="md"
-                autoFocus
+                min={1}
+                step={1}
+                allowNegative={false}
+                thousandSeparator=" "
                 labelProps={{ mb: 6 }}
-                error={form.errors.name}
+                error={form.errors.maxCapacity}
               />
 
-              <Group grow>
-                <NumberInput
-                  label="Максимальная вместимость"
-                  {...form.getInputProps('maxCapacity')}
-                  withAsterisk
-                  disabled={isLoading}
-                  placeholder="Введите вместимость"
-                  size="md"
-                  min={1}
-                  allowNegative={false}
-                  thousandSeparator=" "
-                  labelProps={{ mb: 6 }}
-                  error={form.errors.maxCapacity}
-                />
+              <Select
+                label="Единица измерения"
+                {...form.getInputProps('unit')}
+                withAsterisk
+                data={unitOptions}
+                placeholder={'Выберите единицу'}
+                disabled={
+                  isLoading ||
+                  unitsLoading ||
+                  !form.values.name.trim() ||
+                  form.values.maxCapacity <= 0
+                }
+                size="md"
+                allowDeselect={false}
+                labelProps={{ mb: 6 }}
+                error={form.errors.unit}
+              />
+            </Group>
 
-                <Select
-                  label="Единица измерения"
-                  {...form.getInputProps('unit')}
-                  withAsterisk
-                  data={unitOptions}
-                  placeholder={'Выберите единицу'}
-                  disabled={
-                    isLoading ||
-                    unitsLoading ||
-                    !form.values.name.trim() ||
-                    form.values.maxCapacity <= 0
-                  }
-                  size="md"
-                  allowDeselect={false}
-                  labelProps={{ mb: 6 }}
-                  error={form.errors.unit}
-                />
-              </Group>
-
-              {parentStorage && (
-                <Alert
-                  icon={<IconAlertCircle size={16} />}
-                  title="Родительское хранилище"
-                  color="gray"
-                >
-                  Хранилище будет создано внутри: <strong>{parentStorage.name}</strong>
-                </Alert>
-              )}
-
-              {/* Отображение ошибок валидации */}
-              {form.errors.parentId && (
-                <Alert icon={<IconAlertCircle size={16} />} title="Ошибка валидации" color="red">
-                  {form.errors.parentId}
-                </Alert>
-              )}
-            </Stack>
-
-            {error && (
-              <Alert icon={<IconAlertCircle size={16} />} title="Ошибка" color="red">
-                {error}
+            {parentStorage && (
+              <Alert
+                icon={<IconAlertCircle size={16} />}
+                title="Родительское хранилище"
+                color="gray"
+              >
+                Хранилище будет создано внутри: <strong>{parentStorage.name}</strong>
               </Alert>
             )}
 
-            <Group justify="flex-end" gap="md" pt="md">
-              <Button variant="subtle" onClick={handleClose} disabled={isLoading} size="md">
-                Отмена
-              </Button>
-              <Button
-                type="submit"
-                loading={isLoading}
-                variant="filled"
-                size="md"
-                disabled={!isFormValid || isLoading}
-              >
-                Создать хранилище
-              </Button>
-            </Group>
+            {/* Отображение ошибок валидации */}
+            {form.errors.parentId && (
+              <Alert icon={<IconAlertCircle size={16} />} title="Ошибка валидации" color="red">
+                {form.errors.parentId}
+              </Alert>
+            )}
           </Stack>
-        </form>
-      </Modal>
+
+          {error && (
+            <Alert icon={<IconAlertCircle size={16} />} title="Ошибка" color="red">
+              {error}
+            </Alert>
+          )}
+        </Stack>
+      </form>
+    );
+
+    const modalFooter = (
+      <Group justify="flex-end" gap="md">
+        <Button variant="subtle" onClick={handleClose} disabled={isLoading} size="md">
+          Отмена
+        </Button>
+        <Button
+          type="submit"
+          loading={isLoading}
+          variant="filled"
+          size="md"
+          disabled={!isFormValid || isLoading}
+          onClick={() => form.onSubmit(handleSubmit)()}
+        >
+          Создать хранилище
+        </Button>
+      </Group>
+    );
+
+    return (
+      <BaseModal
+        opened={opened}
+        onClose={handleClose}
+        title={modalTitle}
+        size="lg"
+        closeOnClickOutside={false}
+        closeOnEscape={false}
+        footer={modalFooter}
+      >
+        {modalContent}
+      </BaseModal>
     );
   },
 );

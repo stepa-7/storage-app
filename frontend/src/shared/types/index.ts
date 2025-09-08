@@ -118,8 +118,8 @@ export interface UpdateObjectRequest {
   name?: string;
   storage_id?: string;
   size?: number;
+  unit_id?: string;
   attributes?: Record<string, string | number | boolean>;
-  is_decommissioned?: boolean;
   photo?: File;
 }
 

@@ -60,25 +60,6 @@ body {
   max-height: 100%;
 }
 
-/* Стили для скроллбара */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--mantine-color-gray-1);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--mantine-color-gray-4);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--mantine-color-gray-6);
-}
-
 /* Глобальные стили для кнопок в темной теме */
 [data-mantine-color-scheme='dark'] .mantine-Button-root[data-variant='filled'] {
   background-color: var(--mantine-color-gray-3) !important;

@@ -14,6 +14,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useStorageStore, useObjectStore, useUnitStore } from '@app/store/StoreContext';
 import { objectsApi } from '@shared/api/objects';
 import { ROUTES } from '@shared/constants';
+import { type StorageObject } from '@shared/types';
+import { EditObjectModal } from '@shared/ui';
 import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
 
 import styles from './StorageViewPage.module.scss';
@@ -28,11 +30,14 @@ export const StorageViewPage: React.FC = observer(() => {
     getObjectsForStorage,
     isLoading: objectsLoading,
     deleteObject,
+    getObjectById,
   } = useObjectStore();
   const { units } = useUnitStore();
 
   const [objectImages, setObjectImages] = useState<Record<string, string | null>>({});
   const [hasLoadedObjects, setHasLoadedObjects] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingObject, setEditingObject] = useState<string | null>(null);
 
   const storageObjects = getObjectsForStorage(id || '');
   const childStorages = getChildStorages(currentStorage?.id || '');
@@ -113,7 +118,8 @@ export const StorageViewPage: React.FC = observer(() => {
   };
 
   const handleEditObject = (objectId: string) => {
-    console.warn('Edit object functionality not implemented:', objectId);
+    setEditingObject(objectId);
+    setShowEditModal(true);
   };
 
   const handleMoveObject = (objectId: string) => {
@@ -139,6 +145,28 @@ export const StorageViewPage: React.FC = observer(() => {
     }
   };
 
+  const handleEditSuccess = async (updatedObject: StorageObject) => {
+    try {
+      // Перезагружаем объекты для обновления списка
+      await loadObjects({ storage_id: id! });
+
+      // Обновляем изображение если оно изменилось
+      if (updatedObject.photo_url && !objectImages[updatedObject.id]) {
+        await loadObjectImage(updatedObject.id);
+      }
+
+      setShowEditModal(false);
+      setEditingObject(null);
+    } catch (error) {
+      console.error('Failed to refresh objects after edit:', error);
+    }
+  };
+
+  const handleEditClose = () => {
+    setShowEditModal(false);
+    setEditingObject(null);
+  };
+
   const getObjectUnit = (unitId: string) => {
     const unit = units.find((u) => u.id === unitId);
     return unit?.symbol || 'кг';
@@ -151,7 +179,7 @@ export const StorageViewPage: React.FC = observer(() => {
 
   return (
     <div className={styles.page}>
-      <Container size="xl" className={styles.container}>
+      <Container size="xl">
         <div className={styles.header}>
           <div className={styles.titleSection}>
             <Breadcrumbs storageId={currentStorage.id} />
@@ -178,7 +206,7 @@ export const StorageViewPage: React.FC = observer(() => {
                 fw={600}
                 c={fillPercentage > 80 ? 'red.7' : fillPercentage > 60 ? 'orange.6' : 'green.6'}
               >
-                {fillPercentage.toFixed(1)}%
+                {fillPercentage}%
               </Text>
             </Group>
 
@@ -195,7 +223,7 @@ export const StorageViewPage: React.FC = observer(() => {
                 Занято: {currentStorage.fullness} {getStorageUnit(currentStorage.unit)}
               </Text>
               <Text size="sm" c="dimmed">
-                Свободно: {(currentStorage.capacity - currentStorage.fullness).toFixed(1)}{' '}
+                Свободно: {Math.round(currentStorage.capacity - currentStorage.fullness)}{' '}
                 {getStorageUnit(currentStorage.unit)}
               </Text>
             </Group>
@@ -345,6 +373,14 @@ export const StorageViewPage: React.FC = observer(() => {
           )}
         </div>
       </Container>
+
+      {/* Модальное окно редактирования объекта */}
+      <EditObjectModal
+        opened={showEditModal}
+        onClose={handleEditClose}
+        onSuccess={handleEditSuccess}
+        object={editingObject ? getObjectById(editingObject) || null : null}
+      />
     </div>
   );
 });

@@ -1,6 +1,5 @@
 ---
-
-- name: Install Docker and Docker Compose
+- name: Install Docker
   apt:
     name:
       - docker.io
@@ -8,30 +7,29 @@
     state: present
     update_cache: yes
 
+- name: Clone repository
+  git:
+    repo: '{{ frontend_repo }}'
+    dest: '{{ deploy_dir }}'
+    version: '{{ frontend_branch }}'
+    force: yes
+  environment:
+    GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=no -i /home/team_user/.ssh/id_rsa'
 
-- name: Login to registry
-  community.docker.docker_login:
-    registry_url: "{{ lookup('env','CI_REGISTRY') }}"
-    username: "{{ lookup('env','CI_REGISTRY_USER') }}"
-    password: "{{ lookup('env','CI_REGISTRY_PASSWORD') }}"
+- name: Build Docker image
+  docker_image:
+    name: '{{ docker_image_name }}'
+    build:
+      path: '{{ deploy_dir }}'
+      dockerfile: '{{ deploy_dir }}/Dockerfile'
+    source: build
+    force_source: yes
 
-- name: Pull frontend image
-  community.docker.docker_image:
-    name: "{{ docker_image }}"
-    tag: "{{ tag }}"
-    source: pull
-
-- name: Stop existing container
-  community.docker.docker_container:
-    name: "{{ container_name }}"
-    state: absent
-  ignore_errors: yes
-
-- name: Run frontend container
-  community.docker.docker_container:
-    name: "{{ container_name }}"
-    image: "{{ docker_image }}:{{ tag }}"
+- name: Run container
+  docker_container:
+    name: '{{ container_name }}'
+    image: '{{ docker_image_name }}'
     ports:
-      - "{{ host_port }}:{{ container_port }}"
-    env: "{{ container_env }}"
+      - '{{ host_port }}:{{ container_port }}'
+    env_file: '{{ deploy_dir }}/.env'
     restart_policy: unless-stopped

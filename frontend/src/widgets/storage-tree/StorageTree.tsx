@@ -5,6 +5,7 @@ import {
   IconBox,
   IconChevronDown,
   IconChevronRight,
+  IconEdit,
 } from '@tabler/icons-react';
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
@@ -20,6 +21,7 @@ import styles from './StorageTree.module.scss';
 interface StorageTreeProps {
   onAddStorage: (parentId?: string) => void;
   onDeleteStorage: (storage: StorageWithDetails) => void;
+  onEditStorage?: (storage: StorageWithDetails) => void;
 }
 
 interface StorageNodeProps {
@@ -27,10 +29,11 @@ interface StorageNodeProps {
   level: number;
   onAddStorage: (parentId?: string) => void;
   onDeleteStorage: (storage: StorageWithDetails) => void;
+  onEditStorage?: (storage: StorageWithDetails) => void;
 }
 
 const StorageNode: React.FC<StorageNodeProps> = observer(
-  ({ storage, level, onAddStorage, onDeleteStorage }) => {
+  ({ storage, level, onAddStorage, onDeleteStorage, onEditStorage }) => {
     const [isExpanded, setIsExpanded] = useState(level === 0);
     const navigate = useNavigate();
     const { units } = useUnitStore();
@@ -56,6 +59,10 @@ const StorageNode: React.FC<StorageNodeProps> = observer(
 
     const handleDelete = () => {
       onDeleteStorage(storage);
+    };
+
+    const handleEdit = () => {
+      onEditStorage?.(storage);
     };
 
     const handleView = () => {
@@ -120,6 +127,18 @@ const StorageNode: React.FC<StorageNodeProps> = observer(
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
+                  handleEdit();
+                }}
+                title="Редактировать хранилище"
+              >
+                <IconEdit size={16} />
+              </ActionIcon>
+
+              <ActionIcon
+                variant="subtle"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
                   handleAddChild();
                 }}
                 title="Добавить хранилище"
@@ -154,6 +173,7 @@ const StorageNode: React.FC<StorageNodeProps> = observer(
                 level={level + 1}
                 onAddStorage={onAddStorage}
                 onDeleteStorage={onDeleteStorage}
+                onEditStorage={onEditStorage}
               />
             ))}
           </div>
@@ -164,7 +184,7 @@ const StorageNode: React.FC<StorageNodeProps> = observer(
 );
 
 export const StorageTree: React.FC<StorageTreeProps> = observer(
-  ({ onAddStorage, onDeleteStorage }) => {
+  ({ onAddStorage, onDeleteStorage, onEditStorage }) => {
     const { storages, isLoading, loadAllStorages } = useStorageStore();
 
     React.useEffect(() => {
@@ -213,6 +233,7 @@ export const StorageTree: React.FC<StorageTreeProps> = observer(
               level={0}
               onAddStorage={onAddStorage}
               onDeleteStorage={onDeleteStorage}
+              onEditStorage={onEditStorage}
             />
           ))}
         </div>

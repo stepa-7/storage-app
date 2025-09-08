@@ -101,7 +101,10 @@ export const objectsApi = {
         timeout: 30000,
       });
     } else {
-      const jsonData: Record<string, any> = {
+      const jsonData: Record<
+        string,
+        string | number | boolean | Record<string, string | number | boolean>
+      > = {
         name: data.name,
         template_id: data.template_id,
         storage_id: data.storage_id,
@@ -127,8 +130,6 @@ export const objectsApi = {
       if (data.attributes) {
         formData.append('attributes', JSON.stringify(data.attributes));
       }
-      if (data.is_decommissioned !== undefined)
-        formData.append('is_decommissioned', String(data.is_decommissioned));
       if (data.photo) formData.append('photo', data.photo);
 
       return api.patch<StorageObject>(API_ENDPOINTS.OBJECTS.UPDATE(id), formData, {
@@ -145,7 +146,6 @@ export const objectsApi = {
       if (data.size) jsonData.size = data.size;
       if (data.attributes && Object.keys(data.attributes).length > 0)
         jsonData.attributes = data.attributes;
-      if (data.is_decommissioned !== undefined) jsonData.is_decommissioned = data.is_decommissioned;
 
       return api.patch<StorageObject>(API_ENDPOINTS.OBJECTS.UPDATE(id), jsonData);
     }

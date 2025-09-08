@@ -336,6 +336,7 @@ export const ObjectNewPage: React.FC = observer(() => {
             placeholder={`Введите ${attribute.name.toLowerCase()}`}
             required={attribute.required}
             min={0}
+            step={1}
             {...form.getInputProps(fieldName)}
             labelProps={{ mb: 6 }}
           />
@@ -375,7 +376,7 @@ export const ObjectNewPage: React.FC = observer(() => {
 
   return (
     <div className={styles.page}>
-      <Container size="lg" className={styles.container}>
+      <Container size="xl" className={styles.container}>
         <div className={styles.header}>
           <Title order={1} className={styles.title}>
             Создание нового объекта
@@ -403,45 +404,49 @@ export const ObjectNewPage: React.FC = observer(() => {
             <Stack gap="lg">
               <Title order={2}>Выберите шаблон объекта</Title>
 
-              <Grid gutter="md">
-                {activeTemplates.map((template) => (
-                  <Grid.Col key={template.id} span={{ base: 12, sm: 6, md: 4 }}>
-                    <Card
-                      shadow="sm"
-                      padding="md"
-                      radius="md"
-                      className={`${styles.templateCard} ${
-                        form.values.template_id === template.id ? styles.selected : ''
-                      }`}
-                      onClick={() => handleTemplateSelect(template.id)}
-                    >
-                      <Stack gap="xs">
-                        <Text fw={500} size="lg">
-                          {template.name}
-                        </Text>
-                        <Text size="sm" c="dimmed">
-                          {template.description}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          Атрибутов: {Object.keys(template.schema).length}
-                        </Text>
-                      </Stack>
-                    </Card>
-                  </Grid.Col>
-                ))}
-              </Grid>
+              <div className={styles.templatesContainer}>
+                <Grid gutter="md">
+                  {activeTemplates.map((template) => (
+                    <Grid.Col key={template.id} span={{ base: 12, sm: 6, md: 4 }}>
+                      <Card
+                        shadow="sm"
+                        padding="md"
+                        radius="md"
+                        className={`${styles.templateCard} ${
+                          form.values.template_id === template.id ? styles.selected : ''
+                        }`}
+                        onClick={() => handleTemplateSelect(template.id)}
+                      >
+                        <Stack gap="xs">
+                          <Text fw={500} size="lg">
+                            {template.name}
+                          </Text>
+                          <Text size="sm" c="dimmed">
+                            {template.description}
+                          </Text>
+                          <Text size="xs" c="dimmed">
+                            Атрибутов: {Object.keys(template.schema).length}
+                          </Text>
+                        </Stack>
+                      </Card>
+                    </Grid.Col>
+                  ))}
+                </Grid>
+              </div>
 
-              <Group justify="flex-end">
-                <Button
-                  variant="filled"
-                  size="md"
-                  onClick={handleNextStep}
-                  disabled={!form.values.template_id}
-                  rightSection={<IconArrowRight size={16} />}
-                >
-                  Далее
-                </Button>
-              </Group>
+              <div className={styles.fixedFooter}>
+                <Group justify="flex-end">
+                  <Button
+                    variant="filled"
+                    size="md"
+                    onClick={handleNextStep}
+                    disabled={!form.values.template_id}
+                    rightSection={<IconArrowRight size={16} />}
+                  >
+                    Далее
+                  </Button>
+                </Group>
+              </div>
             </Stack>
           </Card>
         )}
@@ -470,6 +475,7 @@ export const ObjectNewPage: React.FC = observer(() => {
                       placeholder="Количество"
                       required
                       min={1}
+                      step={1}
                       {...form.getInputProps('size')}
                       labelProps={{ mb: 6 }}
                     />
@@ -477,7 +483,7 @@ export const ObjectNewPage: React.FC = observer(() => {
                   <Grid.Col span={{ base: 12, sm: 3 }}>
                     <Select
                       label="Единица измерения"
-                      data={units.map((u: any) => ({ value: u.id, label: u.symbol }))}
+                      data={units.map((u: Unit) => ({ value: u.id, label: u.symbol }))}
                       required
                       {...form.getInputProps('unit_id')}
                       labelProps={{ mb: 6 }}

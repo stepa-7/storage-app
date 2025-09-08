@@ -56,3 +56,33 @@ export function buildAttributesSchemaFromTemplate(
   }
   return z.object(shape);
 }
+
+// Схема для обновления объекта
+export const updateObjectSchema = z.object({
+  name: z
+    .string()
+    .min(1, 'Название обязательно')
+    .max(
+      VALIDATION.OBJECT.NAME_MAX_LENGTH,
+      `Название не должно превышать ${VALIDATION.OBJECT.NAME_MAX_LENGTH} символов`,
+    )
+    .optional(),
+  storage_id: z.string().min(1, 'Выберите хранилище').optional(),
+  size: z.coerce.number().positive('Размер должен быть больше 0').optional(),
+  unit_id: z.string().min(1, 'Выберите единицу измерения').optional(),
+  attributes: z.any().optional(),
+  photo: z
+    .instanceof(File)
+    .refine((file) => file.size <= VALIDATION.FILE.MAX_SIZE, 'Файл слишком большой')
+    .refine(
+      (file) =>
+        VALIDATION.FILE.ALLOWED_TYPES.includes(
+          file.type as 'image/png' | 'image/jpeg' | 'application/pdf' | 'text/plain',
+        ),
+      'Недопустимый тип файла',
+    )
+    .optional()
+    .nullable(),
+});
+
+export type UpdateObjectSchema = z.infer<typeof updateObjectSchema>;

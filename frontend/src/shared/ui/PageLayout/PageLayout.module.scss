@@ -37,26 +37,6 @@
   padding: var(--mantine-spacing-xl) var(--mantine-spacing-lg);
   max-height: 100vh;
   overflow-y: auto;
-
-  /* Custom scrollbar */
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: light-dark(rgba(0, 0, 0, 0.03), rgba(255, 255, 255, 0.03));
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
-    border-radius: 4px;
-    transition: background 0.2s ease;
-
-    &:hover {
-      background: light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.15));
-    }
-  }
 }
 
 .header {

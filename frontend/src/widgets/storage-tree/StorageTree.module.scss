@@ -6,7 +6,6 @@
 .tree {
   display: flex;
   flex-direction: column;
-  gap: var(--mantine-spacing-md);
   overflow-y: auto;
   max-height: calc(100vh - 255px);
 }
@@ -14,6 +13,7 @@
 .storageNode {
   display: flex;
   flex-direction: column;
+  margin-bottom: var(--mantine-spacing-md);
 }
 
 .storageCard {
@@ -34,20 +34,6 @@
 
   &:active {
     border-color: light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.6));
-  }
-
-  /* Liquid glass overlay */
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    border-radius: inherit;
-    background: light-dark(
-      linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-      linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, transparent 50%)
-    );
   }
 }
 

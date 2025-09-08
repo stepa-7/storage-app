@@ -1,34 +1,3 @@
-.deleteModal {
-  :global(.mantine-Modal-body) {
-    padding: 0;
-  }
-
-  :global(.mantine-Modal-header) {
-    display: none;
-  }
-
-  :global(.mantine-Modal-close) {
-    display: none;
-  }
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  gap: var(--mantine-spacing-md);
-  margin-bottom: var(--mantine-spacing-lg);
-}
-
-.iconContainer {
-  padding: var(--mantine-spacing-xs);
-  background-color: var(--mantine-color-red-1);
-  border-radius: var(--mantine-radius-md);
-  color: var(--mantine-color-red-6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .itemNameContainer {
   padding: var(--mantine-spacing-md);
   background-color: var(--mantine-color-red-0);

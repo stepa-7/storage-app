@@ -89,6 +89,11 @@ export const ROUTES = {
   TEMPLATES: '/templates',
 } as const;
 
+export const HEADER_LINKS = [
+  { link: ROUTES.STORAGE, label: 'Хранилища' },
+  { link: ROUTES.TEMPLATES, label: 'Шаблоны' },
+];
+
 export const NOTIFICATION_DURATION = 5000; // 5 секунд
 
 export const PAGINATION = {
@@ -98,4 +103,3 @@ export const PAGINATION = {
 } as const;
 
 export const TOKEN_STORAGE_KEY = 'auth_token';
-// Функции для работы с access token в localStorage

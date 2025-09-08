@@ -13,6 +13,7 @@ export const createStorageSchema = z.object({
     ),
   maxCapacity: z
     .number()
+    .int('Вместимость должна быть целым числом')
     .min(
       VALIDATION.STORAGE.CAPACITY_MIN,
       `Вместимость должна быть не менее ${VALIDATION.STORAGE.CAPACITY_MIN}`,
@@ -26,3 +27,31 @@ export const createStorageSchema = z.object({
 });
 
 export type CreateStorageSchema = z.infer<typeof createStorageSchema>;
+
+export const updateStorageSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Название обязательно')
+    .max(
+      VALIDATION.STORAGE.NAME_MAX_LENGTH,
+      `Название не должно превышать ${VALIDATION.STORAGE.NAME_MAX_LENGTH} символов`,
+    )
+    .regex(/^[a-zA-Z0-9\sа-яА-ЯёЁ]+$/, 'Название может содержать только буквы, цифры и пробелы')
+    .optional(),
+  maxCapacity: z
+    .number()
+    .int('Вместимость должна быть целым числом')
+    .min(
+      VALIDATION.STORAGE.CAPACITY_MIN,
+      `Вместимость должна быть не менее ${VALIDATION.STORAGE.CAPACITY_MIN}`,
+    )
+    .max(
+      VALIDATION.STORAGE.CAPACITY_MAX,
+      `Вместимость не должна превышать ${VALIDATION.STORAGE.CAPACITY_MAX}`,
+    )
+    .optional(),
+  parentId: z.string().uuid('Неверный формат ID родительского хранилища').nullable().optional(),
+});
+
+export type UpdateStorageSchema = z.infer<typeof updateStorageSchema>;
