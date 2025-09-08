@@ -1,4 +1,0 @@
-com\storage\APIGatewayApplication.class
-com\storage\security\JwtAuthenticationFilter.class
-com\storage\security\JwtAuthenticationFilter$Config.class
-com\storage\security\JwtUtil.class
